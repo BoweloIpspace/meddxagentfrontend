@@ -21,7 +21,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div className="hidden lg:flex items-center justify-center gap-1">
+          <div className="hidden items-center justify-center gap-1 lg:flex">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -33,13 +33,7 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="hidden lg:flex items-center justify-end gap-2">
-            <Link
-              to="/login"
-              className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-950"
-            >
-              Sign in
-            </Link>
+          <div className="hidden items-center justify-end lg:flex">
             <Link
               to="/app"
               className="button-primary button-accent inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white"
@@ -90,17 +84,10 @@ export default function Navbar() {
                 </a>
               ))}
             </div>
-            <div className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-100 pt-3">
-              <Link
-                to="/login"
-                className="rounded-xl border border-slate-200 px-4 py-3 text-center text-[13px] font-semibold text-slate-600"
-                onClick={() => setMobileOpen(false)}
-              >
-                Sign in
-              </Link>
+            <div className="mt-3 border-t border-slate-100 pt-3">
               <Link
                 to="/app"
-                className="button-primary button-accent rounded-xl px-4 py-3 text-center text-[13px] font-semibold text-white"
+                className="button-primary button-accent block rounded-xl px-4 py-3 text-center text-[13px] font-semibold text-white"
                 onClick={() => setMobileOpen(false)}
               >
                 Open workspace
