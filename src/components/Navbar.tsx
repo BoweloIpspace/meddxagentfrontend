@@ -13,20 +13,20 @@ export default function Navbar() {
   return (
     <nav className="motion-navbar sticky top-0 z-50 marketing-nav-shell">
       <div className="site-container">
-        <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-6">
-          <Link to="/" className="flex items-center gap-3 justify-self-start">
-            <span className="brand-mark">M</span>
-            <span className="text-[15px] font-semibold tracking-[-0.025em] text-slate-950">
-              MEDDxAgent
-            </span>
+        <div className="grid h-[66px] grid-cols-[1fr_auto_1fr] items-center gap-6">
+          <Link
+            to="/"
+            className="justify-self-start text-[15px] font-semibold tracking-[-0.03em] text-neutral-950"
+          >
+            MEDDxAgent
           </Link>
 
-          <div className="hidden items-center justify-center gap-1 lg:flex">
+          <div className="hidden items-center justify-center gap-7 lg:flex">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-950"
+                className="nav-link py-2 text-[13px] font-medium text-neutral-500 transition-colors hover:text-neutral-950"
               >
                 {link.label}
               </a>
@@ -36,10 +36,10 @@ export default function Navbar() {
           <div className="hidden items-center justify-end lg:flex">
             <Link
               to="/app"
-              className="button-primary button-accent inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white"
+              className="button-primary inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-[13px] font-medium text-white"
             >
               Open workspace
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12h14" />
                 <path d="m13 6 6 6-6 6" />
               </svg>
@@ -48,7 +48,7 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="col-start-3 grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-950 lg:hidden"
+            className="col-start-3 grid h-9 w-9 place-items-center justify-self-end rounded-full text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-950 lg:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
             aria-expanded={mobileOpen}
@@ -70,24 +70,24 @@ export default function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-slate-100 bg-white lg:hidden">
-          <div className="site-container py-4">
+        <div className="border-t border-neutral-200 bg-white lg:hidden">
+          <div className="site-container py-5">
             <div className="space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
-                  className="block rounded-xl px-3 py-3 text-[14px] font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950"
+                  className="block py-3 text-[15px] font-medium text-neutral-700 transition-colors hover:text-neutral-950"
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
                 </a>
               ))}
             </div>
-            <div className="mt-3 border-t border-slate-100 pt-3">
+            <div className="mt-4 border-t border-neutral-200 pt-5">
               <Link
                 to="/app"
-                className="button-primary button-accent block rounded-xl px-4 py-3 text-center text-[13px] font-semibold text-white"
+                className="button-primary block rounded-full px-4 py-3 text-center text-[13px] font-medium text-white"
                 onClick={() => setMobileOpen(false)}
               >
                 Open workspace
