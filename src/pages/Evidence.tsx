@@ -1,70 +1,62 @@
-import { evidenceSources, evidenceSummary } from "../data/mockData";
+import { Link } from "react-router-dom";
+import { getCases } from "../data/caseStore";
 
 export default function Evidence() {
+  const casesWithEvidence = getCases().filter((caseRecord) => caseRecord.ragContent.trim());
+
   return (
-    <div className="app-page max-w-[800px]">
+    <div className="app-page max-w-[900px]">
       <div className="app-page-header">
-        <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-4">
-          Evidence
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+          Diagnostic output
+        </p>
+        <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950 sm:text-[34px]">
+          Retrieved context
         </h1>
-        <p className="text-[15px] text-neutral-400 leading-[1.6] max-w-[520px]">
-          Retrieved clinical evidence from PubMed, medical literature, and knowledge bases
-          supporting the current differential.
+        <p className="mt-3 max-w-[620px] text-[14px] leading-[1.7] text-slate-500">
+          This view only displays retrieval content returned by the diagnostic engine. Nothing is seeded or synthesized by the frontend.
         </p>
       </div>
 
-      {/* Search query */}
-      <div className="mb-16">
-        <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">
-          Search query
-        </p>
-        <p className="text-[14px] font-mono text-neutral-600 bg-neutral-50 rounded-lg px-4 py-3 border border-neutral-100">
-          acute shortness of breath + worsening cough + pleuritic chest pain
-        </p>
-      </div>
-
-      {/* Sources */}
-      <div className="mb-20">
-        <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">
-          Sources ({evidenceSources.length})
-        </p>
-        <div className="space-y-6">
-          {evidenceSources.map((e, i) => (
-            <div key={i} className="border border-neutral-100 rounded-lg p-8 hover:border-neutral-200 transition-colors">
-              <div className="flex items-start justify-between gap-4 mb-2">
-                <div className="min-w-0">
-                  <span className="text-[12px] text-neutral-400 block mb-1">{e.type}</span>
-                  <h3 className="text-[15px] font-medium text-neutral-900 leading-snug">
-                    {e.title}
-                  </h3>
+      {casesWithEvidence.length === 0 ? (
+        <div className="border-t border-slate-100 py-16 text-center">
+          <h2 className="text-[18px] font-semibold tracking-[-0.02em] text-slate-900">
+            No retrieved context yet
+          </h2>
+          <p className="mx-auto mt-2 max-w-[500px] text-[13px] leading-[1.65] text-slate-400">
+            Evidence will appear here after a real case has been processed by the connected diagnostic engine.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <Link to="/cases" className="rounded-xl bg-slate-950 px-4 py-2.5 text-[13px] font-semibold text-white">
+              View cases
+            </Link>
+            <Link to="/cases/new" className="rounded-xl border border-slate-200 px-4 py-2.5 text-[13px] font-semibold text-slate-600">
+              New case
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6 border-t border-slate-100 pt-8">
+          {casesWithEvidence.map((caseRecord) => (
+            <article key={caseRecord.id} className="rounded-2xl border border-slate-200 p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[10px] text-slate-400">{caseRecord.id}</p>
+                  <h2 className="mt-2 text-[16px] font-semibold text-slate-900">
+                    {caseRecord.patient.chiefComplaint || "Untitled case"}
+                  </h2>
                 </div>
-                <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full shrink-0 ${
-                  e.relevance === "High"
-                    ? "bg-neutral-900 text-white"
-                    : "bg-neutral-100 text-neutral-500"
-                }`}>
-                  {e.relevance}
-                </span>
+                <Link to={`/case/${caseRecord.id}`} className="text-[12px] font-semibold text-slate-500 hover:text-slate-950">
+                  Open case
+                </Link>
               </div>
-              <p className="text-[14px] text-neutral-500 leading-[1.65]">
-                {e.snippet}
+              <p className="mt-5 whitespace-pre-wrap text-[13px] leading-[1.75] text-slate-600">
+                {caseRecord.ragContent}
               </p>
-            </div>
+            </article>
           ))}
         </div>
-      </div>
-
-      {/* Evidence summary */}
-      <div>
-        <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">
-          Evidence summary
-        </p>
-        <div className="bg-neutral-50 rounded-lg p-8 border border-neutral-100">
-          <p className="text-[15px] text-neutral-600 leading-[1.75]">
-            {evidenceSummary}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
