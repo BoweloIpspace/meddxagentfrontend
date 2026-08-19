@@ -4,22 +4,22 @@ const capabilities = [
   {
     title: "Differential Diagnosis",
     description:
-      "Ranked diagnostic candidates with confidence scores, supporting evidence, and full transparency.",
+      "Ranked diagnostic candidates with supporting context and a transparent iteration history.",
   },
   {
     title: "Evidence Retrieval",
     description:
-      "Automated PubMed and medical literature retrieval to support each diagnostic candidate.",
+      "Relevant literature and knowledge are surfaced alongside the evolving diagnostic view.",
   },
   {
     title: "Interactive History-Taking",
     description:
-      "Structured clinical questioning to iteratively refine the patient profile and diagnostic hypothesis.",
+      "Structured clinical questioning helps refine the patient profile across the workflow.",
   },
   {
     title: "Benchmark Evaluation",
     description:
-      "Comprehensive evaluation across dermatological, respiratory, and rare disease clinical datasets.",
+      "Research workflows can be inspected across supported clinical evaluation datasets.",
   },
 ];
 
@@ -29,30 +29,29 @@ export default function Capabilities() {
   return (
     <section
       ref={ref}
-      className="reveal-section section-space border-t border-neutral-100"
+      className="reveal-section section-space border-t border-slate-100 bg-slate-50/45"
       data-revealed={revealed}
     >
       <div className="site-container">
-        <div className="max-w-[620px] mb-14 lg:mb-[76px]">
-          <p className="reveal-item eyebrow">
-            Capabilities
-          </p>
+        <div className="mb-16 max-w-[620px] lg:mb-20">
+          <p className="reveal-item eyebrow">Capabilities</p>
           <h2 className="reveal-item reveal-delay-1 section-title">
-            What MEDDxAgent does.
+            Focused tools for diagnostic research.
           </h2>
         </div>
 
-        <div className="reveal-item reveal-delay-2 reveal-visual grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-neutral-200 border border-neutral-200 rounded-lg overflow-hidden">
-          {capabilities.map((cap) => (
+        <div className="reveal-item reveal-delay-2 reveal-visual grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-0">
+          {capabilities.map((capability, index) => (
             <div
-              key={cap.title}
-              className="bg-white p-8 lg:p-10 min-h-[190px]"
+              key={capability.title}
+              className={`min-h-[180px] py-2 lg:px-8 ${index === 0 ? "lg:pl-0" : "lg:border-l lg:border-slate-200"}`}
             >
-              <h3 className="text-[16px] font-semibold text-neutral-900 mb-3 tracking-[-0.01em]">
-                {cap.title}
+              <span className="text-[10px] font-mono text-slate-300">0{index + 1}</span>
+              <h3 className="mt-8 text-[15px] font-semibold tracking-[-0.015em] text-slate-900">
+                {capability.title}
               </h3>
-              <p className="text-[14px] text-neutral-400 leading-[1.65]">
-                {cap.description}
+              <p className="mt-3 text-[13px] leading-[1.7] text-slate-400">
+                {capability.description}
               </p>
             </div>
           ))}
