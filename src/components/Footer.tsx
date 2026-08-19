@@ -39,7 +39,7 @@ export default function Footer() {
           </div>
 
           <p className="text-[13px] text-neutral-300">
-            Â© 2025
+            © 2025
           </p>
         </div>
       </div>
