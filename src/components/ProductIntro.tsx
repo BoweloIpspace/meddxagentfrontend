@@ -7,20 +7,20 @@ export default function ProductIntro() {
     <section
       ref={ref}
       id="how-it-works"
-      className="reveal-section section-space border-t border-neutral-200 bg-white"
+      className="reveal-section section-space border-t border-slate-100"
       data-revealed={revealed}
     >
       <div className="site-container">
-        <div className="grid gap-16 lg:grid-cols-[0.85fr_1.15fr] lg:gap-28">
+        <div className="grid gap-14 lg:grid-cols-[2fr_3fr] lg:gap-24">
           <div>
             <p className="reveal-item eyebrow">About the product</p>
-            <h2 className="reveal-item reveal-delay-1 section-title max-w-[620px]">
+            <h2 className="reveal-item reveal-delay-1 section-title max-w-[500px]">
               A research framework for differential diagnosis.
             </h2>
           </div>
 
-          <div className="reveal-item reveal-delay-2 max-w-[660px] lg:pt-1">
-            <div className="space-y-7">
+          <div className="reveal-item reveal-delay-2 max-w-[590px] lg:pt-1">
+            <div className="space-y-6">
               <p className="body-copy">
                 MEDDxAgent brings history-taking, retrieval, and diagnostic reasoning into a modular
                 workflow built for clinical AI research.

@@ -32,17 +32,17 @@ function LandingPage() {
 function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6">
-      <div className="max-w-[560px] text-center">
-        <p className="mb-5 font-mono text-[11px] text-neutral-400">404</p>
-        <h1 className="text-[34px] font-medium leading-[1.04] tracking-[-0.045em] text-neutral-950 sm:text-[42px]">
-          Page not found.
+      <div className="text-center">
+        <p className="mb-4 font-mono text-[13px] text-neutral-300">404</p>
+        <h1 className="mb-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.03em] text-neutral-900 sm:text-[32px]">
+          Page not found
         </h1>
-        <p className="mt-4 text-[14px] leading-[1.7] text-neutral-500">
-          The page you’re looking for doesn’t exist.
+        <p className="mb-8 text-[15px] text-neutral-400">
+          The page you're looking for doesn't exist.
         </p>
         <Link
           to="/app"
-          className="button-primary mt-8 inline-flex items-center rounded-full px-5 py-3 text-[13px] font-medium text-white"
+          className="button-primary inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-6 py-2.5 text-[14px] font-medium text-white"
         >
           Back to workspace
         </Link>

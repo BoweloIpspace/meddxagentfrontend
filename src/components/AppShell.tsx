@@ -23,12 +23,12 @@ export default function AppShell() {
     <div className="workspace-shell">
       <header className="workspace-header sticky top-0 z-50">
         <div className="app-container">
-          <div className="flex h-[66px] items-center justify-between gap-6">
-            <Link
-              to="/app"
-              className="shrink-0 text-[15px] font-semibold tracking-[-0.03em] text-neutral-950"
-            >
-              MEDDxAgent
+          <div className="flex h-[68px] items-center justify-between gap-6">
+            <Link to="/app" className="flex shrink-0 items-center gap-3">
+              <span className="brand-mark">M</span>
+              <span className="text-[14px] font-semibold tracking-[-0.025em] text-slate-950">
+                MEDDxAgent
+              </span>
             </Link>
 
             <nav className="workspace-nav hidden xl:flex">
@@ -37,7 +37,7 @@ export default function AppShell() {
                   key={item.path}
                   type="button"
                   onClick={() => navigate(item.path)}
-                  className={`workspace-nav-item py-2 text-[12px] font-medium transition-colors ${
+                  className={`workspace-nav-item px-3.5 py-2 text-[12px] font-medium transition-colors ${
                     activePath === item.path ? "workspace-nav-item-active" : ""
                   }`}
                 >
@@ -49,7 +49,7 @@ export default function AppShell() {
             <div className="flex items-center gap-2">
               <Link
                 to="/"
-                className="hidden items-center gap-1.5 py-2 text-[12px] font-medium text-neutral-500 transition-colors hover:text-neutral-950 sm:inline-flex"
+                className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 sm:inline-flex"
               >
                 Research site
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -61,7 +61,7 @@ export default function AppShell() {
               <button
                 type="button"
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="grid h-9 w-9 place-items-center rounded-full text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-950 xl:hidden"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 xl:hidden"
                 aria-label="Toggle menu"
                 aria-expanded={mobileOpen}
               >
@@ -83,9 +83,9 @@ export default function AppShell() {
         </div>
 
         {mobileOpen && (
-          <div className="border-t border-neutral-200 bg-white xl:hidden">
-            <div className="app-container py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2">
+          <div className="border-t border-slate-100 bg-white xl:hidden">
+            <div className="app-container py-3">
+              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {navItems.map((item) => (
                   <button
                     key={item.path}
@@ -94,10 +94,10 @@ export default function AppShell() {
                       navigate(item.path);
                       setMobileOpen(false);
                     }}
-                    className={`border-b border-neutral-100 py-3 text-left text-[13px] font-medium transition-colors ${
+                    className={`rounded-xl px-4 py-3 text-left text-[13px] font-medium transition-colors ${
                       activePath === item.path
-                        ? "text-neutral-950"
-                        : "text-neutral-500 hover:text-neutral-950"
+                        ? "bg-blue-50 text-blue-700"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                     }`}
                   >
                     {item.label}

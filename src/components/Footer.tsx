@@ -18,16 +18,16 @@ const footerLinks: FooterLink[] = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-neutral-200 bg-white">
+    <footer className="border-t border-slate-100 bg-white">
       <div className="site-container py-12 lg:py-14">
-        <div className="flex flex-col items-start justify-between gap-7 sm:flex-row sm:items-center">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
             {footerLinks.map((link) =>
               "to" in link ? (
                 <Link
                   key={link.label}
                   to={link.to}
-                  className="text-[12px] font-medium text-neutral-500 transition-colors hover:text-neutral-950"
+                  className="text-[13px] text-slate-400 transition-colors hover:text-slate-900"
                 >
                   {link.label}
                 </Link>
@@ -35,7 +35,7 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-[12px] font-medium text-neutral-500 transition-colors hover:text-neutral-950"
+                  className="text-[13px] text-slate-400 transition-colors hover:text-slate-900"
                   {...(link.external
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
@@ -46,7 +46,7 @@ export default function Footer() {
             )}
           </div>
 
-          <p className="text-[11px] text-neutral-400">© 2026</p>
+          <p className="text-[12px] text-slate-300">© 2026</p>
         </div>
       </div>
     </footer>
