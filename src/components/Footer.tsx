@@ -1,4 +1,4 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 type FooterLink =
   | { label: string; to: string }
@@ -6,24 +6,28 @@ type FooterLink =
 
 const footerLinks: FooterLink[] = [
   { label: "MEDDxAgent", to: "/" },
+  { label: "Product", href: "#product" },
   { label: "Research", href: "#research" },
-  { label: "Documentation", href: "#docs" },
-  { label: "GitHub", href: "https://github.com/nec-research/meddxagent", external: true },
-  { label: "Contact", href: "#" },
+  { label: "Workspace", to: "/app" },
+  {
+    label: "GitHub",
+    href: "https://github.com/medicalappmedapp-design/meddxagent",
+    external: true,
+  },
 ];
 
 export default function Footer() {
   return (
-    <footer className="border-t border-neutral-100">
-      <div className="site-container py-12 lg:py-16">
+    <footer className="border-t border-slate-100 bg-white">
+      <div className="site-container py-12 lg:py-14">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+          <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
             {footerLinks.map((link) =>
               "to" in link ? (
                 <Link
                   key={link.label}
                   to={link.to}
-                  className="text-[14px] text-neutral-400 hover:text-neutral-900 transition-colors duration-200"
+                  className="text-[13px] text-slate-400 transition-colors hover:text-slate-900"
                 >
                   {link.label}
                 </Link>
@@ -31,7 +35,7 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
-                  className="text-[14px] text-neutral-400 hover:text-neutral-900 transition-colors duration-200"
+                  className="text-[13px] text-slate-400 transition-colors hover:text-slate-900"
                   {...(link.external
                     ? { target: "_blank", rel: "noopener noreferrer" }
                     : {})}
@@ -42,9 +46,7 @@ export default function Footer() {
             )}
           </div>
 
-          <p className="text-[13px] text-neutral-300">
-            © 2026
-          </p>
+          <p className="text-[12px] text-slate-300">© 2026</p>
         </div>
       </div>
     </footer>
