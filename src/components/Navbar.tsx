@@ -13,20 +13,20 @@ export default function Navbar() {
   return (
     <nav className="motion-navbar sticky top-0 z-50 marketing-nav-shell">
       <div className="site-container">
-        <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center gap-6">
+        <div className="grid h-[74px] grid-cols-[auto_1fr_auto] items-center gap-10">
           <Link to="/" className="flex items-center gap-3 justify-self-start">
             <span className="brand-mark">M</span>
-            <span className="text-[15px] font-semibold tracking-[-0.025em] text-slate-950">
+            <span className="text-[15px] font-semibold tracking-[-0.025em] text-neutral-950">
               MEDDxAgent
             </span>
           </Link>
 
-          <div className="hidden items-center justify-center gap-1 lg:flex">
+          <div className="marketing-nav-center hidden items-center justify-center lg:flex">
             {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}
-                className="rounded-lg px-3.5 py-2 text-[13px] font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-950"
+                className="marketing-nav-link"
               >
                 {link.label}
               </a>
@@ -36,7 +36,7 @@ export default function Navbar() {
           <div className="hidden items-center justify-end lg:flex">
             <Link
               to="/app"
-              className="button-primary button-accent inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-white"
+              className="marketing-cta px-5 py-2.5 text-[13px]"
             >
               Open workspace
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -48,7 +48,7 @@ export default function Navbar() {
 
           <button
             type="button"
-            className="col-start-3 grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-950 lg:hidden"
+            className="col-start-3 grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-neutral-200 bg-white text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-950 lg:hidden"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
             aria-expanded={mobileOpen}
@@ -70,24 +70,24 @@ export default function Navbar() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-slate-100 bg-white lg:hidden">
+        <div className="border-t border-neutral-100 bg-white lg:hidden">
           <div className="site-container py-4">
             <div className="space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
-                  className="block rounded-xl px-3 py-3 text-[14px] font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-950"
+                  className="block rounded-xl px-3 py-3 text-[14px] font-medium text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-950"
                   onClick={() => setMobileOpen(false)}
                 >
                   {link.label}
                 </a>
               ))}
             </div>
-            <div className="mt-3 border-t border-slate-100 pt-3">
+            <div className="mt-3 border-t border-neutral-100 pt-4">
               <Link
                 to="/app"
-                className="button-primary button-accent block rounded-xl px-4 py-3 text-center text-[13px] font-semibold text-white"
+                className="marketing-cta w-full px-4 py-3 text-center text-[13px]"
                 onClick={() => setMobileOpen(false)}
               >
                 Open workspace
