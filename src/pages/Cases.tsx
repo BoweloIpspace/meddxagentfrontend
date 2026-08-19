@@ -1,176 +1,183 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { caseHistory } from "../data/mockData";
+import { useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getCases } from "../data/caseStore";
 import type { CaseStatus } from "../types";
 
 const statusStyles: Record<CaseStatus, string> = {
-  active: "bg-neutral-900 text-white",
-  completed: "bg-neutral-100 text-neutral-600",
-  draft: "bg-neutral-50 text-neutral-400 border border-neutral-200",
+  draft: "border-slate-200 text-slate-500",
+  ready: "border-blue-200 bg-blue-50 text-blue-700",
+  active: "border-slate-300 bg-slate-50 text-slate-700",
+  completed: "border-slate-200 bg-slate-50 text-slate-500",
+  error: "border-rose-200 bg-rose-50 text-rose-700",
+};
+
+const statusLabels: Record<CaseStatus, string> = {
+  draft: "Draft",
+  ready: "Ready",
+  active: "In progress",
+  completed: "Completed",
+  error: "Needs attention",
 };
 
 export default function Cases() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<CaseStatus | "all">("all");
+  const cases = getCases();
 
-  const filtered = caseHistory.filter((c) => {
-    const matchesSearch =
-      search === "" ||
-      c.id.toLowerCase().includes(search.toLowerCase()) ||
-      c.patient.chiefComplaint.toLowerCase().includes(search.toLowerCase()) ||
-      c.patient.id.toLowerCase().includes(search.toLowerCase());
-    const matchesFilter = filter === "all" || c.status === filter;
-    return matchesSearch && matchesFilter;
-  });
+  const filtered = useMemo(() => {
+    const normalizedSearch = search.trim().toLowerCase();
+
+    return cases.filter((caseRecord) => {
+      const matchesSearch =
+        normalizedSearch === "" ||
+        caseRecord.id.toLowerCase().includes(normalizedSearch) ||
+        caseRecord.patient.id.toLowerCase().includes(normalizedSearch) ||
+        caseRecord.patient.chiefComplaint.toLowerCase().includes(normalizedSearch);
+      const matchesFilter = filter === "all" || caseRecord.status === filter;
+      return matchesSearch && matchesFilter;
+    });
+  }, [cases, filter, search]);
 
   return (
     <div className="app-page">
-      {/* Header */}
-      <div className="app-page-header flex flex-col sm:flex-row sm:items-end justify-between gap-8 mb-14">
+      <div className="app-page-header flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-2">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+            Workspace
+          </p>
+          <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950 sm:text-[34px]">
             Cases
           </h1>
-          <p className="text-[14px] text-neutral-400">
-            {caseHistory.length} diagnostic cases
+          <p className="mt-2 text-[13px] text-slate-400">
+            {cases.length === 0 ? "No locally stored cases" : `${cases.length} locally stored ${cases.length === 1 ? "case" : "cases"}`}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate("/cases/new")}
-          className="button-primary px-5 py-2 rounded-lg bg-neutral-900 text-white text-[13px] font-medium self-start sm:self-auto"
+        <Link
+          to="/cases/new"
+          className="button-primary button-accent inline-flex self-start rounded-xl px-5 py-3 text-[13px] font-semibold text-white sm:self-auto"
         >
           New case
-        </button>
+        </Link>
       </div>
 
-      {/* Search + Filter */}
-      <div className="flex flex-col sm:flex-row gap-5 mb-14">
-        <div className="relative flex-1 max-w-[360px]">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-300"
+      {cases.length === 0 ? (
+        <div className="border-t border-slate-100 py-20 text-center">
+          <h2 className="text-[19px] font-semibold tracking-[-0.02em] text-slate-900">
+            No sample cases are loaded
+          </h2>
+          <p className="mx-auto mt-2 max-w-[480px] text-[13px] leading-[1.65] text-slate-400">
+            Create a case from real patient context. Only information entered in this workspace will appear here.
+          </p>
+          <Link
+            to="/cases/new"
+            className="mt-6 inline-flex rounded-xl bg-slate-950 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-slate-800"
           >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search cases..."
-            className="w-full pl-9 pr-4 py-2 text-[14px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-          />
+            Create first case
+          </Link>
         </div>
-        <div className="flex gap-1">
-          {(["all", "active", "completed", "draft"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors ${
-                filter === f
-                  ? "text-neutral-900 bg-neutral-50"
-                  : "text-neutral-400 hover:text-neutral-700"
-              }`}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
+      ) : (
+        <>
+          <div className="mb-8 flex flex-col gap-4 border-t border-slate-100 pt-8 sm:flex-row sm:items-center sm:justify-between">
+            <div className="relative w-full sm:max-w-[360px]">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Search case or patient ID"
+                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-[13px] text-slate-900 placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+              />
+            </div>
 
-      {/* Table */}
-      <div className="border border-neutral-200 rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="border-b border-neutral-100 bg-neutral-50/60">
-                <th className="px-8 py-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                  Case ID
-                </th>
-                <th className="px-8 py-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider hidden sm:table-cell">
-                  Patient
-                </th>
-                <th className="px-8 py-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                  Chief complaint
-                </th>
-                <th className="px-8 py-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider hidden md:table-cell">
-                  Status
-                </th>
-                <th className="px-8 py-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider hidden lg:table-cell">
-                  Updated
-                </th>
-                <th className="px-8 py-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider hidden xl:table-cell">
-                  Top differential
-                </th>
-                <th className="px-8 py-4" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c) => (
-                <tr
-                  key={c.id}
-                  className="border-b border-neutral-50 last:border-0 hover:bg-neutral-50/40 transition-colors"
+            <div className="flex flex-wrap gap-1">
+              {(["all", "draft", "ready", "active", "completed"] as const).map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setFilter(item)}
+                  className={`rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
+                    filter === item
+                      ? "bg-slate-100 text-slate-900"
+                      : "text-slate-400 hover:text-slate-700"
+                  }`}
                 >
-                  <td className="px-8 py-6">
-                    <span className="text-[13px] font-mono text-neutral-500">{c.id}</span>
-                  </td>
-                  <td className="px-8 py-6 hidden sm:table-cell">
-                    <span className="text-[14px] text-neutral-700">
-                      {c.patient.age}y {c.patient.sex}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6">
-                    <span className="text-[14px] text-neutral-600 line-clamp-1 max-w-[280px]">
-                      {c.patient.chiefComplaint}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 hidden md:table-cell">
-                    <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${statusStyles[c.status]}`}>
-                      {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 hidden lg:table-cell">
-                    <span className="text-[13px] text-neutral-400">
-                      {new Date(c.updatedAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6 hidden xl:table-cell">
-                    <span className="text-[13px] text-neutral-500">
-                      {c.differential[0]?.diagnosis ?? "—"}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6">
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/case/${c.id}`)}
-                      className="text-[13px] text-neutral-400 hover:text-neutral-900 transition-colors"
-                    >
-                      Open
-                    </button>
-                  </td>
-                </tr>
+                  {item === "all" ? "All" : statusLabels[item]}
+                </button>
               ))}
-            </tbody>
-          </table>
-        </div>
-        {filtered.length === 0 && (
-          <div className="py-12 text-center">
-            <p className="text-[14px] text-neutral-300">No cases match your search.</p>
+            </div>
           </div>
-        )}
-      </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50/70">
+                    <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Case</th>
+                    <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Patient</th>
+                    <th className="hidden px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400 md:table-cell">Status</th>
+                    <th className="hidden px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400 lg:table-cell">Updated</th>
+                    <th className="px-6 py-4" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((caseRecord) => (
+                    <tr key={caseRecord.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
+                      <td className="px-6 py-5">
+                        <p className="font-mono text-[11px] text-slate-400">{caseRecord.id}</p>
+                        <p className="mt-1 max-w-[340px] text-[14px] font-medium text-slate-800">
+                          {caseRecord.patient.chiefComplaint || "Untitled case"}
+                        </p>
+                      </td>
+                      <td className="px-6 py-5">
+                        <p className="text-[13px] text-slate-600">{caseRecord.patient.id || "No patient ID"}</p>
+                        <p className="mt-1 text-[11px] text-slate-400">
+                          {caseRecord.patient.age ? `${caseRecord.patient.age}y` : "Age not entered"}
+                          {caseRecord.patient.sex ? ` · ${caseRecord.patient.sex}` : ""}
+                        </p>
+                      </td>
+                      <td className="hidden px-6 py-5 md:table-cell">
+                        <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold ${statusStyles[caseRecord.status]}`}>
+                          {statusLabels[caseRecord.status]}
+                        </span>
+                      </td>
+                      <td className="hidden px-6 py-5 lg:table-cell">
+                        <span className="text-[12px] text-slate-400">
+                          {new Date(caseRecord.updatedAt).toLocaleString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            navigate(
+                              caseRecord.status === "draft"
+                                ? `/case/${caseRecord.id}/edit`
+                                : `/case/${caseRecord.id}`
+                            )
+                          }
+                          className="text-[12px] font-semibold text-slate-500 transition-colors hover:text-slate-950"
+                        >
+                          {caseRecord.status === "draft" ? "Continue" : "Open"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {filtered.length === 0 && (
+              <div className="py-14 text-center">
+                <p className="text-[13px] text-slate-400">No cases match this search.</p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
