@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { caseToInput, getCase, saveCaseInput } from "../data/caseStore";
 import type { CaseInput } from "../types";
 
@@ -24,6 +24,30 @@ export default function NewCase() {
     existingCase ? caseToInput(existingCase) : emptyCaseInput
   );
   const [saved, setSaved] = useState(false);
+
+  if (id && !existingCase) {
+    return (
+      <div className="app-page max-w-[760px] text-center">
+        <div className="py-16">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Case unavailable</p>
+          <h1 className="mt-4 text-[26px] font-semibold tracking-[-0.035em] text-slate-950">
+            This case cannot be edited because it is not in the local workspace.
+          </h1>
+          <p className="mx-auto mt-3 max-w-[500px] text-[13px] leading-[1.65] text-slate-400">
+            The case may have been cleared from this browser or created on another device.
+          </p>
+          <div className="mt-7 flex flex-wrap justify-center gap-2">
+            <Link to="/cases" className="rounded-xl bg-slate-950 px-4 py-2.5 text-[13px] font-semibold text-white">
+              View cases
+            </Link>
+            <Link to="/cases/new" className="rounded-xl border border-slate-200 px-4 py-2.5 text-[13px] font-semibold text-slate-600">
+              New case
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const updateField = <K extends keyof CaseInput>(key: K, value: CaseInput[K]) => {
     setForm((current) => ({ ...current, [key]: value }));
