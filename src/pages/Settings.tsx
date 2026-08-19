@@ -32,49 +32,49 @@ export default function Settings() {
   };
 
   return (
-    <div className="app-page max-w-[860px]">
+    <div className="app-page max-w-[960px]">
       <div className="app-page-header">
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+        <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">
           Workspace
         </p>
-        <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950 sm:text-[34px]">
+        <h1 className="text-[38px] font-medium leading-[1.03] tracking-[-0.05em] text-neutral-950 sm:text-[48px]">
           Settings
         </h1>
-        <p className="mt-3 max-w-[620px] text-[14px] leading-[1.7] text-slate-500">
+        <p className="mt-5 max-w-[620px] text-[14px] leading-[1.7] text-neutral-600">
           Only controls that are genuinely active in the current frontend are shown here.
         </p>
       </div>
 
-      <section className="border-t border-slate-100 pt-8">
-        <div className="grid gap-8 md:grid-cols-[220px_1fr]">
+      <section className="border-t border-neutral-300 pt-10">
+        <div className="grid gap-8 md:grid-cols-[220px_1fr] md:gap-14">
           <div>
-            <h2 className="text-[14px] font-semibold text-slate-900">Runtime</h2>
-            <p className="mt-1 text-[12px] leading-[1.6] text-slate-400">
+            <h2 className="text-[14px] font-medium text-neutral-950">Runtime</h2>
+            <p className="mt-2 text-[12px] leading-[1.6] text-neutral-500">
               Current application state.
             </p>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            <div className="flex items-start justify-between gap-6 border-b border-slate-100 px-5 py-4">
+          <div className="border-y border-neutral-200">
+            <div className="flex items-start justify-between gap-8 border-b border-neutral-200 py-5">
               <div>
-                <p className="text-[13px] font-medium text-slate-800">Diagnostic engine</p>
-                <p className="mt-1 text-[12px] leading-[1.55] text-slate-400">
+                <p className="text-[13px] font-medium text-neutral-900">Diagnostic engine</p>
+                <p className="mt-1.5 text-[12px] leading-[1.6] text-neutral-500">
                   No frontend API connection is configured yet.
                 </p>
               </div>
-              <span className="rounded-full border border-slate-200 px-2.5 py-1 text-[10px] font-semibold text-slate-500">
+              <span className="shrink-0 rounded-full border border-neutral-300 px-2.5 py-1 text-[10px] font-medium text-neutral-600">
                 Not connected
               </span>
             </div>
 
-            <div className="flex items-start justify-between gap-6 px-5 py-4">
+            <div className="flex items-start justify-between gap-8 py-5">
               <div>
-                <p className="text-[13px] font-medium text-slate-800">Case persistence</p>
-                <p className="mt-1 text-[12px] leading-[1.55] text-slate-400">
+                <p className="text-[13px] font-medium text-neutral-900">Case persistence</p>
+                <p className="mt-1.5 text-[12px] leading-[1.6] text-neutral-500">
                   Case inputs are stored in this browser only.
                 </p>
               </div>
-              <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-700">
+              <span className="shrink-0 rounded-full border border-neutral-950 bg-neutral-950 px-2.5 py-1 text-[10px] font-medium text-white">
                 Local
               </span>
             </div>
@@ -82,52 +82,48 @@ export default function Settings() {
         </div>
       </section>
 
-      <section className="mt-10 border-t border-slate-100 pt-10">
-        <div className="grid gap-8 md:grid-cols-[220px_1fr]">
+      <section className="mt-14 border-t border-neutral-300 pt-10">
+        <div className="grid gap-8 md:grid-cols-[220px_1fr] md:gap-14">
           <div>
-            <h2 className="text-[14px] font-semibold text-slate-900">Workspace data</h2>
-            <p className="mt-1 text-[12px] leading-[1.6] text-slate-400">
+            <h2 className="text-[14px] font-medium text-neutral-950">Workspace data</h2>
+            <p className="mt-2 text-[12px] leading-[1.6] text-neutral-500">
               Manage data created in this browser.
             </p>
           </div>
 
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-[13px] font-medium text-slate-800">Export cases</p>
-                  <p className="mt-1 text-[12px] leading-[1.55] text-slate-400">
-                    Download {caseCount === 1 ? "1 local case" : `${caseCount} local cases`} as JSON.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleExport}
-                  disabled={caseCount === 0}
-                  className="rounded-xl border border-slate-200 px-4 py-2.5 text-[12px] font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-950 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Export JSON
-                </button>
+          <div className="border-y border-neutral-200">
+            <div className="flex flex-col gap-5 border-b border-neutral-200 py-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[13px] font-medium text-neutral-900">Export cases</p>
+                <p className="mt-1.5 text-[12px] leading-[1.6] text-neutral-500">
+                  Download {caseCount === 1 ? "1 local case" : `${caseCount} local cases`} as JSON.
+                </p>
               </div>
+              <button
+                type="button"
+                onClick={handleExport}
+                disabled={caseCount === 0}
+                className="shrink-0 rounded-full border border-neutral-300 px-4 py-2.5 text-[12px] font-medium text-neutral-700 transition-colors hover:border-neutral-950 hover:text-neutral-950 disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                Export JSON
+              </button>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-[13px] font-medium text-slate-800">Clear local workspace</p>
-                  <p className="mt-1 text-[12px] leading-[1.55] text-slate-400">
-                    Permanently remove every locally stored case from this browser.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  disabled={caseCount === 0}
-                  className="rounded-xl border border-rose-200 px-4 py-2.5 text-[12px] font-semibold text-rose-600 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Clear cases
-                </button>
+            <div className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[13px] font-medium text-neutral-900">Clear local workspace</p>
+                <p className="mt-1.5 text-[12px] leading-[1.6] text-neutral-500">
+                  Permanently remove every locally stored case from this browser.
+                </p>
               </div>
+              <button
+                type="button"
+                onClick={handleClear}
+                disabled={caseCount === 0}
+                className="shrink-0 rounded-full border border-neutral-950 px-4 py-2.5 text-[12px] font-medium text-neutral-950 transition-colors hover:bg-neutral-950 hover:text-white disabled:cursor-not-allowed disabled:opacity-35"
+              >
+                Clear cases
+              </button>
             </div>
           </div>
         </div>
