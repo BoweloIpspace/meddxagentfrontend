@@ -12,88 +12,84 @@ const stageLabels: Record<AgentStage, string> = {
 };
 
 const stageColors: Record<AgentStage, string> = {
-  history_taking: "bg-neutral-400",
-  knowledge_retrieval: "bg-neutral-500",
-  diagnosis_strategy: "bg-neutral-700",
-  complete: "bg-neutral-900",
+  history_taking: "bg-slate-300",
+  knowledge_retrieval: "bg-blue-400",
+  diagnosis_strategy: "bg-slate-600",
+  complete: "bg-slate-900",
 };
 
-/* ── Left: Patient Profile ── */
 function PatientPanel() {
   const { patient } = activeCase;
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-9">
       <div>
-        <p className="text-[11px] font-mono text-neutral-300 mb-2">{patient.id}</p>
-        <h2 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em]">
+        <p className="text-[11px] font-mono text-slate-300 mb-2">{patient.id}</p>
+        <h2 className="text-[17px] font-semibold text-slate-900 tracking-[-0.01em]">
           {patient.age}y {patient.sex}
         </h2>
-        <p className="text-[14px] text-neutral-500 mt-1 leading-[1.5]">
+        <p className="text-[13px] text-slate-500 mt-1 leading-[1.55]">
           {patient.chiefComplaint}
         </p>
       </div>
 
-      <div className="h-px bg-neutral-100" />
+      <div className="h-px bg-slate-100" />
 
-      {/* Confirmed symptoms */}
       <div>
-        <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">
+        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mb-4">
           Confirmed symptoms
         </p>
-        <ul className="space-y-3.5">
-          {patient.confirmedSymptoms.map((s) => (
-            <li key={s} className="text-[13px] text-neutral-600 flex items-start gap-2">
-              <span className="text-neutral-300 mt-1.5 shrink-0">·</span>
-              {s}
+        <ul className="space-y-3">
+          {patient.confirmedSymptoms.map((symptom) => (
+            <li key={symptom} className="text-[13px] text-slate-600 flex items-start gap-2.5">
+              <span className="mt-[7px] h-1 w-1 rounded-full bg-slate-300 shrink-0" />
+              {symptom}
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Newly discovered */}
       {patient.newlyDiscovered.length > 0 && (
         <div>
-          <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">
+          <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mb-4">
             Newly discovered
           </p>
-          <ul className="space-y-3.5">
-            {patient.newlyDiscovered.map((s) => (
-              <li key={s} className="text-[13px] text-neutral-600 flex items-start gap-2">
-                <span className="text-neutral-300 mt-1.5 shrink-0">·</span>
-                {s}
+          <ul className="space-y-3">
+            {patient.newlyDiscovered.map((item) => (
+              <li key={item} className="text-[13px] text-slate-600 flex items-start gap-2.5">
+                <span className="mt-[7px] h-1 w-1 rounded-full bg-blue-400 shrink-0" />
+                {item}
               </li>
             ))}
           </ul>
         </div>
       )}
 
-      <div className="h-px bg-neutral-100" />
+      <div className="h-px bg-slate-100" />
 
-      {/* Medical context */}
-      <div className="space-y-6">
+      <div className="space-y-5">
         {patient.medicalHistory && (
           <div>
-            <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mb-1">
               History
             </p>
-            <p className="text-[13px] text-neutral-500 leading-[1.5]">{patient.medicalHistory}</p>
+            <p className="text-[13px] text-slate-500 leading-[1.55]">{patient.medicalHistory}</p>
           </div>
         )}
         {patient.medications && (
           <div>
-            <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mb-1">
               Medications
             </p>
-            <p className="text-[13px] text-neutral-500 leading-[1.5]">{patient.medications}</p>
+            <p className="text-[13px] text-slate-500 leading-[1.55]">{patient.medications}</p>
           </div>
         )}
         {patient.riskFactors && (
           <div>
-            <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">
+            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-[0.1em] mb-1">
               Risk factors
             </p>
-            <p className="text-[13px] text-neutral-500 leading-[1.5]">{patient.riskFactors}</p>
+            <p className="text-[13px] text-slate-500 leading-[1.55]">{patient.riskFactors}</p>
           </div>
         )}
       </div>
@@ -101,56 +97,64 @@ function PatientPanel() {
   );
 }
 
-/* ── Center: Activity Tabs ── */
-function ActivityPanel({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) {
+function ActivityPanel({
+  tab,
+  setTab,
+  selectedIteration,
+  onSelectIteration,
+}: {
+  tab: Tab;
+  setTab: (tab: Tab) => void;
+  selectedIteration: number;
+  onSelectIteration: (iteration: number) => void;
+}) {
   const { activities, historyQuestions, evidence, evidenceSummary, iterations } = activeCase;
-  const currentIteration = iterations[iterations.length - 1];
+  const iteration =
+    iterations.find((item) => item.iteration === selectedIteration) ?? iterations[iterations.length - 1];
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "activity", label: "Activity" },
-    { id: "history", label: "History Taking" },
+    { id: "history", label: "History" },
     { id: "evidence", label: "Evidence" },
     { id: "strategy", label: "Strategy" },
   ];
 
   return (
-    <div className="flex flex-col min-h-0">
-      {/* Tab bar */}
-      <div className="flex gap-2 border-b border-neutral-100 mb-12">
-        {tabs.map((t) => (
+    <div className="flex min-h-0 flex-col">
+      <div className="mb-9 flex gap-1 border-b border-slate-100">
+        {tabs.map((item) => (
           <button
-            key={t.id}
+            key={item.id}
             type="button"
-            onClick={() => setTab(t.id)}
-            className={`px-3 py-2 text-[13px] font-medium transition-colors border-b-2 -mb-px ${
-              tab === t.id
-                ? "text-neutral-900 border-neutral-900"
-                : "text-neutral-400 border-transparent hover:text-neutral-700"
+            onClick={() => setTab(item.id)}
+            className={`-mb-px border-b-2 px-3 py-2.5 text-[12px] font-medium transition-colors ${
+              tab === item.id
+                ? "border-blue-600 text-blue-700"
+                : "border-transparent text-slate-400 hover:text-slate-700"
             }`}
           >
-            {t.label}
+            {item.label}
           </button>
         ))}
       </div>
 
-      {/* Tab content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1">
         {tab === "activity" && (
-          <div className="space-y-1">
-            {activities.map((a) => (
-              <div key={a.id} className="flex gap-5 py-8 border-b border-neutral-50 last:border-0">
-                <span className="text-[12px] font-mono text-neutral-300 shrink-0 pt-0.5 w-10">
-                  {a.timestamp}
+          <div>
+            {activities.map((activity) => (
+              <div key={activity.id} className="flex gap-4 border-b border-slate-50 py-5 last:border-0">
+                <span className="w-10 shrink-0 pt-0.5 text-[11px] font-mono text-slate-300">
+                  {activity.timestamp}
                 </span>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${stageColors[a.stage]}`} />
-                    <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
-                      {stageLabels[a.stage]}
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className={`h-1.5 w-1.5 rounded-full ${stageColors[activity.stage]}`} />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">
+                      {stageLabels[activity.stage]}
                     </span>
                   </div>
-                  <p className="text-[14px] font-medium text-neutral-900">{a.title}</p>
-                  <p className="text-[13px] text-neutral-400 mt-0.5 leading-[1.5]">{a.description}</p>
+                  <p className="text-[13px] font-medium text-slate-900">{activity.title}</p>
+                  <p className="mt-0.5 text-[12px] leading-[1.55] text-slate-400">{activity.description}</p>
                 </div>
               </div>
             ))}
@@ -158,126 +162,98 @@ function ActivityPanel({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) 
         )}
 
         {tab === "history" && (
-          <div className="space-y-8">
-            <p className="text-[13px] text-neutral-400 leading-[1.6]">
-              To refine the differential, the engine gathers additional clinical information
-              through targeted questioning.
+          <div className="space-y-6">
+            <p className="max-w-[620px] text-[13px] leading-[1.65] text-slate-400">
+              Targeted questions used to refine the patient profile and evolving differential.
             </p>
-            <div className="space-y-8">
-              {historyQuestions.map((hq, i) => (
-                <div key={i} className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <span className="text-[11px] font-mono text-neutral-300 shrink-0 pt-1">{hq.timestamp}</span>
-                    <div className="bg-neutral-50 rounded-lg px-4 py-3 flex-1">
-                      <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">
-                        MEDDxAgent
-                      </p>
-                      <p className="text-[14px] text-neutral-700 leading-[1.5]">{hq.question}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-[11px] font-mono text-neutral-300 shrink-0 pt-1 w-10" />
-                    <div className="bg-white border border-neutral-100 rounded-lg px-4 py-3 flex-1">
-                      <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">
-                        Patient response
-                      </p>
-                      <p className="text-[14px] text-neutral-600 leading-[1.5]">{hq.response}</p>
+            {historyQuestions.map((question, index) => (
+              <div key={index} className="border-b border-slate-100 pb-6 last:border-0">
+                <div className="flex items-start gap-3">
+                  <span className="w-10 shrink-0 pt-1 text-[10px] font-mono text-slate-300">{question.timestamp}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-blue-500">MEDDxAgent</p>
+                    <p className="mt-1.5 text-[13px] leading-[1.6] text-slate-700">{question.question}</p>
+                    <div className="mt-3 rounded-xl bg-slate-50 px-4 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-slate-400">Patient response</p>
+                      <p className="mt-1 text-[13px] leading-[1.6] text-slate-600">{question.response}</p>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         )}
 
         {tab === "evidence" && (
-          <div className="space-y-10">
-            {/* Search query */}
+          <div className="space-y-8">
             <div>
-              <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-2">
-                Search
-              </p>
-              <p className="text-[14px] font-mono text-neutral-600 bg-neutral-50 rounded-lg px-4 py-3">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Search</p>
+              <p className="rounded-xl bg-slate-50 px-4 py-3 text-[12px] font-mono leading-[1.6] text-slate-600">
                 acute shortness of breath + worsening cough + pleuritic chest pain
               </p>
             </div>
 
-            {/* Sources */}
             <div>
-              <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">
-                Sources
-              </p>            <div className="space-y-6">
-              {evidence.map((e, i) => (
-                  <div key={i} className="border border-neutral-100 rounded-lg p-7">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-medium text-neutral-900">{e.title}</span>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Sources</p>
+              <div className="divide-y divide-slate-100 border-y border-slate-100">
+                {evidence.map((source, index) => (
+                  <div key={index} className="py-5">
+                    <div className="mb-1.5 flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-[13px] font-medium text-slate-900">{source.title}</p>
+                        <p className="mt-0.5 text-[11px] text-slate-400">{source.type}</p>
                       </div>
-                      <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                        e.relevance === "High"
-                          ? "bg-neutral-900 text-white"
-                          : "bg-neutral-100 text-neutral-500"
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                        source.relevance === "High"
+                          ? "bg-blue-50 text-blue-700"
+                          : "bg-slate-100 text-slate-500"
                       }`}>
-                        {e.relevance}
+                        {source.relevance}
                       </span>
                     </div>
-                    <p className="text-[12px] text-neutral-400 mb-1">{e.type}</p>
-                    <p className="text-[13px] text-neutral-500 leading-[1.6]">{e.snippet}</p>
+                    <p className="text-[12px] leading-[1.6] text-slate-500">{source.snippet}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Evidence summary */}
             <div>
-              <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">
-                Evidence summary
-              </p>
-              <p className="text-[14px] text-neutral-600 leading-[1.7] bg-neutral-50 rounded-lg p-5">
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Evidence summary</p>
+              <p className="rounded-xl bg-blue-50/50 p-4 text-[13px] leading-[1.7] text-slate-600">
                 {evidenceSummary}
               </p>
             </div>
           </div>
         )}
 
-        {tab === "strategy" && currentIteration && (
-          <div className="space-y-10">
-            {/* Current iteration */}
+        {tab === "strategy" && iteration && (
+          <div className="space-y-8">
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                  Iteration {currentIteration.iteration}
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+                  Iteration {iteration.iteration}
                 </p>
-                <p className="text-[12px] font-mono text-neutral-300">{currentIteration.timestamp}</p>
+                <p className="text-[11px] font-mono text-slate-300">{iteration.timestamp}</p>
               </div>
-
-              <p className="text-[14px] text-neutral-600 leading-[1.7] mb-6">
-                {currentIteration.evidenceSummary}
-              </p>
+              <p className="text-[13px] leading-[1.7] text-slate-600">{iteration.evidenceSummary}</p>
             </div>
 
-            {/* Changes from previous iteration */}
-            {currentIteration.changes.length > 0 && (
+            {iteration.changes.length > 0 && (
               <div>
-                <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">
-                  Changes from iteration {currentIteration.iteration - 1}
-                </p>
-                <div className="space-y-3">
-                  {currentIteration.changes.map((c, i) => (
-                    <div key={i} className="flex items-center gap-3 py-2 border-b border-neutral-50 last:border-0">
-                      <span className={`w-1.5 h-1.5 rounded-full ${
-                        c.direction === "up" ? "bg-neutral-900" :
-                        c.direction === "down" ? "bg-neutral-300" : "bg-neutral-500"
+                <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Changes</p>
+                <div className="divide-y divide-slate-100 border-y border-slate-100">
+                  {iteration.changes.map((change, index) => (
+                    <div key={index} className="flex items-center gap-3 py-3">
+                      <span className={`h-1.5 w-1.5 rounded-full ${
+                        change.direction === "up"
+                          ? "bg-blue-500"
+                          : change.direction === "down"
+                          ? "bg-slate-300"
+                          : "bg-slate-500"
                       }`} />
-                      <span className="text-[14px] text-neutral-700 flex-1">{c.diagnosis}</span>
-                      <span className="text-[13px] text-neutral-400">
-                        {c.direction === "new" ? (
-                          "New entry"
-                        ) : (
-                          <>
-                            #{c.previousRank} → #{c.newRank}
-                          </>
-                        )}
+                      <span className="flex-1 text-[13px] text-slate-700">{change.diagnosis}</span>
+                      <span className="text-[11px] text-slate-400">
+                        {change.direction === "new" ? "New" : `#${change.previousRank} → #${change.newRank}`}
                       </span>
                     </div>
                   ))}
@@ -285,35 +261,22 @@ function ActivityPanel({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) 
               </div>
             )}
 
-            {/* Iteration history */}
             <div>
-              <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-4">
-                Iteration history
-              </p>
-              <div className="space-y-4">
-                {iterations.map((iter) => (
-                  <div key={iter.iteration} className={`p-4 rounded-lg border ${
-                    iter.iteration === currentIteration.iteration
-                      ? "border-neutral-200 bg-neutral-50"
-                      : "border-transparent"
-                  }`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[13px] font-medium text-neutral-900">
-                        Iteration {iter.iteration}
-                      </span>
-                      <span className="text-[12px] font-mono text-neutral-300">{iter.timestamp}</span>
-                    </div>
-                    <div className="space-y-1">
-                      {iter.differential.slice(0, 3).map((d) => (
-                        <div key={d.rank} className="flex items-center gap-2">
-                          <span className="text-[12px] font-mono text-neutral-300 w-5">
-                            {String(d.rank).padStart(2, "0")}
-                          </span>
-                          <span className="text-[13px] text-neutral-600">{d.diagnosis}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+              <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Iteration history</p>
+              <div className="flex flex-wrap gap-2">
+                {iterations.map((item) => (
+                  <button
+                    key={item.iteration}
+                    type="button"
+                    onClick={() => onSelectIteration(item.iteration)}
+                    className={`rounded-lg border px-3 py-2 text-[11px] font-medium transition-colors ${
+                      item.iteration === selectedIteration
+                        ? "border-blue-200 bg-blue-50 text-blue-700"
+                        : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                    }`}
+                  >
+                    Iteration {item.iteration}
+                  </button>
                 ))}
               </div>
             </div>
@@ -324,159 +287,176 @@ function ActivityPanel({ tab, setTab }: { tab: Tab; setTab: (t: Tab) => void }) 
   );
 }
 
-/* ── Right: Differential ── */
-function DifferentialPanel() {
-  const { differential, currentIteration, maxIterations } = activeCase;
+function DifferentialPanel({
+  selectedIteration,
+  onSelectIteration,
+}: {
+  selectedIteration: number;
+  onSelectIteration: (iteration: number) => void;
+}) {
+  const { iterations, maxIterations } = activeCase;
+  const iteration =
+    iterations.find((item) => item.iteration === selectedIteration) ?? iterations[iterations.length - 1];
 
-  const confidenceColor = (c: string) => {
-    switch (c) {
-      case "High": return "text-neutral-900";
-      case "Moderate": return "text-neutral-500";
-      case "Low": return "text-neutral-300";
-      default: return "text-neutral-400";
+  const confidenceColor = (confidence: string) => {
+    switch (confidence) {
+      case "High":
+        return "text-blue-700";
+      case "Moderate":
+        return "text-slate-500";
+      case "Low":
+        return "text-slate-400";
+      default:
+        return "text-slate-400";
     }
   };
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <div>
-        <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-1">
-          Differential
-        </p>
-        <p className="text-[12px] text-neutral-400">
-          Iteration {currentIteration} of {maxIterations}
+        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Differential</p>
+        <p className="mt-1 text-[12px] text-slate-400">
+          Viewing iteration {iteration.iteration} of {activeCase.currentIteration}
         </p>
       </div>
 
-      <div className="space-y-1">
-        {differential.map((d) => (
-          <div key={d.rank} className="py-5 border-b border-neutral-50 last:border-0">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-3">
-                <span className="text-[12px] font-mono text-neutral-300 w-5">
-                  {String(d.rank).padStart(2, "0")}
-                </span>
-                <span className="text-[14px] font-medium text-neutral-900">
-                  {d.diagnosis}
-                </span>
-              </div>
-              {d.change && (
-                <span className={`text-[11px] ${
-                  d.change.direction === "up" ? "text-neutral-900" :
-                  d.change.direction === "new" ? "text-neutral-500" : "text-neutral-300"
-                }`}>
-                  {d.change.direction === "new" ? "New" : (
-                    d.change.direction === "up" ? "↑" : "↓"
-                  )}
-                </span>
-              )}
-            </div>
-            <div className="flex items-center gap-3 ml-8">
-              <span className={`text-[12px] ${confidenceColor(d.confidence)}`}>
-                {d.confidence}
+      <div>
+        {iteration.differential.map((entry) => (
+          <div key={entry.rank} className="border-b border-slate-100 py-4 last:border-0">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 w-5 shrink-0 text-[11px] font-mono text-slate-300">
+                {String(entry.rank).padStart(2, "0")}
               </span>
-              {/* Confidence bar */}
-              <div className="flex-1 h-1 bg-neutral-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-neutral-400 rounded-full"
-                  style={{
-                    width: d.confidence === "High" ? "85%" : d.confidence === "Moderate" ? "55%" : "25%",
-                  }}
-                />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-[13px] font-medium leading-[1.45] text-slate-900">
+                    {entry.diagnosis}
+                  </span>
+                  {entry.change && (
+                    <span className="text-[10px] text-slate-400">
+                      {entry.change.direction === "new" ? "New" : entry.change.direction === "up" ? "↑" : "↓"}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2 flex items-center gap-3">
+                  <span className={`text-[11px] ${confidenceColor(entry.confidence)}`}>{entry.confidence}</span>
+                  <div className="h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full rounded-full bg-slate-400"
+                      style={{
+                        width:
+                          entry.confidence === "High"
+                            ? "85%"
+                            : entry.confidence === "Moderate"
+                            ? "55%"
+                            : "25%",
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Iteration navigation */}
-      <div className="pt-2">
-        <p className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider mb-3">
-          Iterations
-        </p>
-        <div className="flex gap-2">
-          {Array.from({ length: maxIterations }, (_, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`w-8 h-8 rounded-md text-[12px] font-mono transition-colors ${
-                i + 1 === currentIteration
-                  ? "bg-neutral-900 text-white"
-                  : i + 1 < currentIteration
-                  ? "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
-                  : "bg-neutral-50 text-neutral-300"
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
+      <div>
+        <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Iterations</p>
+        <div className="flex flex-wrap gap-2">
+          {Array.from({ length: maxIterations }, (_, index) => {
+            const iterationNumber = index + 1;
+            const available = iterations.some((item) => item.iteration === iterationNumber);
+            return (
+              <button
+                key={iterationNumber}
+                type="button"
+                disabled={!available}
+                onClick={() => available && onSelectIteration(iterationNumber)}
+                aria-label={`View iteration ${iterationNumber}`}
+                className={`grid h-8 w-8 place-items-center rounded-lg border text-[11px] font-mono transition-colors ${
+                  iterationNumber === selectedIteration
+                    ? "border-blue-200 bg-blue-50 text-blue-700"
+                    : available
+                    ? "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+                    : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                }`}
+              >
+                {iterationNumber}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-/* ── Main Active Case ── */
 export default function ActiveCase() {
   const [tab, setTab] = useState<Tab>("activity");
   const [mobilePanel, setMobilePanel] = useState<"patient" | "activity" | "differential">("activity");
+  const [selectedIteration, setSelectedIteration] = useState(activeCase.currentIteration);
 
   return (
-    <div className="app-page pt-8 lg:pt-14">
-      {/* Case header */}
-      <div className="flex items-center justify-between mb-12">
+    <div className="app-page">
+      <div className="mb-10 flex items-start justify-between gap-6">
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-[20px] font-semibold tracking-[-0.02em] text-neutral-900">
+          <div className="mb-1 flex flex-wrap items-center gap-3">
+            <h1 className="text-[22px] font-semibold tracking-[-0.025em] text-slate-950">
               Active diagnosis
             </h1>
-            <span className="text-[11px] font-mono text-neutral-300">{activeCase.id}</span>
+            <span className="text-[10px] font-mono text-slate-300">{activeCase.id}</span>
           </div>
-          <p className="text-[13px] text-neutral-400">
-            Iteration {activeCase.currentIteration} · {activeCase.patient.chiefComplaint}
+          <p className="text-[13px] leading-[1.55] text-slate-400">
+            Iteration {selectedIteration} · {activeCase.patient.chiefComplaint}
           </p>
         </div>
+        <span className="hidden rounded-full bg-blue-50 px-3 py-1.5 text-[10px] font-semibold text-blue-700 sm:inline-flex">
+          In progress
+        </span>
       </div>
 
-      {/* Mobile panel selector */}
-      <div className="lg:hidden flex gap-2 mb-10 border-b border-neutral-100 pb-5">
-        {(["patient", "activity", "differential"] as const).map((p) => (
+      <div className="lg:hidden mb-8 flex gap-1 border-b border-slate-100 pb-3">
+        {(["patient", "activity", "differential"] as const).map((panel) => (
           <button
-            key={p}
+            key={panel}
             type="button"
-            onClick={() => setMobilePanel(p)}
-            className={`px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors ${
-              mobilePanel === p
-                ? "text-neutral-900 bg-neutral-50"
-                : "text-neutral-400"
+            onClick={() => setMobilePanel(panel)}
+            className={`rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
+              mobilePanel === panel ? "bg-blue-50 text-blue-700" : "text-slate-400 hover:text-slate-700"
             }`}
           >
-            {p === "patient" ? "Patient" : p === "activity" ? "Activity" : "Differential"}
+            {panel === "patient" ? "Patient" : panel === "activity" ? "Activity" : "Differential"}
           </button>
         ))}
       </div>
 
-      {/* 3-panel layout */}
-      <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 min-h-[calc(100vh-250px)]">
-        {/* Left: Patient */}
-        <aside className={`lg:w-[340px] shrink-0 lg:border-r lg:border-neutral-100 lg:pr-16 ${
-          mobilePanel !== "patient" ? "hidden lg:block" : ""
-        }`}>
+      <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[240px_minmax(0,1fr)_300px] lg:gap-8 xl:grid-cols-[260px_minmax(0,1fr)_320px] xl:gap-12">
+        <aside
+          className={`lg:border-r lg:border-slate-100 lg:pr-7 xl:pr-9 ${
+            mobilePanel !== "patient" ? "hidden lg:block" : ""
+          }`}
+        >
           <PatientPanel />
         </aside>
 
-        {/* Center: Activity */}
-        <div className={`flex-1 min-w-0 ${
-          mobilePanel !== "activity" ? "hidden lg:block" : ""
-        }`}>
-          <ActivityPanel tab={tab} setTab={setTab} />
+        <div className={`min-w-0 ${mobilePanel !== "activity" ? "hidden lg:block" : ""}`}>
+          <ActivityPanel
+            tab={tab}
+            setTab={setTab}
+            selectedIteration={selectedIteration}
+            onSelectIteration={setSelectedIteration}
+          />
         </div>
 
-        {/* Right: Differential */}
-        <aside className={`lg:w-[360px] shrink-0 lg:border-l lg:border-neutral-100 lg:pl-16 ${
-          mobilePanel !== "differential" ? "hidden lg:block" : ""
-        }`}>
-          <DifferentialPanel />
+        <aside
+          className={`lg:border-l lg:border-slate-100 lg:pl-7 xl:pl-9 ${
+            mobilePanel !== "differential" ? "hidden lg:block" : ""
+          }`}
+        >
+          <DifferentialPanel
+            selectedIteration={selectedIteration}
+            onSelectIteration={setSelectedIteration}
+          />
         </aside>
       </div>
     </div>
