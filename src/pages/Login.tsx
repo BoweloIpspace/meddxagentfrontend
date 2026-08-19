@@ -14,12 +14,15 @@ export default function Login() {
     setSubmitted(true);
     setTimeout(() => {
       navigate("/app");
-    }, 800);
+    }, 500);
+  };
+
+  const handleGoogle = () => {
+    navigate("/app");
   };
 
   return (
     <div>
-      {/* Heading */}
       <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-3">
         Welcome back.
       </h1>
@@ -27,14 +30,9 @@ export default function Login() {
         Sign in to continue to MEDDxAgent.
       </p>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Email */}
         <div>
-          <label
-            htmlFor="email"
-            className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-          >
+          <label htmlFor="email" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
             Email
           </label>
           <input
@@ -48,12 +46,8 @@ export default function Login() {
           />
         </div>
 
-        {/* Password */}
         <div>
-          <label
-            htmlFor="password"
-            className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-          >
+          <label htmlFor="password" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
             Password
           </label>
           <div className="relative">
@@ -89,8 +83,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Remember me + Forgot */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -100,33 +93,32 @@ export default function Login() {
             />
             <span className="text-[13px] text-neutral-500">Remember me</span>
           </label>
-          <a
-            href="#"
+          <Link
+            to="/forgot-password"
             className="text-[13px] text-neutral-400 hover:text-neutral-700 transition-colors"
           >
             Forgot password?
-          </a>
+          </Link>
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
-          className="button-primary w-full px-4 py-2.5 rounded-lg bg-neutral-900 text-white text-[15px] font-medium tracking-[-0.01em]"
+          disabled={submitted}
+          className="button-primary w-full px-4 py-2.5 rounded-lg bg-neutral-900 text-white text-[15px] font-medium tracking-[-0.01em] disabled:cursor-wait disabled:opacity-70"
         >
           {submitted ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
-      {/* Divider */}
       <div className="flex items-center gap-4 my-8">
         <div className="flex-1 h-px bg-neutral-100" />
         <span className="text-[13px] text-neutral-300">or</span>
         <div className="flex-1 h-px bg-neutral-100" />
       </div>
 
-      {/* Google */}
       <button
         type="button"
+        onClick={handleGoogle}
         className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg border border-neutral-200 text-[14px] font-medium text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 transition-colors"
       >
         <svg width="18" height="18" viewBox="0 0 24 24">
@@ -138,13 +130,9 @@ export default function Login() {
         Continue with Google
       </button>
 
-      {/* Footer link */}
       <p className="text-center text-[14px] text-neutral-400 mt-10">
         Don't have an account?{" "}
-        <Link
-          to="/signup"
-          className="text-neutral-900 font-medium hover:underline underline-offset-2"
-        >
+        <Link to="/signup" className="text-neutral-900 font-medium hover:underline underline-offset-2">
           Create one
         </Link>
       </p>
