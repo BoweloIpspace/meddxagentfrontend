@@ -1,61 +1,62 @@
-import { activities } from "../data/mockData";
-import type { AgentStage } from "../types";
-
-const stageLabels: Record<AgentStage, string> = {
-  history_taking: "History Taking",
-  knowledge_retrieval: "Knowledge Retrieval",
-  diagnosis_strategy: "Diagnosis Strategy",
-  complete: "Complete",
-};
-
-const stageColors: Record<AgentStage, string> = {
-  history_taking: "bg-neutral-400",
-  knowledge_retrieval: "bg-neutral-500",
-  diagnosis_strategy: "bg-neutral-700",
-  complete: "bg-neutral-900",
-};
+import { Link } from "react-router-dom";
+import { getCases } from "../data/caseStore";
 
 export default function Activity() {
+  const casesWithDialogue = getCases().filter((caseRecord) => caseRecord.dialogueHistory.trim());
+
   return (
-    <div className="app-page max-w-[720px]">
+    <div className="app-page max-w-[900px]">
       <div className="app-page-header">
-        <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-4">
-          Activity
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+          Diagnostic output
+        </p>
+        <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950 sm:text-[34px]">
+          Dialogue history
         </h1>
-        <p className="text-[15px] text-neutral-400 leading-[1.6] max-w-[520px]">
-          Chronological trace of the diagnostic process. Every interaction, retrieval,
-          and reasoning step is logged for transparency.
+        <p className="mt-3 max-w-[620px] text-[14px] leading-[1.7] text-slate-500">
+          This view only displays dialogue returned by the diagnostic workflow. The frontend does not generate patient or clinician exchanges.
         </p>
       </div>
 
-      {/* Timeline */}
-      <div className="relative">
-        {/* Vertical line */}
-        <div className="absolute left-[19px] top-0 bottom-0 w-px bg-neutral-100" />
-
-        <div className="space-y-4">
-          {activities.map((a) => (
-            <div key={a.id} className="relative flex gap-5 py-8">
-              {/* Dot */}
-              <div className="relative z-10 shrink-0 mt-1">
-                <div className={`w-[10px] h-[10px] rounded-full ${stageColors[a.stage]} ring-4 ring-white`} />
-              </div>
-
-              {/* Content */}
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-3 mb-1">
-                  <span className="text-[12px] font-mono text-neutral-300">{a.timestamp}</span>
-                  <span className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider">
-                    {stageLabels[a.stage]}
-                  </span>
+      {casesWithDialogue.length === 0 ? (
+        <div className="border-t border-slate-100 py-16 text-center">
+          <h2 className="text-[18px] font-semibold tracking-[-0.02em] text-slate-900">
+            No dialogue history yet
+          </h2>
+          <p className="mx-auto mt-2 max-w-[500px] text-[13px] leading-[1.65] text-slate-400">
+            History-taking output will appear here only after a real case has been processed by the connected engine.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            <Link to="/cases" className="rounded-xl bg-slate-950 px-4 py-2.5 text-[13px] font-semibold text-white">
+              View cases
+            </Link>
+            <Link to="/cases/new" className="rounded-xl border border-slate-200 px-4 py-2.5 text-[13px] font-semibold text-slate-600">
+              New case
+            </Link>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6 border-t border-slate-100 pt-8">
+          {casesWithDialogue.map((caseRecord) => (
+            <article key={caseRecord.id} className="rounded-2xl border border-slate-200 p-6">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[10px] text-slate-400">{caseRecord.id}</p>
+                  <h2 className="mt-2 text-[16px] font-semibold text-slate-900">
+                    {caseRecord.patient.chiefComplaint || "Untitled case"}
+                  </h2>
                 </div>
-                <h3 className="text-[14px] font-medium text-neutral-900 mb-0.5">{a.title}</h3>
-                <p className="text-[13px] text-neutral-400 leading-[1.5]">{a.description}</p>
+                <Link to={`/case/${caseRecord.id}`} className="text-[12px] font-semibold text-slate-500 hover:text-slate-950">
+                  Open case
+                </Link>
               </div>
-            </div>
+              <pre className="mt-5 whitespace-pre-wrap font-sans text-[13px] leading-[1.75] text-slate-600">
+                {caseRecord.dialogueHistory}
+              </pre>
+            </article>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 }
