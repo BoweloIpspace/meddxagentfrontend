@@ -7,38 +7,31 @@ export default function ProductIntro() {
     <section
       ref={ref}
       id="how-it-works"
-      className="reveal-section section-space border-t border-neutral-100"
+      className="reveal-section section-space border-t border-slate-100"
       data-revealed={revealed}
     >
       <div className="site-container">
-        <div className="grid lg:grid-cols-[2fr_3fr] gap-14 lg:gap-24">
-          {/* Left: heading */}
+        <div className="grid gap-14 lg:grid-cols-[2fr_3fr] lg:gap-24">
           <div>
-            <p className="reveal-item eyebrow">
-              About the product
-            </p>
+            <p className="reveal-item eyebrow">About the product</p>
             <h2 className="reveal-item reveal-delay-1 section-title max-w-[500px]">
               A research framework for differential diagnosis.
             </h2>
           </div>
 
-          {/* Right: body text */}
           <div className="reveal-item reveal-delay-2 max-w-[590px] lg:pt-1">
             <div className="space-y-6">
               <p className="body-copy">
-                MEDDxAgent combines interactive history-taking, retrieval-augmented
-evidence from PubMed, and structured diagnostic reasoning — all within a
-modular, explainable framework designed for clinical AI research.
+                MEDDxAgent brings history-taking, retrieval, and diagnostic reasoning into a modular
+                workflow built for clinical AI research.
               </p>
               <p className="body-copy">
-                The system iteratively refines its diagnostic hypothesis through
-                targeted clinical questions and evidence retrieval, producing a
-                fully transparent, ranked differential diagnosis at each stage.
+                The interface keeps patient input separate from engine output, then presents ranked
+                differentials and supporting artifacts only when the diagnostic workflow returns them.
               </p>
               <p className="body-copy">
-                Every step of the reasoning process is logged and explainable,
-                making MEDDxAgent suitable for rigorous evaluation of AI-assisted
-                clinical decision support.
+                The goal is inspectable research behavior rather than presentation-only certainty:
+                no fabricated confidence scores, benchmark claims, evidence, or patient history are added by the frontend.
               </p>
             </div>
           </div>
