@@ -27,21 +27,21 @@ export default function NewCase() {
 
   if (id && !existingCase) {
     return (
-      <div className="app-page max-w-[760px] text-center">
-        <div className="py-16">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Case unavailable</p>
-          <h1 className="mt-4 text-[26px] font-semibold tracking-[-0.035em] text-slate-950">
+      <div className="app-page max-w-[760px]">
+        <div className="border-t border-neutral-300 py-16">
+          <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">Case unavailable</p>
+          <h1 className="mt-5 max-w-[640px] text-[34px] font-medium leading-[1.06] tracking-[-0.045em] text-neutral-950">
             This case cannot be edited because it is not in the local workspace.
           </h1>
-          <p className="mx-auto mt-3 max-w-[500px] text-[13px] leading-[1.65] text-slate-400">
+          <p className="mt-4 max-w-[520px] text-[14px] leading-[1.7] text-neutral-600">
             The case may have been cleared from this browser or created on another device.
           </p>
-          <div className="mt-7 flex flex-wrap justify-center gap-2">
-            <Link to="/cases" className="rounded-xl bg-slate-950 px-4 py-2.5 text-[13px] font-semibold text-white">
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+            <Link to="/cases" className="button-primary rounded-full px-4 py-2.5 text-[13px] font-medium text-white">
               View cases
             </Link>
-            <Link to="/cases/new" className="rounded-xl border border-slate-200 px-4 py-2.5 text-[13px] font-semibold text-slate-600">
-              New case
+            <Link to="/cases/new" className="text-[13px] font-medium text-neutral-600 transition-colors hover:text-neutral-950">
+              New case →
             </Link>
           </div>
         </div>
@@ -68,43 +68,43 @@ export default function NewCase() {
   };
 
   return (
-    <div className="app-page max-w-[920px]">
-      <div className="app-page-header flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+    <div className="app-page max-w-[980px]">
+      <div className="app-page-header grid gap-8 sm:grid-cols-[1fr_auto] sm:items-start">
         <div>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">
             {existingCase || recordId ? "Edit case" : "New case"}
           </p>
-          <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950 sm:text-[34px]">
+          <h1 className="max-w-[760px] text-[38px] font-medium leading-[1.03] tracking-[-0.05em] text-neutral-950 sm:text-[48px]">
             {existingCase || recordId ? "Update patient context" : "Create a patient case"}
           </h1>
-          <p className="mt-3 max-w-[620px] text-[14px] leading-[1.7] text-slate-500">
+          <p className="mt-5 max-w-[650px] text-[14px] leading-[1.7] text-neutral-600">
             Enter only information that is actually available. The case is stored locally and no
             diagnostic result is generated or implied from this form.
           </p>
         </div>
-        <span className="hidden rounded-full border border-slate-200 px-3 py-1.5 text-[10px] font-semibold text-slate-500 sm:inline-flex">
+        <span className="hidden rounded-full border border-neutral-300 px-3 py-1.5 text-[10px] font-medium text-neutral-600 sm:inline-flex">
           Local workspace
         </span>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <section className="app-section">
+        <section className="app-section border-t border-neutral-300 pt-10">
           <div className="form-section-title">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <span className="form-section-index">01</span>
               <div>
-                <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
+                <h2 className="text-[15px] font-medium tracking-[-0.015em] text-neutral-950">
                   Required case context
                 </h2>
-                <p className="mt-1 text-[12px] text-slate-400">
+                <p className="mt-1.5 text-[12px] text-neutral-500">
                   These fields are required before the case can be marked ready.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+          <div className="space-y-7">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div>
                 <label htmlFor="patient-id" className="field-label">Patient ID</label>
                 <input
@@ -114,7 +114,7 @@ export default function NewCase() {
                   onChange={(event) => updateField("patientId", event.target.value)}
                   placeholder="Institution or study ID"
                   required
-                  className="field-control font-mono placeholder:text-slate-300"
+                  className="field-control font-mono placeholder:text-neutral-400"
                 />
               </div>
               <div>
@@ -128,7 +128,7 @@ export default function NewCase() {
                   min={0}
                   max={150}
                   required
-                  className="field-control placeholder:text-slate-300"
+                  className="field-control placeholder:text-neutral-400"
                 />
               </div>
               <div>
@@ -157,7 +157,7 @@ export default function NewCase() {
                 onChange={(event) => updateField("chiefComplaint", event.target.value)}
                 placeholder="Primary reason for presentation"
                 required
-                className="field-control placeholder:text-slate-300"
+                className="field-control placeholder:text-neutral-400"
               />
             </div>
 
@@ -165,12 +165,12 @@ export default function NewCase() {
               <label htmlFor="initial-information" className="field-label">Initial information</label>
               <textarea
                 id="initial-information"
-                rows={5}
+                rows={6}
                 value={form.initialInformation}
                 onChange={(event) => updateField("initialInformation", event.target.value)}
                 placeholder="Presenting symptoms, relevant observations, vital signs, investigations, and other known context"
                 required
-                className="field-control resize-none leading-[1.65] placeholder:text-slate-300"
+                className="field-control resize-none leading-[1.65] placeholder:text-neutral-400"
               />
             </div>
           </div>
@@ -178,33 +178,33 @@ export default function NewCase() {
 
         <section className="app-section">
           <div className="form-section-title">
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-4">
               <span className="form-section-index">02</span>
               <div>
-                <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
+                <h2 className="text-[15px] font-medium tracking-[-0.015em] text-neutral-950">
                   Additional context
                 </h2>
-                <p className="mt-1 text-[12px] text-slate-400">
+                <p className="mt-1.5 text-[12px] text-neutral-500">
                   Optional information that can be passed to the diagnostic workflow later.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-7">
             <div>
               <label htmlFor="medical-history" className="field-label">Medical history</label>
               <textarea
                 id="medical-history"
-                rows={3}
+                rows={4}
                 value={form.medicalHistory}
                 onChange={(event) => updateField("medicalHistory", event.target.value)}
                 placeholder="Relevant past medical history"
-                className="field-control resize-none leading-[1.65] placeholder:text-slate-300"
+                className="field-control resize-none leading-[1.65] placeholder:text-neutral-400"
               />
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label htmlFor="medications" className="field-label">Current medications</label>
                 <input
@@ -213,7 +213,7 @@ export default function NewCase() {
                   value={form.medications}
                   onChange={(event) => updateField("medications", event.target.value)}
                   placeholder="Current medications"
-                  className="field-control placeholder:text-slate-300"
+                  className="field-control placeholder:text-neutral-400"
                 />
               </div>
               <div>
@@ -224,7 +224,7 @@ export default function NewCase() {
                   value={form.knownConditions}
                   onChange={(event) => updateField("knownConditions", event.target.value)}
                   placeholder="Known diagnoses or conditions"
-                  className="field-control placeholder:text-slate-300"
+                  className="field-control placeholder:text-neutral-400"
                 />
               </div>
             </div>
@@ -237,7 +237,7 @@ export default function NewCase() {
                 value={form.riskFactors}
                 onChange={(event) => updateField("riskFactors", event.target.value)}
                 placeholder="Family history, travel, exposure, occupation, or other relevant risk"
-                className="field-control placeholder:text-slate-300"
+                className="field-control placeholder:text-neutral-400"
               />
             </div>
           </div>
@@ -246,7 +246,7 @@ export default function NewCase() {
         <div className="form-actions">
           <button
             type="submit"
-            className="button-primary button-accent inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[13px] font-semibold text-white"
+            className="button-primary inline-flex items-center gap-2 rounded-full px-5 py-3 text-[13px] font-medium text-white"
           >
             {existingCase || recordId ? "Save and continue" : "Create case"}
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -257,14 +257,14 @@ export default function NewCase() {
           <button
             type="button"
             onClick={handleSaveDraft}
-            className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-[13px] font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-950"
+            className="rounded-full border border-neutral-300 bg-white px-5 py-3 text-[13px] font-medium text-neutral-700 transition-colors hover:border-neutral-950 hover:text-neutral-950"
           >
             {saved ? "Draft saved" : "Save draft"}
           </button>
           <button
             type="button"
             onClick={() => navigate("/cases")}
-            className="rounded-xl px-4 py-3 text-[13px] font-medium text-slate-400 transition-colors hover:text-slate-700"
+            className="px-3 py-3 text-[13px] font-medium text-neutral-500 transition-colors hover:text-neutral-950"
           >
             Cancel
           </button>
