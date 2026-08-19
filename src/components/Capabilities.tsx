@@ -29,28 +29,28 @@ export default function Capabilities() {
   return (
     <section
       ref={ref}
-      className="reveal-section section-space border-t border-slate-100 bg-slate-50/45"
+      className="reveal-section section-space border-t border-neutral-200 bg-white"
       data-revealed={revealed}
     >
       <div className="site-container">
-        <div className="mb-16 max-w-[620px] lg:mb-20">
-          <p className="reveal-item eyebrow">Capabilities</p>
-          <h2 className="reveal-item reveal-delay-1 section-title">
+        <div className="mb-20 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end lg:gap-20">
+          <p className="reveal-item eyebrow mb-0">Capabilities</p>
+          <h2 className="reveal-item reveal-delay-1 section-title max-w-[850px]">
             Focused tools for diagnostic research.
           </h2>
         </div>
 
-        <div className="reveal-item reveal-delay-2 reveal-visual grid gap-8 md:grid-cols-2 lg:grid-cols-4 lg:gap-0">
+        <div className="reveal-item reveal-delay-2 reveal-visual grid gap-8 border-t border-neutral-300 pt-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-0">
           {capabilities.map((capability, index) => (
             <div
               key={capability.title}
-              className={`min-h-[180px] py-2 lg:px-8 ${index === 0 ? "lg:pl-0" : "lg:border-l lg:border-slate-200"}`}
+              className={`min-h-[210px] py-4 lg:px-8 ${index === 0 ? "lg:pl-0" : "lg:border-l lg:border-neutral-200"}`}
             >
-              <span className="text-[10px] font-mono text-slate-300">0{index + 1}</span>
-              <h3 className="mt-8 text-[15px] font-semibold tracking-[-0.015em] text-slate-900">
+              <span className="font-mono text-[10px] text-neutral-400">0{index + 1}</span>
+              <h3 className="mt-10 text-[16px] font-medium tracking-[-0.02em] text-neutral-950">
                 {capability.title}
               </h3>
-              <p className="mt-3 text-[13px] leading-[1.7] text-slate-400">
+              <p className="mt-3 text-[13px] leading-[1.7] text-neutral-500">
                 {capability.description}
               </p>
             </div>
