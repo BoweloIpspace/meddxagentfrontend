@@ -7,27 +7,40 @@ export default function FinalCTA() {
   return (
     <section
       ref={ref}
-      className="reveal-section py-32 sm:py-40 lg:py-52 border-t border-neutral-100"
+      className="reveal-section landing-final-cta"
       data-revealed={revealed}
     >
-      <div className="site-container text-center">
-        <h2 className="reveal-item text-[40px] sm:text-[52px] lg:text-[64px] font-semibold tracking-[-0.04em] leading-[1.0] text-neutral-900 mb-10">
-          Explore MEDDxAgent.
-        </h2>
+      <div className="site-container">
+        <div className="landing-final-cta-panel">
+          <div className="reveal-item">
+            <p className="eyebrow mb-5 text-neutral-500">Workspace</p>
+            <h2 className="landing-final-cta-title">
+              Start with the case. Keep the diagnostic process inspectable.
+            </h2>
+            <p className="landing-final-cta-copy">
+              Create a structured patient case now. Diagnostic outputs remain separate until the MEDDxAgent engine is connected and run.
+            </p>
+          </div>
 
-        <div className="reveal-item reveal-delay-1 flex flex-wrap items-center justify-center gap-x-7 gap-y-4">
-          <Link
-            to="/app"
-            className="button-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-neutral-900 text-white text-[15px] font-medium tracking-[-0.01em]"
-          >
-            Explore MEDDxAgent
-          </Link>
-          <a
-            href="#research"
-            className="secondary-link text-[15px] text-neutral-400"
-          >
-            View the research →
-          </a>
+          <div className="landing-final-cta-actions reveal-item reveal-delay-1">
+            <Link
+              to="/app"
+              className="marketing-cta px-6 py-3 text-[14px]"
+            >
+              Open workspace
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m13 6 6 6-6 6" />
+              </svg>
+            </Link>
+            <a
+              href="#research"
+              className="marketing-secondary-action text-[13px]"
+            >
+              Review the research
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
         </div>
       </div>
     </section>
