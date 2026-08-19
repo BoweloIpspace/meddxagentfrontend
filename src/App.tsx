@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import ProductPreview from "./components/ProductPreview";
@@ -11,6 +11,7 @@ import AuthLayout from "./components/AuthLayout";
 import AppShell from "./components/AppShell";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
 import Settings from "./pages/Settings";
 import NewCase from "./pages/NewCase";
 import Cases from "./pages/Cases";
@@ -35,7 +36,7 @@ function LandingPage() {
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
+    <div className="min-h-screen bg-white flex items-center justify-center px-6">
       <div className="text-center">
         <p className="text-[13px] font-mono text-neutral-300 mb-4">404</p>
         <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-3">
@@ -44,12 +45,12 @@ function NotFound() {
         <p className="text-[15px] text-neutral-400 mb-8">
           The page you're looking for doesn't exist.
         </p>
-        <a
-          href="/"
+        <Link
+          to="/"
           className="button-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-neutral-900 text-white text-[14px] font-medium"
         >
           Back to home
-        </a>
+        </Link>
       </div>
     </div>
   );
@@ -58,10 +59,8 @@ function NotFound() {
 export default function App() {
   return (
     <Routes>
-      {/* Landing page */}
       <Route path="/" element={<LandingPage />} />
 
-      {/* Auth pages */}
       <Route
         path="/login"
         element={
@@ -78,8 +77,15 @@ export default function App() {
           </AuthLayout>
         }
       />
+      <Route
+        path="/forgot-password"
+        element={
+          <AuthLayout>
+            <ForgotPassword />
+          </AuthLayout>
+        }
+      />
 
-      {/* Application pages (inside AppShell) */}
       <Route element={<AppShell />}>
         <Route path="/app" element={<ActiveCase />} />
         <Route path="/cases" element={<Cases />} />
@@ -90,7 +96,6 @@ export default function App() {
         <Route path="/settings" element={<Settings />} />
       </Route>
 
-      {/* 404 fallback */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
