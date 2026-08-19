@@ -4,7 +4,7 @@ import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
 const navItems = [
   { path: "/cases/new", label: "New Case" },
   { path: "/cases", label: "Cases" },
-  { path: "/app", label: "Current Diagnosis" },
+  { path: "/app", label: "Diagnosis" },
   { path: "/evidence", label: "Evidence" },
   { path: "/activity", label: "Activity" },
   { path: "/settings", label: "Settings" },
@@ -23,28 +23,21 @@ export default function AppShell() {
     <div className="workspace-shell">
       <header className="workspace-header sticky top-0 z-50">
         <div className="app-container">
-          <div className="flex h-[72px] items-center justify-between gap-6">
-            <Link to="/" className="flex items-center gap-3 shrink-0 group">
-              <span className="brand-mark transition-transform duration-200 group-hover:-translate-y-0.5">
-                M
+          <div className="flex h-[68px] items-center justify-between gap-6">
+            <Link to="/" className="flex items-center gap-3 shrink-0">
+              <span className="brand-mark">M</span>
+              <span className="text-[14px] font-semibold tracking-[-0.025em] text-slate-950">
+                MEDDxAgent
               </span>
-              <div className="leading-none">
-                <span className="block text-[14px] font-semibold tracking-[-0.025em] text-slate-950">
-                  MEDDxAgent
-                </span>
-                <span className="mt-1 block text-[10px] font-medium tracking-[0.04em] text-slate-400">
-                  CLINICAL RESEARCH
-                </span>
-              </div>
             </Link>
 
-            <nav className="workspace-nav hidden xl:flex items-center gap-0.5">
+            <nav className="workspace-nav hidden xl:flex">
               {navItems.map((item) => (
                 <button
                   key={item.path}
                   type="button"
                   onClick={() => navigate(item.path)}
-                  className={`workspace-nav-item px-3.5 py-2 text-[12px] font-medium transition-all ${
+                  className={`workspace-nav-item px-3.5 py-2 text-[12px] font-medium transition-colors ${
                     activePath === item.path ? "workspace-nav-item-active" : ""
                   }`}
                 >
@@ -53,14 +46,10 @@ export default function AppShell() {
               ))}
             </nav>
 
-            <div className="flex items-center gap-3">
-              <span className="saas-chip hidden md:inline-flex">
-                <span className="saas-chip-dot" />
-                Research workspace
-              </span>
+            <div className="flex items-center gap-2">
               <Link
                 to="/"
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-medium text-slate-500 transition-colors hover:bg-white hover:text-slate-900"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900"
               >
                 Research site
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -72,7 +61,7 @@ export default function AppShell() {
               <button
                 type="button"
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="xl:hidden grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:text-slate-900"
+                className="xl:hidden grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900"
                 aria-label="Toggle menu"
                 aria-expanded={mobileOpen}
               >
@@ -94,7 +83,7 @@ export default function AppShell() {
         </div>
 
         {mobileOpen && (
-          <div className="xl:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-lg">
+          <div className="xl:hidden border-t border-slate-100 bg-white">
             <div className="app-container py-3">
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {navItems.map((item) => (
@@ -107,7 +96,7 @@ export default function AppShell() {
                     }}
                     className={`rounded-xl px-4 py-3 text-left text-[13px] font-medium transition-colors ${
                       activePath === item.path
-                        ? "bg-slate-950 text-white"
+                        ? "bg-blue-50 text-blue-700"
                         : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
                     }`}
                   >
@@ -126,7 +115,7 @@ export default function AppShell() {
         </p>
       </div>
 
-      <main className="app-container pb-4">
+      <main className="app-container">
         <Outlet />
       </main>
     </div>
