@@ -133,11 +133,25 @@ export default function ActiveCase() {
             </div>
           ) : (
             <div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 px-6 py-10">
-              <p className="text-[14px] font-semibold text-slate-800">No diagnostic output yet</p>
+              <p className="text-[14px] font-semibold text-slate-800">Case input is ready</p>
               <p className="mt-2 max-w-[620px] text-[13px] leading-[1.65] text-slate-400">
-                This case currently contains only the information entered in the workspace. A ranked differential,
-                rationale, dialogue history, and retrieved context will appear here only after the real diagnostic engine is connected and run.
+                No diagnostic output has been generated. A ranked differential, rationale, dialogue history,
+                and retrieved context will appear here only after the real MEDDxAgent engine is connected and run.
               </p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                <Link
+                  to="/settings"
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[12px] font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:text-slate-950"
+                >
+                  View connection status
+                </Link>
+                <Link
+                  to={`/case/${caseRecord.id}/edit`}
+                  className="rounded-xl px-3 py-2.5 text-[12px] font-medium text-slate-400 transition-colors hover:text-slate-700"
+                >
+                  Review patient input
+                </Link>
+              </div>
             </div>
           )}
 
