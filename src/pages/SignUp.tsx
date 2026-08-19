@@ -11,18 +11,28 @@ export default function SignUp() {
   const [organization, setOrganization] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setError("");
     setSubmitted(true);
     setTimeout(() => {
       navigate("/app");
-    }, 800);
+    }, 500);
+  };
+
+  const handleGoogle = () => {
+    navigate("/app");
   };
 
   return (
     <div>
-      {/* Heading */}
       <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-3">
         Create your MEDDxAgent account.
       </h1>
@@ -30,15 +40,10 @@ export default function SignUp() {
         Set up your workspace for clinical AI research and differential diagnosis.
       </p>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Name row */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label
-              htmlFor="firstName"
-              className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-            >
+            <label htmlFor="firstName" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
               First name
             </label>
             <input
@@ -47,14 +52,11 @@ export default function SignUp() {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
-              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
+              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
             />
           </div>
           <div>
-            <label
-              htmlFor="lastName"
-              className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-            >
+            <label htmlFor="lastName" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
               Last name
             </label>
             <input
@@ -63,17 +65,13 @@ export default function SignUp() {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
-              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
+              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
             />
           </div>
         </div>
 
-        {/* Email */}
         <div>
-          <label
-            htmlFor="email"
-            className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-          >
+          <label htmlFor="email" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
             Email
           </label>
           <input
@@ -87,12 +85,8 @@ export default function SignUp() {
           />
         </div>
 
-        {/* Password */}
         <div>
-          <label
-            htmlFor="password"
-            className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-          >
+          <label htmlFor="password" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
             Password
           </label>
           <div className="relative">
@@ -128,12 +122,8 @@ export default function SignUp() {
           </div>
         </div>
 
-        {/* Confirm password */}
         <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-          >
+          <label htmlFor="confirmPassword" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
             Confirm password
           </label>
           <input
@@ -145,16 +135,12 @@ export default function SignUp() {
             required
             className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
           />
+          {error && <p className="mt-2 text-[12px] text-red-500">{error}</p>}
         </div>
 
-        {/* Organization (optional) */}
         <div>
-          <label
-            htmlFor="organization"
-            className="block text-[13px] font-medium text-neutral-500 mb-1.5"
-          >
-            Organization / Institution{" "}
-            <span className="text-neutral-300 font-normal">(optional)</span>
+          <label htmlFor="organization" className="block text-[13px] font-medium text-neutral-500 mb-1.5">
+            Organization / Institution <span className="text-neutral-300 font-normal">(optional)</span>
           </label>
           <input
             id="organization"
@@ -166,25 +152,24 @@ export default function SignUp() {
           />
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
-          className="button-primary w-full px-4 py-2.5 rounded-lg bg-neutral-900 text-white text-[15px] font-medium tracking-[-0.01em]"
+          disabled={submitted}
+          className="button-primary w-full px-4 py-2.5 rounded-lg bg-neutral-900 text-white text-[15px] font-medium tracking-[-0.01em] disabled:cursor-wait disabled:opacity-70"
         >
           {submitted ? "Creating account..." : "Create account"}
         </button>
       </form>
 
-      {/* Divider */}
       <div className="flex items-center gap-4 my-8">
         <div className="flex-1 h-px bg-neutral-100" />
         <span className="text-[13px] text-neutral-300">or</span>
         <div className="flex-1 h-px bg-neutral-100" />
       </div>
 
-      {/* Google */}
       <button
         type="button"
+        onClick={handleGoogle}
         className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg border border-neutral-200 text-[14px] font-medium text-neutral-700 hover:bg-neutral-50 hover:border-neutral-300 transition-colors"
       >
         <svg width="18" height="18" viewBox="0 0 24 24">
@@ -196,21 +181,13 @@ export default function SignUp() {
         Continue with Google
       </button>
 
-      {/* Terms */}
       <p className="text-center text-[12px] text-neutral-300 mt-8 leading-[1.6]">
-        By creating an account, you agree to our{" "}
-        <a href="#" className="underline underline-offset-2 hover:text-neutral-500 transition-colors">Terms of Service</a>{" "}
-        and{" "}
-        <a href="#" className="underline underline-offset-2 hover:text-neutral-500 transition-colors">Privacy Policy</a>.
+        By creating an account, you agree to the MEDDxAgent prototype terms and privacy notice.
       </p>
 
-      {/* Footer link */}
       <p className="text-center text-[14px] text-neutral-400 mt-6">
         Already have an account?{" "}
-        <Link
-          to="/login"
-          className="text-neutral-900 font-medium hover:underline underline-offset-2"
-        >
+        <Link to="/login" className="text-neutral-900 font-medium hover:underline underline-offset-2">
           Sign in
         </Link>
       </p>
