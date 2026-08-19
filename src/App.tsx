@@ -13,8 +13,6 @@ import Settings from "./pages/Settings";
 import NewCase from "./pages/NewCase";
 import Cases from "./pages/Cases";
 import ActiveCase from "./pages/ActiveCase";
-import Evidence from "./pages/Evidence";
-import Activity from "./pages/Activity";
 
 function LandingPage() {
   return (
@@ -64,8 +62,6 @@ export default function App() {
         <Route path="/cases/new" element={<NewCase />} />
         <Route path="/case/:id" element={<ActiveCase />} />
         <Route path="/case/:id/edit" element={<NewCase />} />
-        <Route path="/evidence" element={<Evidence />} />
-        <Route path="/activity" element={<Activity />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
 
