@@ -15,35 +15,37 @@ export default function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Determine active nav item based on current path
   const activePath = navItems.find(
     (item) => item.path === location.pathname || location.pathname.startsWith(item.path + "/")
   )?.path ?? location.pathname;
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top navigation */}
-      <header className="sticky top-0 z-50 border-b border-neutral-100 bg-white/95 backdrop-blur-md">
+    <div className="workspace-shell">
+      <header className="workspace-header sticky top-0 z-50">
         <div className="app-container">
-          <div className="flex h-16 items-center justify-between">
-            {/* Logo */}
-            <Link to="/" className="flex items-center shrink-0">
-              <span className="text-[15px] font-semibold tracking-tight text-neutral-900">
-                MEDDxAgent
+          <div className="flex h-[72px] items-center justify-between gap-6">
+            <Link to="/" className="flex items-center gap-3 shrink-0 group">
+              <span className="brand-mark transition-transform duration-200 group-hover:-translate-y-0.5">
+                M
               </span>
+              <div className="leading-none">
+                <span className="block text-[14px] font-semibold tracking-[-0.025em] text-slate-950">
+                  MEDDxAgent
+                </span>
+                <span className="mt-1 block text-[10px] font-medium tracking-[0.04em] text-slate-400">
+                  CLINICAL RESEARCH
+                </span>
+              </div>
             </Link>
 
-            {/* Desktop nav */}
-            <nav className="hidden lg:flex items-center gap-2.5">
+            <nav className="workspace-nav hidden xl:flex items-center gap-0.5">
               {navItems.map((item) => (
                 <button
                   key={item.path}
                   type="button"
                   onClick={() => navigate(item.path)}
-                  className={`px-4 py-2 rounded-md text-[13px] font-medium transition-colors ${
-                    activePath === item.path
-                      ? "text-neutral-900 bg-neutral-50"
-                      : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50/50"
+                  className={`workspace-nav-item px-3.5 py-2 text-[12px] font-medium transition-all ${
+                    activePath === item.path ? "workspace-nav-item-active" : ""
                   }`}
                 >
                   {item.label}
@@ -51,29 +53,36 @@ export default function AppShell() {
               ))}
             </nav>
 
-            {/* Right side */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="saas-chip hidden md:inline-flex">
+                <span className="saas-chip-dot" />
+                Research workspace
+              </span>
               <Link
                 to="/"
-                className="hidden sm:block text-[13px] text-neutral-400 hover:text-neutral-700 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-medium text-slate-500 transition-colors hover:bg-white hover:text-slate-900"
               >
-                Landing page
+                Research site
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14" />
+                  <path d="m13 6 6 6-6 6" />
+                </svg>
               </Link>
 
-              {/* Mobile menu button */}
               <button
                 type="button"
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden p-2 text-neutral-400 hover:text-neutral-900 transition-colors"
+                className="xl:hidden grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:text-slate-900"
                 aria-label="Toggle menu"
+                aria-expanded={mobileOpen}
               >
                 {mobileOpen ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
                     <line x1="18" y1="6" x2="6" y2="18" />
                     <line x1="6" y1="6" x2="18" y2="18" />
                   </svg>
                 ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
                     <line x1="4" y1="7" x2="20" y2="7" />
                     <line x1="4" y1="12" x2="20" y2="12" />
                     <line x1="4" y1="17" x2="20" y2="17" />
@@ -84,41 +93,40 @@ export default function AppShell() {
           </div>
         </div>
 
-        {/* Mobile nav */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-neutral-100 bg-white">
-            <div className="site-container py-4 space-y-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.path}
-                  type="button"
-                  onClick={() => {
-                    navigate(item.path);
-                    setMobileOpen(false);
-                  }}
-                  className={`block w-full text-left px-3 py-3 rounded-md text-[14px] transition-colors ${
-                    activePath === item.path
-                      ? "text-neutral-900 font-medium bg-neutral-50"
-                      : "text-neutral-500 hover:text-neutral-900"
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
+          <div className="xl:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-lg">
+            <div className="app-container py-3">
+              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                {navItems.map((item) => (
+                  <button
+                    key={item.path}
+                    type="button"
+                    onClick={() => {
+                      navigate(item.path);
+                      setMobileOpen(false);
+                    }}
+                    className={`rounded-xl px-4 py-3 text-left text-[13px] font-medium transition-colors ${
+                      activePath === item.path
+                        ? "bg-slate-950 text-white"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-950"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
       </header>
 
-      {/* Safety disclaimer */}
       <div className="app-container">
-        <p className="text-[11px] text-neutral-300 pt-6 pb-4 hidden sm:block">
+        <p className="workspace-safety hidden sm:flex">
           Clinical decision support — review all outputs before making clinical decisions.
         </p>
       </div>
 
-      {/* Content */}
-      <main className="app-container">
+      <main className="app-container pb-4">
         <Outlet />
       </main>
     </div>
