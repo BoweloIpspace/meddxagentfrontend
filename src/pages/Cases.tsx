@@ -4,11 +4,11 @@ import { getCases } from "../data/caseStore";
 import type { CaseStatus } from "../types";
 
 const statusStyles: Record<CaseStatus, string> = {
-  draft: "border-slate-200 text-slate-500",
-  ready: "border-blue-200 bg-blue-50 text-blue-700",
-  active: "border-slate-300 bg-slate-50 text-slate-700",
-  completed: "border-slate-200 bg-slate-50 text-slate-500",
-  error: "border-rose-200 bg-rose-50 text-rose-700",
+  draft: "border-neutral-300 text-neutral-600",
+  ready: "border-neutral-950 bg-neutral-950 text-white",
+  active: "border-neutral-400 text-neutral-800",
+  completed: "border-neutral-300 text-neutral-500",
+  error: "border-neutral-950 text-neutral-950",
 };
 
 const statusLabels: Record<CaseStatus, string> = {
@@ -44,46 +44,53 @@ export default function Cases() {
 
   return (
     <div className="app-page">
-      <div className="app-page-header flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
+      <div className="app-page-header grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
-          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
+          <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">
             Workspace
           </p>
-          <h1 className="text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-slate-950 sm:text-[34px]">
+          <h1 className="text-[38px] font-medium leading-[1.03] tracking-[-0.05em] text-neutral-950 sm:text-[48px]">
             Cases
           </h1>
-          <p className="mt-2 text-[13px] text-slate-400">
-            {cases.length === 0 ? "No locally stored cases" : `${cases.length} locally stored ${cases.length === 1 ? "case" : "cases"}`}
+          <p className="mt-4 text-[13px] text-neutral-500">
+            {cases.length === 0
+              ? "No locally stored cases"
+              : `${cases.length} locally stored ${cases.length === 1 ? "case" : "cases"}`}
           </p>
         </div>
         <Link
           to="/cases/new"
-          className="button-primary button-accent inline-flex self-start rounded-xl px-5 py-3 text-[13px] font-semibold text-white sm:self-auto"
+          className="button-primary inline-flex self-start rounded-full px-5 py-3 text-[13px] font-medium text-white sm:self-auto"
         >
           New case
         </Link>
       </div>
 
       {cases.length === 0 ? (
-        <div className="border-t border-slate-100 py-20 text-center">
-          <h2 className="text-[19px] font-semibold tracking-[-0.02em] text-slate-900">
-            No cases yet
-          </h2>
-          <p className="mx-auto mt-2 max-w-[480px] text-[13px] leading-[1.65] text-slate-400">
-            Create the first case from real patient context. Only information entered in this workspace will appear here.
-          </p>
-          <Link
-            to="/cases/new"
-            className="mt-6 inline-flex rounded-xl bg-slate-950 px-4 py-2.5 text-[13px] font-semibold text-white transition-colors hover:bg-slate-800"
-          >
-            Create first case
-          </Link>
+        <div className="border-t border-neutral-300 py-20">
+          <div className="max-w-[620px]">
+            <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">
+              Empty workspace
+            </p>
+            <h2 className="mt-5 text-[30px] font-medium tracking-[-0.04em] text-neutral-950">
+              No cases yet.
+            </h2>
+            <p className="mt-4 max-w-[520px] text-[14px] leading-[1.7] text-neutral-600">
+              Create the first case from real patient context. Only information entered here will appear in the workspace.
+            </p>
+            <Link
+              to="/cases/new"
+              className="button-primary mt-7 inline-flex rounded-full px-4 py-2.5 text-[13px] font-medium text-white"
+            >
+              Create first case
+            </Link>
+          </div>
         </div>
       ) : (
         <>
-          <div className="mb-8 flex flex-col gap-4 border-t border-slate-100 pt-8 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-10 flex flex-col gap-5 border-t border-neutral-300 pt-8 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-[360px]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" aria-hidden="true">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" aria-hidden="true">
                 <circle cx="11" cy="11" r="8" />
                 <path d="m21 21-4.3-4.3" />
               </svg>
@@ -92,21 +99,21 @@ export default function Cases() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search case or patient ID"
-                className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-[13px] text-slate-900 placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
+                className="w-full rounded-lg border border-neutral-300 bg-white py-2.5 pl-9 pr-4 text-[13px] text-neutral-950 placeholder:text-neutral-400 focus:border-neutral-950 focus:outline-none"
               />
             </div>
 
             {filters.length > 2 && (
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
                 {filters.map((item) => (
                   <button
                     key={item}
                     type="button"
                     onClick={() => setFilter(item)}
-                    className={`rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
+                    className={`border-b py-1 text-[12px] font-medium transition-colors ${
                       filter === item
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-400 hover:text-slate-700"
+                        ? "border-neutral-950 text-neutral-950"
+                        : "border-transparent text-neutral-500 hover:text-neutral-950"
                     }`}
                   >
                     {item === "all" ? "All" : statusLabels[item]}
@@ -116,68 +123,66 @@ export default function Cases() {
             )}
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50/70">
-                    <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Case</th>
-                    <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Patient</th>
-                    <th className="hidden px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400 md:table-cell">Status</th>
-                    <th className="hidden px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400 lg:table-cell">Updated</th>
-                    <th className="px-6 py-4" />
+          <div className="overflow-x-auto border-y border-neutral-300">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-neutral-200">
+                  <th className="px-0 py-4 pr-6 text-[10px] font-medium uppercase tracking-[0.08em] text-neutral-500">Case</th>
+                  <th className="px-6 py-4 text-[10px] font-medium uppercase tracking-[0.08em] text-neutral-500">Patient</th>
+                  <th className="hidden px-6 py-4 text-[10px] font-medium uppercase tracking-[0.08em] text-neutral-500 md:table-cell">Status</th>
+                  <th className="hidden px-6 py-4 text-[10px] font-medium uppercase tracking-[0.08em] text-neutral-500 lg:table-cell">Updated</th>
+                  <th className="py-4 pl-6" />
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((caseRecord) => (
+                  <tr key={caseRecord.id} className="border-b border-neutral-200 last:border-0">
+                    <td className="px-0 py-6 pr-6">
+                      <p className="font-mono text-[10px] text-neutral-500">{caseRecord.id}</p>
+                      <p className="mt-2 max-w-[360px] text-[15px] font-medium text-neutral-900">
+                        {caseRecord.patient.chiefComplaint || "Untitled case"}
+                      </p>
+                    </td>
+                    <td className="px-6 py-6">
+                      <p className="text-[13px] text-neutral-700">{caseRecord.patient.id || "No patient ID"}</p>
+                      <p className="mt-1 text-[11px] text-neutral-500">
+                        {caseRecord.patient.age ? `${caseRecord.patient.age}y` : "Age not entered"}
+                        {caseRecord.patient.sex ? ` · ${caseRecord.patient.sex}` : ""}
+                      </p>
+                    </td>
+                    <td className="hidden px-6 py-6 md:table-cell">
+                      <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-medium ${statusStyles[caseRecord.status]}`}>
+                        {statusLabels[caseRecord.status]}
+                      </span>
+                    </td>
+                    <td className="hidden px-6 py-6 lg:table-cell">
+                      <span className="text-[11px] text-neutral-500">
+                        {new Date(caseRecord.updatedAt).toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="py-6 pl-6 text-right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          navigate(
+                            caseRecord.status === "draft"
+                              ? `/case/${caseRecord.id}/edit`
+                              : `/case/${caseRecord.id}`
+                          )
+                        }
+                        className="text-[12px] font-medium text-neutral-600 transition-colors hover:text-neutral-950"
+                      >
+                        {caseRecord.status === "draft" ? "Continue →" : "Open →"}
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((caseRecord) => (
-                    <tr key={caseRecord.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
-                      <td className="px-6 py-5">
-                        <p className="font-mono text-[11px] text-slate-400">{caseRecord.id}</p>
-                        <p className="mt-1 max-w-[340px] text-[14px] font-medium text-slate-800">
-                          {caseRecord.patient.chiefComplaint || "Untitled case"}
-                        </p>
-                      </td>
-                      <td className="px-6 py-5">
-                        <p className="text-[13px] text-slate-600">{caseRecord.patient.id || "No patient ID"}</p>
-                        <p className="mt-1 text-[11px] text-slate-400">
-                          {caseRecord.patient.age ? `${caseRecord.patient.age}y` : "Age not entered"}
-                          {caseRecord.patient.sex ? ` · ${caseRecord.patient.sex}` : ""}
-                        </p>
-                      </td>
-                      <td className="hidden px-6 py-5 md:table-cell">
-                        <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-semibold ${statusStyles[caseRecord.status]}`}>
-                          {statusLabels[caseRecord.status]}
-                        </span>
-                      </td>
-                      <td className="hidden px-6 py-5 lg:table-cell">
-                        <span className="text-[12px] text-slate-400">
-                          {new Date(caseRecord.updatedAt).toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-6 py-5 text-right">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            navigate(
-                              caseRecord.status === "draft"
-                                ? `/case/${caseRecord.id}/edit`
-                                : `/case/${caseRecord.id}`
-                            )
-                          }
-                          className="text-[12px] font-semibold text-slate-500 transition-colors hover:text-slate-950"
-                        >
-                          {caseRecord.status === "draft" ? "Continue" : "Open"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
 
             {filtered.length === 0 && (
               <div className="py-14 text-center">
-                <p className="text-[13px] text-slate-400">No cases match this search.</p>
+                <p className="text-[13px] text-neutral-500">No cases match this search.</p>
               </div>
             )}
           </div>
