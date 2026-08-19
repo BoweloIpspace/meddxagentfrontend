@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
-  { path: "/cases/new", label: "New Case" },
+  { path: "/app", label: "Workspace" },
   { path: "/cases", label: "Cases" },
-  { path: "/app", label: "Diagnosis" },
-  { path: "/evidence", label: "Evidence" },
-  { path: "/activity", label: "Activity" },
+  { path: "/cases/new", label: "New case" },
   { path: "/settings", label: "Settings" },
 ];
 
@@ -15,16 +13,18 @@ export default function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const activePath = navItems.find(
-    (item) => item.path === location.pathname || location.pathname.startsWith(item.path + "/")
-  )?.path ?? location.pathname;
+  const activePath = location.pathname.startsWith("/case/")
+    ? "/cases"
+    : navItems.find(
+        (item) => item.path === location.pathname || location.pathname.startsWith(item.path + "/")
+      )?.path ?? location.pathname;
 
   return (
     <div className="workspace-shell">
       <header className="workspace-header sticky top-0 z-50">
         <div className="app-container">
           <div className="flex h-[68px] items-center justify-between gap-6">
-            <Link to="/" className="flex items-center gap-3 shrink-0">
+            <Link to="/app" className="flex shrink-0 items-center gap-3">
               <span className="brand-mark">M</span>
               <span className="text-[14px] font-semibold tracking-[-0.025em] text-slate-950">
                 MEDDxAgent
@@ -49,7 +49,7 @@ export default function AppShell() {
             <div className="flex items-center gap-2">
               <Link
                 to="/"
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 sm:inline-flex"
               >
                 Research site
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -61,7 +61,7 @@ export default function AppShell() {
               <button
                 type="button"
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="xl:hidden grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                className="grid h-9 w-9 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900 xl:hidden"
                 aria-label="Toggle menu"
                 aria-expanded={mobileOpen}
               >
@@ -83,7 +83,7 @@ export default function AppShell() {
         </div>
 
         {mobileOpen && (
-          <div className="xl:hidden border-t border-slate-100 bg-white">
+          <div className="border-t border-slate-100 bg-white xl:hidden">
             <div className="app-container py-3">
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {navItems.map((item) => (
