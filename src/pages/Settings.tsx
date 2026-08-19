@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { caseHistory } from "../data/mockData";
 
 type SettingsTab = "account" | "engine" | "evidence" | "privacy" | "interface";
 
@@ -10,7 +11,6 @@ const tabs: { id: SettingsTab; label: string }[] = [
   { id: "interface", label: "Interface" },
 ];
 
-/* ── Shared toggle component ── */
 function Toggle({
   checked,
   onChange,
@@ -23,11 +23,11 @@ function Toggle({
   description?: string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-8 py-6">
+    <div className="flex items-start justify-between gap-8 py-5">
       <div className="min-w-0">
-        <p className="text-[14px] font-medium text-neutral-900">{label}</p>
+        <p className="text-[13px] font-medium text-slate-900">{label}</p>
         {description && (
-          <p className="text-[13px] text-neutral-400 mt-0.5 leading-[1.5]">
+          <p className="mt-1 max-w-[390px] text-[12px] leading-[1.55] text-slate-400">
             {description}
           </p>
         )}
@@ -37,91 +37,76 @@ function Toggle({
         role="switch"
         aria-checked={checked}
         onClick={onChange}
-        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-300 focus:ring-offset-2 ${
-          checked ? "bg-neutral-900" : "bg-neutral-200"
+        className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-200 ${
+          checked ? "bg-blue-600" : "bg-slate-200"
         }`}
       >
         <span
-          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ${
+          className={`mt-[2px] inline-block h-5 w-5 rounded-full bg-white transition-transform ${
             checked ? "translate-x-[22px]" : "translate-x-[2px]"
-          } mt-[2px]`}
+          }`}
         />
       </button>
     </div>
   );
 }
 
-/* ── Account Tab ── */
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="border-b border-slate-100 pb-10 last:border-0 last:pb-0">
+      <h3 className="text-[15px] font-semibold tracking-[-0.015em] text-slate-900">{title}</h3>
+      <p className="mt-1 max-w-[520px] text-[13px] leading-[1.6] text-slate-400">{description}</p>
+      <div className="mt-6">{children}</div>
+    </section>
+  );
+}
+
 function AccountTab() {
   const [saved, setSaved] = useState(false);
+  const [twoFactor, setTwoFactor] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = (event: React.FormEvent) => {
+    event.preventDefault();
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    setTimeout(() => setSaved(false), 1600);
   };
 
   return (
-    <div className="space-y-16">
-      <div>
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Profile
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Your personal information and institutional affiliation.
-        </p>
-
-        <form onSubmit={handleSave} className="space-y-6 max-w-[520px]">
-          <div className="grid grid-cols-2 gap-5">
+    <div className="space-y-10">
+      <Section
+        title="Profile"
+        description="Personal information and institutional affiliation for this prototype workspace."
+      >
+        <form onSubmit={handleSave} className="max-w-[560px] space-y-5">
+          <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-                First name
-              </label>
-              <input
-                type="text"
-                defaultValue="Alex"
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-              />
+              <label className="field-label">First name</label>
+              <input type="text" defaultValue="Alex" className="field-control" />
             </div>
             <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-                Last name
-              </label>
-              <input
-                type="text"
-                defaultValue="Morgan"
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-              />
+              <label className="field-label">Last name</label>
+              <input type="text" defaultValue="Morgan" className="field-control" />
             </div>
           </div>
-
           <div>
-            <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-              Email
-            </label>
-            <input
-              type="email"
-              defaultValue="alex.morgan@institution.edu"
-              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-            />
+            <label className="field-label">Email</label>
+            <input type="email" defaultValue="alex.morgan@institution.edu" className="field-control" />
           </div>
-
           <div>
-            <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-              Institution / Organization
-            </label>
-            <input
-              type="text"
-              defaultValue="Johns Hopkins Medicine"
-              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-            />
+            <label className="field-label">Institution / Organization</label>
+            <input type="text" defaultValue="Johns Hopkins Medicine" className="field-control" />
           </div>
-
           <div>
-            <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-              Professional role
-            </label>
-            <select className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors appearance-none">
+            <label className="field-label">Professional role</label>
+            <select className="field-control appearance-none">
               <option>Clinician</option>
               <option>Medical Researcher</option>
               <option>Clinical AI Engineer</option>
@@ -129,447 +114,266 @@ function AccountTab() {
               <option>Other</option>
             </select>
           </div>
-
-          <div className="pt-2">
-            <button
-              type="submit"
-              className="button-primary px-6 py-2.5 rounded-lg bg-neutral-900 text-white text-[14px] font-medium"
-            >
-              {saved ? "Saved ✓" : "Save changes"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="button-primary rounded-xl bg-slate-900 px-5 py-2.5 text-[13px] font-semibold text-white"
+          >
+            {saved ? "Saved ✓" : "Save changes"}
+          </button>
         </form>
-      </div>
+      </Section>
 
-      {/* Security */}
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Security
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Manage your password and authentication methods.
-        </p>
-
-        <div className="space-y-5 max-w-[520px]">
-          <div>
-            <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-              Password
-            </label>
-            <input
-              type="password"
-              defaultValue="••••••••"
-              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-            />
-          </div>
-
-          <div className="flex items-center justify-between py-4">
-            <div>
-              <p className="text-[14px] font-medium text-neutral-900">
-                Two-factor authentication
-              </p>
-              <p className="text-[13px] text-neutral-400 mt-0.5">
-                Add an extra layer of security to your account.
-              </p>
-            </div>
-            <button
-              type="button"
-              className="px-4 py-1.5 text-[13px] font-medium text-neutral-600 border border-neutral-200 rounded-lg hover:bg-neutral-50 hover:border-neutral-300 transition-colors"
-            >
-              Enable
-            </button>
-          </div>
+      <Section title="Security" description="Local prototype controls for account security preferences.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
+          <Toggle
+            checked={twoFactor}
+            onChange={() => setTwoFactor((value) => !value)}
+            label="Two-factor authentication"
+            description={twoFactor ? "Two-factor authentication is enabled in this prototype UI." : "Add an extra layer of security to your account."}
+          />
         </div>
-      </div>
+      </Section>
     </div>
   );
 }
 
-/* ── Diagnostic Engine Tab ── */
 function EngineTab() {
   const [mode, setMode] = useState<"interactive" | "automated">("interactive");
   const [maxIterations, setMaxIterations] = useState("5");
+  const [preferences, setPreferences] = useState({
+    autoQuestions: true,
+    physicianIntervention: false,
+    pubmed: true,
+    wikipedia: true,
+    guidelines: false,
+  });
+
+  const toggle = (key: keyof typeof preferences) =>
+    setPreferences((current) => ({ ...current, [key]: !current[key] }));
 
   return (
-    <div className="space-y-16">
-      <div>
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Diagnostic mode
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Configure how the DDxDriver orchestrates the diagnostic pipeline.
-        </p>
-
-        <div className="space-y-3 max-w-[480px]">
+    <div className="space-y-10">
+      <Section title="Diagnostic mode" description="Choose how the prototype presents the diagnostic workflow.">
+        <div className="grid max-w-[620px] gap-3 sm:grid-cols-2">
           {[
-            { id: "interactive" as const, label: "Interactive", description: "Physician reviews each iteration before proceeding." },
-            { id: "automated" as const, label: "Automated", description: "Engine runs through iterations without manual review." },
-          ].map((m) => (
+            { id: "interactive" as const, label: "Interactive", description: "Review the workflow one step at a time." },
+            { id: "automated" as const, label: "Automated", description: "Present the workflow as a continuous run." },
+          ].map((item) => (
             <button
-              key={m.id}
+              key={item.id}
               type="button"
-              onClick={() => setMode(m.id)}
-              className={`w-full flex items-center justify-between px-5 py-4 rounded-lg border transition-colors text-left ${
-                mode === m.id
-                  ? "border-neutral-900 bg-neutral-50"
-                  : "border-neutral-200 bg-white hover:border-neutral-300"
+              onClick={() => setMode(item.id)}
+              className={`rounded-xl border p-4 text-left transition-colors ${
+                mode === item.id
+                  ? "border-blue-200 bg-blue-50/60"
+                  : "border-slate-200 bg-white hover:bg-slate-50"
               }`}
             >
-              <div>
-                <p className="text-[14px] font-medium text-neutral-900">{m.label}</p>
-                <p className="text-[13px] text-neutral-400 mt-0.5">{m.description}</p>
-              </div>
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                  mode === m.id ? "border-neutral-900" : "border-neutral-300"
-                }`}
-              >
-                {mode === m.id && (
-                  <div className="w-2.5 h-2.5 rounded-full bg-neutral-900" />
-                )}
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[13px] font-medium text-slate-900">{item.label}</p>
+                  <p className="mt-1 text-[12px] leading-[1.55] text-slate-400">{item.description}</p>
+                </div>
+                <span className={`mt-0.5 h-3 w-3 rounded-full border ${mode === item.id ? "border-blue-600 bg-blue-600" : "border-slate-300"}`} />
               </div>
             </button>
           ))}
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Iteration limits
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Control the maximum number of diagnostic iterations per case.
-        </p>
-
-        <div className="max-w-[480px] space-y-5">
-          <div>
-            <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-              Maximum iterations
-            </label>
-            <select
-              value={maxIterations}
-              onChange={(e) => setMaxIterations(e.target.value)}
-              className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors appearance-none"
-            >
-              {[3, 5, 7, 10].map((n) => (
-                <option key={n} value={n}>{n}</option>
-              ))}
-            </select>
-          </div>
+      <Section title="Iteration display" description="Set the maximum iteration count shown in the prototype controls.">
+        <div className="max-w-[260px]">
+          <label className="field-label">Maximum iterations</label>
+          <select
+            value={maxIterations}
+            onChange={(event) => setMaxIterations(event.target.value)}
+            className="field-control appearance-none"
+          >
+            {[3, 5, 7, 10].map((value) => (
+              <option key={value} value={value}>{value}</option>
+            ))}
+          </select>
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          History-taking settings
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Configure how the history-taking agent gathers patient information.
-        </p>
-
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100 max-w-[480px]">
+      <Section title="History taking" description="Control local prototype preferences for the history-taking interface.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
           <Toggle
-            checked={true}
-            onChange={() => {}}
+            checked={preferences.autoQuestions}
+            onChange={() => toggle("autoQuestions")}
             label="Auto-generate questions"
-            description="Automatically generate targeted clinical questions based on the current differential."
+            description="Show automatically generated targeted clinical questions."
           />
           <Toggle
-            checked={false}
-            onChange={() => {}}
+            checked={preferences.physicianIntervention}
+            onChange={() => toggle("physicianIntervention")}
             label="Allow physician intervention"
-            description="Allow the physician to add custom questions during history-taking."
+            description="Allow custom questions to be added during history taking."
           />
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Knowledge retrieval
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Configure which sources the retrieval agent queries.
-        </p>
-
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100 max-w-[480px]">
-          <Toggle
-            checked={true}
-            onChange={() => {}}
-            label="PubMed"
-            description="Search biomedical literature from PubMed."
-          />
-          <Toggle
-            checked={true}
-            onChange={() => {}}
-            label="Wikipedia"
-            description="Retrieve general medical knowledge from Wikipedia."
-          />
-          <Toggle
-            checked={false}
-            onChange={() => {}}
-            label="Clinical guidelines"
-            description="Search clinical practice guidelines from major medical organizations."
-          />
+      <Section title="Knowledge retrieval" description="Choose which source labels are enabled in the prototype evidence UI.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
+          <Toggle checked={preferences.pubmed} onChange={() => toggle("pubmed")} label="PubMed" />
+          <Toggle checked={preferences.wikipedia} onChange={() => toggle("wikipedia")} label="Wikipedia" />
+          <Toggle checked={preferences.guidelines} onChange={() => toggle("guidelines")} label="Clinical guidelines" />
         </div>
-      </div>
+      </Section>
     </div>
   );
 }
 
-/* ── Evidence Tab ── */
 function EvidenceTab() {
+  const [sources, setSources] = useState({ pubmed: true, wikipedia: true, guidelines: false });
+  const [filters, setFilters] = useState({ relevance: true, sourceLinks: false });
+
+  const toggleSource = (key: keyof typeof sources) =>
+    setSources((current) => ({ ...current, [key]: !current[key] }));
+  const toggleFilter = (key: keyof typeof filters) =>
+    setFilters((current) => ({ ...current, [key]: !current[key] }));
+
   return (
-    <div className="space-y-16">
-      <div>
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Evidence sources
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Manage which knowledge sources are available for evidence retrieval.
-        </p>
-
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100 max-w-[480px]">
-          <Toggle
-            checked={true}
-            onChange={() => {}}
-            label="PubMed"
-            description="Biomedical literature database. Primary source for clinical evidence."
-          />
-          <Toggle
-            checked={true}
-            onChange={() => {}}
-            label="Wikipedia"
-            description="General medical knowledge base. Useful for background context."
-          />
-          <Toggle
-            checked={false}
-            onChange={() => {}}
-            label="Cochrane Library"
-            description="Systematic reviews and meta-analyses."
-          />
-          <Toggle
-            checked={false}
-            onChange={() => {}}
-            label="UpToDate"
-            description="Clinical decision support resource (requires subscription)."
-          />
+    <div className="space-y-10">
+      <Section title="Evidence sources" description="Local display preferences for source types in the prototype evidence view.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
+          <Toggle checked={sources.pubmed} onChange={() => toggleSource("pubmed")} label="PubMed" />
+          <Toggle checked={sources.wikipedia} onChange={() => toggleSource("wikipedia")} label="Wikipedia" />
+          <Toggle checked={sources.guidelines} onChange={() => toggleSource("guidelines")} label="Clinical guidelines" />
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Retrieval settings
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Fine-tune how evidence is retrieved and presented.
-        </p>
-
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100 max-w-[480px]">
+      <Section title="Evidence display" description="Adjust how evidence is presented in this frontend prototype.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
           <Toggle
-            checked={true}
-            onChange={() => {}}
+            checked={filters.relevance}
+            onChange={() => toggleFilter("relevance")}
             label="Relevance filtering"
-            description="Only show evidence with high relevance to the current differential."
+            description="Prefer higher-relevance evidence in the interface."
           />
           <Toggle
-            checked={false}
-            onChange={() => {}}
+            checked={filters.sourceLinks}
+            onChange={() => toggleFilter("sourceLinks")}
             label="Show source links"
-            description="Display clickable links to original sources in the evidence view."
+            description="Show source-link affordances when source URLs are available."
           />
         </div>
-      </div>
+      </Section>
     </div>
   );
 }
 
-/* ── Privacy Tab ── */
 function PrivacyTab() {
-  const [privacy, setPrivacy] = useState({
-    analytics: true,
-    research: false,
-    dataSharing: false,
-  });
+  const [privacy, setPrivacy] = useState({ analytics: true, research: false, dataSharing: false });
+  const [retention, setRetention] = useState("90 days");
+  const [exported, setExported] = useState(false);
 
   const toggle = (key: keyof typeof privacy) =>
-    setPrivacy((prev) => ({ ...prev, [key]: !prev[key] }));
+    setPrivacy((current) => ({ ...current, [key]: !current[key] }));
+
+  const handleExport = () => {
+    const payload = JSON.stringify(caseHistory, null, 2);
+    const blob = new Blob([payload], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "meddxagent-cases.json";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    setExported(true);
+    setTimeout(() => setExported(false), 1600);
+  };
 
   return (
-    <div className="space-y-16">
-      <div>
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Data handling
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Manage how your case data is handled and retained.
-        </p>
-
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100 max-w-[480px]">
-          <Toggle
-            checked={privacy.analytics}
-            onChange={() => toggle("analytics")}
-            label="Usage analytics"
-            description="Help improve MEDDxAgent by sharing anonymous usage data."
-          />
-          <Toggle
-            checked={privacy.research}
-            onChange={() => toggle("research")}
-            label="Research data participation"
-            description="Contribute de-identified case data to clinical AI research."
-          />
-          <Toggle
-            checked={privacy.dataSharing}
-            onChange={() => toggle("dataSharing")}
-            label="Third-party data sharing"
-            description="Allow sharing of anonymized data with research partners."
-          />
+    <div className="space-y-10">
+      <Section title="Data handling" description="Local prototype preferences for data-handling controls.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
+          <Toggle checked={privacy.analytics} onChange={() => toggle("analytics")} label="Usage analytics" />
+          <Toggle checked={privacy.research} onChange={() => toggle("research")} label="Research data participation" />
+          <Toggle checked={privacy.dataSharing} onChange={() => toggle("dataSharing")} label="Third-party data sharing" />
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Case retention
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Control how long diagnostic cases are stored.
-        </p>
-
-        <div className="max-w-[480px]">
-          <label className="block text-[13px] font-medium text-neutral-500 mb-1.5">
-            Retention period
-          </label>
-          <select className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors appearance-none">
+      <Section title="Case retention" description="Choose the retention preference shown by the prototype.">
+        <div className="max-w-[260px]">
+          <label className="field-label">Retention period</label>
+          <select value={retention} onChange={(event) => setRetention(event.target.value)} className="field-control appearance-none">
             <option>30 days</option>
             <option>90 days</option>
             <option>1 year</option>
             <option>Indefinite</option>
           </select>
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Export data
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Download your case data for external use.
-        </p>
-
+      <Section title="Export data" description="Download the current frontend mock case data as JSON.">
         <button
           type="button"
-          className="px-5 py-2.5 text-[13px] font-medium text-neutral-600 border border-neutral-200 rounded-lg hover:bg-neutral-50 hover:border-neutral-300 transition-colors"
+          onClick={handleExport}
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[13px] font-semibold text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
         >
-          Export all cases (JSON)
+          {exported ? "Exported ✓" : "Export cases (JSON)"}
         </button>
-      </div>
+      </Section>
     </div>
   );
 }
 
-/* ── Interface Tab ── */
 function InterfaceTab() {
-  const [compact, setCompact] = useState(false);
+  const [appearance, setAppearance] = useState<"system" | "light" | "dark">("light");
+  const [display, setDisplay] = useState({ compact: false, timestamps: true, confidenceBars: true });
+  const [notifications, setNotifications] = useState({ caseUpdates: true, systemAlerts: false });
+
+  const toggleDisplay = (key: keyof typeof display) =>
+    setDisplay((current) => ({ ...current, [key]: !current[key] }));
+  const toggleNotification = (key: keyof typeof notifications) =>
+    setNotifications((current) => ({ ...current, [key]: !current[key] }));
 
   return (
-    <div className="space-y-16">
-      <div>
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Appearance
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Customize how MEDDxAgent looks on your device.
-        </p>
-
-        <div className="space-y-3 max-w-[400px]">
+    <div className="space-y-10">
+      <Section title="Appearance" description="Choose the appearance preference shown in the prototype UI.">
+        <div className="grid max-w-[620px] gap-3 sm:grid-cols-3">
           {[
-            { id: "system" as const, label: "System", description: "Follow your device settings" },
-            { id: "light" as const, label: "Light", description: "Always use light theme" },
-            { id: "dark" as const, label: "Dark", description: "Always use dark theme" },
-          ].map((t) => (
+            { id: "system" as const, label: "System" },
+            { id: "light" as const, label: "Light" },
+            { id: "dark" as const, label: "Dark" },
+          ].map((item) => (
             <button
-              key={t.id}
+              key={item.id}
               type="button"
-              className={`w-full flex items-center justify-between px-5 py-4 rounded-lg border transition-colors text-left ${
-                t.id === "light"
-                  ? "border-neutral-900 bg-neutral-50"
-                  : "border-neutral-200 bg-white hover:border-neutral-300"
+              onClick={() => setAppearance(item.id)}
+              className={`rounded-xl border px-4 py-3 text-left text-[13px] font-medium transition-colors ${
+                appearance === item.id
+                  ? "border-blue-200 bg-blue-50/60 text-blue-700"
+                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
               }`}
             >
-              <div>
-                <p className="text-[14px] font-medium text-neutral-900">{t.label}</p>
-                <p className="text-[13px] text-neutral-400 mt-0.5">{t.description}</p>
-              </div>
-              <div
-                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                  t.id === "light" ? "border-neutral-900" : "border-neutral-300"
-                }`}
-              >
-                {t.id === "light" && (
-                  <div className="w-2.5 h-2.5 rounded-full bg-neutral-900" />
-                )}
-              </div>
+              {item.label}
             </button>
           ))}
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Display
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Adjust the density and layout of the interface.
-        </p>
-
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100 max-w-[480px]">
-          <Toggle
-            checked={compact}
-            onChange={() => setCompact(!compact)}
-            label="Compact mode"
-            description="Reduce spacing and padding for a denser layout."
-          />
-          <Toggle
-            checked={true}
-            onChange={() => {}}
-            label="Show activity timestamps"
-            description="Display time stamps in the activity timeline."
-          />
-          <Toggle
-            checked={true}
-            onChange={() => {}}
-            label="Show confidence bars"
-            description="Display visual confidence indicators in the differential."
-          />
+      <Section title="Display" description="Adjust local display preferences for this frontend prototype.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
+          <Toggle checked={display.compact} onChange={() => toggleDisplay("compact")} label="Compact mode" />
+          <Toggle checked={display.timestamps} onChange={() => toggleDisplay("timestamps")} label="Show activity timestamps" />
+          <Toggle checked={display.confidenceBars} onChange={() => toggleDisplay("confidenceBars")} label="Show confidence bars" />
         </div>
-      </div>
+      </Section>
 
-      <div className="border-t border-neutral-100 pt-16">
-        <h3 className="text-[17px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-          Notifications
-        </h3>
-        <p className="text-[14px] text-neutral-400 mb-6">
-          Control in-app notification preferences.
-        </p>
-
-        <div className="divide-y divide-neutral-100 border-t border-neutral-100 max-w-[480px]">
-          <Toggle
-            checked={true}
-            onChange={() => {}}
-            label="Case updates"
-            description="Notify when a diagnostic iteration completes."
-          />
-          <Toggle
-            checked={false}
-            onChange={() => {}}
-            label="System alerts"
-            description="Notify about system maintenance and updates."
-          />
+      <Section title="Notifications" description="Control the notification preferences shown in the prototype.">
+        <div className="max-w-[560px] divide-y divide-slate-100 border-y border-slate-100">
+          <Toggle checked={notifications.caseUpdates} onChange={() => toggleNotification("caseUpdates")} label="Case updates" />
+          <Toggle checked={notifications.systemAlerts} onChange={() => toggleNotification("systemAlerts")} label="System alerts" />
         </div>
-      </div>
+      </Section>
     </div>
   );
 }
 
-/* ── Main Settings Component ── */
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<SettingsTab>("account");
 
@@ -583,26 +387,26 @@ export default function Settings() {
 
   return (
     <div className="app-page">
-      {/* Title */}
       <div className="app-page-header">
-        <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-2">
-          Settings
-        </h1>
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.11em] text-blue-600">Workspace</p>
+        <h1 className="text-[30px] font-semibold tracking-[-0.04em] text-slate-950">Settings</h1>
+        <p className="mt-2 max-w-[520px] text-[13px] leading-[1.6] text-slate-400">
+          Prototype preferences are kept local to this frontend session.
+        </p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-12 lg:gap-28">
-        {/* Sidebar nav — desktop */}
-        <nav className="hidden lg:block w-[220px] shrink-0">
+      <div className="flex flex-col gap-9 lg:flex-row lg:gap-16">
+        <nav className="hidden w-[190px] shrink-0 lg:block">
           <div className="sticky top-24 space-y-1">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-[14px] transition-colors ${
+                className={`w-full rounded-lg px-3 py-2.5 text-left text-[13px] font-medium transition-colors ${
                   activeTab === tab.id
-                    ? "text-neutral-900 font-medium bg-neutral-50"
-                    : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50/50"
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-slate-400 hover:bg-slate-50 hover:text-slate-700"
                 }`}
               >
                 {tab.label}
@@ -611,18 +415,15 @@ export default function Settings() {
           </div>
         </nav>
 
-        {/* Mobile tab selector */}
-        <div className="lg:hidden -mx-8 px-8 overflow-x-auto">
-          <div className="flex gap-1 min-w-max pb-2">
+        <div className="overflow-x-auto lg:hidden">
+          <div className="flex min-w-max gap-1 border-b border-slate-100 pb-3">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap transition-colors ${
-                  activeTab === tab.id
-                    ? "text-neutral-900 bg-neutral-100"
-                    : "text-neutral-400 hover:text-neutral-700"
+                className={`rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
+                  activeTab === tab.id ? "bg-blue-50 text-blue-700" : "text-slate-400"
                 }`}
               >
                 {tab.label}
@@ -631,10 +432,7 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Tab content */}
-        <div className="flex-1 min-w-0">
-          {tabContent[activeTab]}
-        </div>
+        <div className="min-w-0 flex-1 max-w-[760px]">{tabContent[activeTab]}</div>
       </div>
     </div>
   );
