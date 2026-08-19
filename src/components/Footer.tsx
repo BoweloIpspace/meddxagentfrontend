@@ -1,52 +1,47 @@
 import { Link } from "react-router-dom";
 
-type FooterLink =
-  | { label: string; to: string }
-  | { label: string; href: string; external?: boolean };
-
-const footerLinks: FooterLink[] = [
-  { label: "MEDDxAgent", to: "/" },
-  { label: "Product", href: "#product" },
-  { label: "Research", href: "#research" },
-  { label: "Workspace", to: "/app" },
-  {
-    label: "GitHub",
-    href: "https://github.com/medicalappmedapp-design/meddxagent",
-    external: true,
-  },
-];
-
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-100 bg-white">
-      <div className="site-container py-12 lg:py-14">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
-            {footerLinks.map((link) =>
-              "to" in link ? (
-                <Link
-                  key={link.label}
-                  to={link.to}
-                  className="text-[13px] text-slate-400 transition-colors hover:text-slate-900"
-                >
-                  {link.label}
-                </Link>
-              ) : (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  className="text-[13px] text-slate-400 transition-colors hover:text-slate-900"
-                  {...(link.external
-                    ? { target: "_blank", rel: "noopener noreferrer" }
-                    : {})}
-                >
-                  {link.label}
-                </a>
-              )
-            )}
+    <footer className="landing-footer">
+      <div className="site-container">
+        <div className="landing-footer-grid">
+          <div className="landing-footer-brand">
+            <Link to="/" className="landing-footer-title">
+              MEDDxAgent
+            </Link>
+            <p className="landing-footer-copy">
+              A research-oriented workspace for structured patient context and inspectable differential-diagnosis workflows.
+            </p>
           </div>
 
-          <p className="text-[12px] text-slate-300">© 2026</p>
+          <div>
+            <p className="landing-footer-heading">Product</p>
+            <div className="landing-footer-links">
+              <a href="#product" className="landing-footer-link">Overview</a>
+              <a href="#how-it-works" className="landing-footer-link">Workflow</a>
+              <Link to="/app" className="landing-footer-link">Workspace</Link>
+            </div>
+          </div>
+
+          <div>
+            <p className="landing-footer-heading">Research</p>
+            <div className="landing-footer-links">
+              <a href="#research" className="landing-footer-link">Research approach</a>
+              <a
+                href="https://github.com/medicalappmedapp-design/meddxagent"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="landing-footer-link"
+              >
+                GitHub ↗
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className="landing-footer-bottom">
+          <p>Clinical decision support — review all outputs before making clinical decisions.</p>
+          <p>© 2026 MEDDxAgent</p>
         </div>
       </div>
     </footer>
