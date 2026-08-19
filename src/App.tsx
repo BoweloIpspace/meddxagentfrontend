@@ -1,4 +1,4 @@
-import { Routes, Route, Link } from "react-router-dom";
+import { Link, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import ProductPreview from "./components/ProductPreview";
@@ -7,11 +7,8 @@ import Capabilities from "./components/Capabilities";
 import Research from "./components/Research";
 import FinalCTA from "./components/FinalCTA";
 import Footer from "./components/Footer";
-import AuthLayout from "./components/AuthLayout";
 import AppShell from "./components/AppShell";
-import Login from "./pages/Login";
-import SignUp from "./pages/SignUp";
-import ForgotPassword from "./pages/ForgotPassword";
+import WorkspaceHome from "./pages/WorkspaceHome";
 import Settings from "./pages/Settings";
 import NewCase from "./pages/NewCase";
 import Cases from "./pages/Cases";
@@ -36,20 +33,20 @@ function LandingPage() {
 
 function NotFound() {
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="flex min-h-screen items-center justify-center bg-white px-6">
       <div className="text-center">
-        <p className="text-[13px] font-mono text-neutral-300 mb-4">404</p>
-        <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-3">
+        <p className="mb-4 font-mono text-[13px] text-neutral-300">404</p>
+        <h1 className="mb-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.03em] text-neutral-900 sm:text-[32px]">
           Page not found
         </h1>
-        <p className="text-[15px] text-neutral-400 mb-8">
+        <p className="mb-8 text-[15px] text-neutral-400">
           The page you're looking for doesn't exist.
         </p>
         <Link
-          to="/"
-          className="button-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-neutral-900 text-white text-[14px] font-medium"
+          to="/app"
+          className="button-primary inline-flex items-center gap-2 rounded-lg bg-neutral-900 px-6 py-2.5 text-[14px] font-medium text-white"
         >
-          Back to home
+          Back to workspace
         </Link>
       </div>
     </div>
@@ -61,36 +58,12 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
 
-      <Route
-        path="/login"
-        element={
-          <AuthLayout>
-            <Login />
-          </AuthLayout>
-        }
-      />
-      <Route
-        path="/signup"
-        element={
-          <AuthLayout>
-            <SignUp />
-          </AuthLayout>
-        }
-      />
-      <Route
-        path="/forgot-password"
-        element={
-          <AuthLayout>
-            <ForgotPassword />
-          </AuthLayout>
-        }
-      />
-
       <Route element={<AppShell />}>
-        <Route path="/app" element={<ActiveCase />} />
+        <Route path="/app" element={<WorkspaceHome />} />
         <Route path="/cases" element={<Cases />} />
         <Route path="/cases/new" element={<NewCase />} />
         <Route path="/case/:id" element={<ActiveCase />} />
+        <Route path="/case/:id/edit" element={<NewCase />} />
         <Route path="/evidence" element={<Evidence />} />
         <Route path="/activity" element={<Activity />} />
         <Route path="/settings" element={<Settings />} />
