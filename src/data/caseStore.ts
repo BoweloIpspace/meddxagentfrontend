@@ -87,20 +87,16 @@ export function saveCaseInput(
     status,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
-    currentIteration: existing?.currentIteration ?? 0,
-    differential: existing?.differential ?? [],
-    rationale: existing?.rationale ?? "",
-    dialogueHistory: existing?.dialogueHistory ?? "",
-    ragContent: existing?.ragContent ?? "",
+    currentIteration: 0,
+    differential: [],
+    rationale: "",
+    dialogueHistory: "",
+    ragContent: "",
   };
 
   const nextCases = [nextCase, ...cases.filter((item) => item.id !== nextCase.id)];
   writeCases(nextCases);
   return nextCase;
-}
-
-export function deleteCase(caseId: string) {
-  writeCases(getCases().filter((item) => item.id !== caseId));
 }
 
 export function clearCases() {
