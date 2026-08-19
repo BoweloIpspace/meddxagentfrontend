@@ -21,47 +21,33 @@ export default function NewCase() {
 
   return (
     <div className="app-page max-w-[900px]">
-      <div className="app-page-header flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="mb-3 flex items-center gap-2">
-            <span className="saas-chip">
-              <span className="saas-chip-dot" />
-              Case setup
-            </span>
-          </div>
-          <h1 className="text-[30px] sm:text-[34px] font-semibold tracking-[-0.04em] leading-[1.08] text-slate-950">
-            Start a new case
-          </h1>
-          <p className="mt-3 max-w-[590px] text-[14px] leading-[1.7] text-slate-500">
-            Enter the information currently available. The workspace will use it as the starting
-            context for the differential diagnosis workflow.
-          </p>
-        </div>
-        <span className="hidden rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-500 sm:inline-flex">
-          Draft
-        </span>
+      <div className="app-page-header">
+        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.11em] text-blue-600">
+          New case
+        </p>
+        <h1 className="text-[30px] sm:text-[34px] font-semibold tracking-[-0.04em] leading-[1.08] text-slate-950">
+          Start a differential
+        </h1>
+        <p className="mt-3 max-w-[590px] text-[14px] leading-[1.7] text-slate-500">
+          Enter the information currently available. MEDDxAgent will use it as the starting
+          context for the diagnostic workflow.
+        </p>
       </div>
 
       <form onSubmit={handleStart}>
         <section className="app-section">
           <div className="form-section-title">
-            <div className="flex items-start gap-3">
-              <span className="form-section-index">01</span>
-              <div>
-                <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
-                  Patient information
-                </h2>
-                <p className="mt-1 text-[12px] text-slate-400">
-                  Core demographics and presenting complaint.
-                </p>
-              </div>
+            <div>
+              <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
+                Patient information
+              </h2>
+              <p className="mt-1 text-[12px] text-slate-400">
+                Core demographics and presenting complaint.
+              </p>
             </div>
-            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.11em] text-slate-300 sm:block">
-              Required context
-            </span>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-7">
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
               <div>
                 <label className="field-label">Patient ID</label>
@@ -102,10 +88,7 @@ export default function NewCase() {
             </div>
 
             <div>
-              <div className="mb-2 flex items-center justify-between gap-4">
-                <label className="field-label mb-0">Initial information</label>
-                <span className="text-[10px] text-slate-300">Presenting context</span>
-              </div>
+              <label className="field-label">Initial information</label>
               <textarea
                 rows={4}
                 placeholder="Presenting symptoms, vital signs, and initial observations..."
@@ -117,23 +100,17 @@ export default function NewCase() {
 
         <section className="app-section">
           <div className="form-section-title">
-            <div className="flex items-start gap-3">
-              <span className="form-section-index">02</span>
-              <div>
-                <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
-                  Additional context
-                </h2>
-                <p className="mt-1 text-[12px] text-slate-400">
-                  Add relevant context when it is available.
-                </p>
-              </div>
+            <div>
+              <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
+                Additional context
+              </h2>
+              <p className="mt-1 text-[12px] text-slate-400">
+                Optional information that may help refine the differential.
+              </p>
             </div>
-            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.11em] text-slate-300 sm:block">
-              Optional
-            </span>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-7">
             <div>
               <label className="field-label">Medical history</label>
               <textarea
@@ -176,7 +153,8 @@ export default function NewCase() {
         <div className="form-actions">
           <button
             type="submit"
-            className="button-primary button-accent inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[13px] font-semibold text-white"
+            disabled={started}
+            className="button-primary button-accent inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[13px] font-semibold text-white disabled:cursor-wait disabled:opacity-70"
           >
             {started ? "Starting..." : "Start differential diagnosis"}
             {!started && (
@@ -189,7 +167,7 @@ export default function NewCase() {
           <button
             type="button"
             onClick={handleSaveDraft}
-            className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
+            className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-[13px] font-semibold text-slate-600 transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
           >
             {saved ? "Saved ✓" : "Save draft"}
           </button>
