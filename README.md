@@ -1,32 +1,39 @@
-# React + TypeScript + Vite
+# MEDDxAgent Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Frontend workspace for MEDDxAgent, built with React, TypeScript, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Current behavior
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Patient cases are created from user-entered information only.
+- Cases are persisted in browser `localStorage` until backend persistence is connected.
+- The frontend does not seed patient records, diagnoses, evidence, confidence scores, benchmark results, or dialogue.
+- Differential diagnosis, rationale, dialogue history, and retrieval content remain empty until real engine output is supplied.
+- Prototype authentication has been removed until a real auth boundary exists.
 
-## React Compiler
+## Main routes
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `/` — product/research landing page
+- `/app` — workspace home
+- `/cases` — locally stored cases
+- `/cases/new` — create a case
+- `/case/:id` — case detail and diagnostic output boundary
+- `/case/:id/edit` — edit case input
+- `/settings` — local workspace/data controls
 
-## Expanding the Oxlint configuration
+## Development
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Validation:
+
+```bash
+npm run build
+npm run lint
+```
+
+## Integration boundary
+
+The frontend is intentionally separate from the MEDDxAgent diagnostic engine. The next functional integration should connect a server/API session layer to the backend DDxDriver contract rather than fabricating browser-side diagnostic behavior.
