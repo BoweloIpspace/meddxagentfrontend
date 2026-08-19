@@ -1,6 +1,10 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 
-const footerLinks = [
+type FooterLink =
+  | { label: string; to: string }
+  | { label: string; href: string; external?: boolean };
+
+const footerLinks: FooterLink[] = [
   { label: "MEDDxAgent", to: "/" },
   { label: "Research", href: "#research" },
   { label: "Documentation", href: "#docs" },
@@ -39,7 +43,7 @@ export default function Footer() {
           </div>
 
           <p className="text-[13px] text-neutral-300">
-            � 2025
+            © 2026
           </p>
         </div>
       </div>
