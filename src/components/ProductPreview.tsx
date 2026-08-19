@@ -13,17 +13,17 @@ const pipelineSteps = [
   },
   {
     label: "Evidence retrieval",
-    description: "Automated search of PubMed and medical literature",
+    description: "Relevant medical literature and knowledge are surfaced",
     number: "03",
   },
   {
     label: "Diagnostic reasoning",
-    description: "Structured multi-step reasoning and hypothesis refinement",
+    description: "Structured hypothesis refinement across iterations",
     number: "04",
   },
   {
     label: "Differential diagnosis",
-    description: "Ranked diagnostic output with confidence and evidence",
+    description: "A ranked diagnostic view is produced for review",
     number: "05",
   },
 ];
@@ -35,61 +35,48 @@ export default function ProductPreview() {
     <section
       ref={ref}
       id="product"
-      className="reveal-section section-space border-t border-neutral-100"
+      className="reveal-section section-space border-t border-slate-100 bg-white"
       data-revealed={revealed}
     >
       <div className="site-container">
-        <div className="max-w-[620px] mb-14 lg:mb-[76px]">
-          <p className="reveal-item eyebrow">
-            Diagnostic pipeline
-          </p>
+        <div className="mb-16 max-w-[620px] lg:mb-20">
+          <p className="reveal-item eyebrow">Diagnostic pipeline</p>
           <h2 className="reveal-item reveal-delay-1 section-title">
-            From presentation to differential.
+            A clear path from presentation to differential.
           </h2>
         </div>
 
-        {/* Pipeline visual */}
-        <div className="reveal-item reveal-delay-2 reveal-visual border border-neutral-200 rounded-lg overflow-hidden bg-neutral-50/60">
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
-            {pipelineSteps.map((step, i) => (
-              <div
-                key={step.number}
-                className={`pipeline-step reveal-item relative min-h-[180px] p-7 lg:min-h-[210px] lg:p-8 ${
-                  i === 0 ? "" : `reveal-delay-${i}`
-                }`}
-              >
-                <span className="text-[11px] font-mono text-neutral-300 block mb-5">
-                  {step.number}
-                </span>
-                <h3 className="text-[15px] font-semibold text-neutral-900 mb-2 tracking-[-0.01em] leading-snug">
-                  {step.label}
-                </h3>
-                <p className="text-[13px] text-neutral-400 leading-[1.6]">
-                  {step.description}
-                </p>
-
-                {/* Arrow between steps on desktop */}
-                {i < pipelineSteps.length - 1 && (
-                  <div className="pipeline-arrow hidden lg:block absolute top-1/2 -right-[7px] z-10">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-neutral-300"
-                    >
-                      <path d="M5 12h14" />
-                      <path d="m12 5 7 7-7 7" />
-                    </svg>
-                  </div>
+        <div className="reveal-item reveal-delay-2 reveal-visual grid gap-x-8 gap-y-10 md:grid-cols-2 lg:grid-cols-5">
+          {pipelineSteps.map((step, index) => (
+            <div key={step.number} className="pipeline-step border-t border-slate-200 pt-5">
+              <div className="mb-7 flex items-center justify-between gap-4">
+                <span className="text-[10px] font-mono text-slate-300">{step.number}</span>
+                {index < pipelineSteps.length - 1 && (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="hidden text-slate-300 lg:block"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m13 6 6 6-6 6" />
+                  </svg>
                 )}
               </div>
-            ))}
-          </div>
+              <h3 className="text-[14px] font-semibold tracking-[-0.01em] text-slate-900">
+                {step.label}
+              </h3>
+              <p className="mt-2 text-[12px] leading-[1.65] text-slate-400">
+                {step.description}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </section>
