@@ -20,57 +20,70 @@ export default function NewCase() {
   };
 
   return (
-    <div className="app-page max-w-[760px]">
-      {/* Header */}
-      <div className="app-page-header">
-        <h1 className="text-[28px] sm:text-[32px] font-semibold tracking-[-0.03em] leading-[1.1] text-neutral-900 mb-4">
-          New case
-        </h1>
-        <p className="text-[15px] text-neutral-400 leading-[1.6] max-w-[520px]">
-          Begin with the information currently available. MEDDxAgent will iteratively
-          gather evidence and refine the differential.
-        </p>
+    <div className="app-page max-w-[900px]">
+      <div className="app-page-header flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="mb-3 flex items-center gap-2">
+            <span className="saas-chip">
+              <span className="saas-chip-dot" />
+              Case setup
+            </span>
+          </div>
+          <h1 className="text-[30px] sm:text-[34px] font-semibold tracking-[-0.04em] leading-[1.08] text-slate-950">
+            Start a new case
+          </h1>
+          <p className="mt-3 max-w-[590px] text-[14px] leading-[1.7] text-slate-500">
+            Enter the information currently available. The workspace will use it as the starting
+            context for the differential diagnosis workflow.
+          </p>
+        </div>
+        <span className="hidden rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-[11px] font-medium text-slate-500 sm:inline-flex">
+          Draft
+        </span>
       </div>
 
       <form onSubmit={handleStart}>
-        {/* Patient Information */}
-        <div className="app-section">
-          <h2 className="text-[14px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-            Patient information
-          </h2>
-          <p className="text-[13px] text-neutral-400 mb-6">
-            Core demographics and presenting complaint.
-          </p>
-
-          <div className="space-y-7">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+        <section className="app-section">
+          <div className="form-section-title">
+            <div className="flex items-start gap-3">
+              <span className="form-section-index">01</span>
               <div>
-                <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                  Patient ID
-                </label>
+                <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
+                  Patient information
+                </h2>
+                <p className="mt-1 text-[12px] text-slate-400">
+                  Core demographics and presenting complaint.
+                </p>
+              </div>
+            </div>
+            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.11em] text-slate-300 sm:block">
+              Required context
+            </span>
+          </div>
+
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+              <div>
+                <label className="field-label">Patient ID</label>
                 <input
                   type="text"
                   placeholder="PT-0000"
-                  className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors font-mono"
+                  className="field-control font-mono placeholder:text-slate-300"
                 />
               </div>
               <div>
-                <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                  Age
-                </label>
+                <label className="field-label">Age</label>
                 <input
                   type="number"
                   placeholder="—"
                   min={0}
                   max={150}
-                  className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
+                  className="field-control placeholder:text-slate-300"
                 />
               </div>
               <div>
-                <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                  Sex
-                </label>
-                <select className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors appearance-none">
+                <label className="field-label">Sex</label>
+                <select className="field-control appearance-none">
                   <option value="">Select</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
@@ -80,100 +93,109 @@ export default function NewCase() {
             </div>
 
             <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                Chief complaint
-              </label>
+              <label className="field-label">Chief complaint</label>
               <input
                 type="text"
                 placeholder="e.g. Acute shortness of breath with worsening cough"
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
+                className="field-control placeholder:text-slate-300"
               />
             </div>
 
             <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                Initial information
-              </label>
+              <div className="mb-2 flex items-center justify-between gap-4">
+                <label className="field-label mb-0">Initial information</label>
+                <span className="text-[10px] text-slate-300">Presenting context</span>
+              </div>
               <textarea
-                rows={3}
+                rows={4}
                 placeholder="Presenting symptoms, vital signs, and initial observations..."
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors resize-none leading-[1.6]"
+                className="field-control resize-none leading-[1.65] placeholder:text-slate-300"
               />
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Optional context */}
-        <div className="app-section">
-          <h2 className="text-[14px] font-semibold text-neutral-900 tracking-[-0.01em] mb-1">
-            Additional context
-          </h2>
-          <p className="text-[13px] text-neutral-400 mb-6">
-            Optional — provide if available.
-          </p>
+        <section className="app-section">
+          <div className="form-section-title">
+            <div className="flex items-start gap-3">
+              <span className="form-section-index">02</span>
+              <div>
+                <h2 className="text-[14px] font-semibold tracking-[-0.015em] text-slate-950">
+                  Additional context
+                </h2>
+                <p className="mt-1 text-[12px] text-slate-400">
+                  Add relevant context when it is available.
+                </p>
+              </div>
+            </div>
+            <span className="hidden text-[10px] font-semibold uppercase tracking-[0.11em] text-slate-300 sm:block">
+              Optional
+            </span>
+          </div>
 
-          <div className="space-y-7">
+          <div className="space-y-6">
             <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                Medical history
-              </label>
+              <label className="field-label">Medical history</label>
               <textarea
-                rows={2}
+                rows={3}
                 placeholder="Relevant past medical history..."
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors resize-none leading-[1.6]"
+                className="field-control resize-none leading-[1.65] placeholder:text-slate-300"
               />
             </div>
 
-            <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                Current medications
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Metformin 500mg, Lisinopril 10mg"
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-              />
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <label className="field-label">Current medications</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Metformin 500mg"
+                  className="field-control placeholder:text-slate-300"
+                />
+              </div>
+              <div>
+                <label className="field-label">Known conditions</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Type 2 diabetes"
+                  className="field-control placeholder:text-slate-300"
+                />
+              </div>
             </div>
 
             <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                Known conditions
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Type 2 diabetes, Hypertension"
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[13px] font-medium text-neutral-500 mb-2">
-                Relevant risk factors
-              </label>
+              <label className="field-label">Relevant risk factors</label>
               <input
                 type="text"
                 placeholder="e.g. Family history, travel, occupational exposure"
-                className="w-full px-4 py-2.5 text-[15px] text-neutral-900 bg-white border border-neutral-200 rounded-lg placeholder:text-neutral-300 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-300 transition-colors"
+                className="field-control placeholder:text-slate-300"
               />
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-5 pt-10">
+        <div className="form-actions">
           <button
             type="submit"
-            className="button-primary px-6 py-2.5 rounded-lg bg-neutral-900 text-white text-[14px] font-medium"
+            className="button-primary button-accent inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[13px] font-semibold text-white"
           >
             {started ? "Starting..." : "Start differential diagnosis"}
+            {!started && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m13 6 6 6-6 6" />
+              </svg>
+            )}
           </button>
           <button
             type="button"
             onClick={handleSaveDraft}
-            className="px-5 py-2.5 rounded-lg border border-neutral-200 text-[14px] font-medium text-neutral-600 hover:bg-neutral-50 hover:border-neutral-300 transition-colors"
+            className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-[13px] font-semibold text-slate-600 shadow-sm transition-all hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950"
           >
             {saved ? "Saved ✓" : "Save draft"}
           </button>
+          <p className="w-full text-[10px] leading-[1.5] text-slate-300 sm:ml-auto sm:w-auto">
+            Review entered information before starting.
+          </p>
         </div>
       </form>
     </div>
