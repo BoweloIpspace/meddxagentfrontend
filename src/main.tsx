@@ -6,6 +6,7 @@ import './refinement.css'
 import './clinical-saas.css'
 import './workspace-scale.css'
 import './workspace-pages.css'
+import './workspace-detail.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(
