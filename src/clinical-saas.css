@@ -1,188 +1,593 @@
-/* Clinical workflow SaaS visual layer.
-   Intentionally presentation-only: no workflow or clinical logic lives here. */
+/* MEDDxAgent clinical SaaS visual layer.
+   Presentation only: workflow and clinical logic remain in React/state. */
+
+:root {
+  --clinical-sidebar-width: 248px;
+  --clinical-ink: #111827;
+  --clinical-muted: #667085;
+  --clinical-line: #e5e7eb;
+  --clinical-soft: #f7f8fa;
+  --clinical-blue: #2563eb;
+  --clinical-blue-hover: #1d4ed8;
+}
 
 .workspace-shell {
-  background:
-    radial-gradient(circle at 18% -8%, rgba(37, 99, 235, 0.09), transparent 30rem),
-    linear-gradient(180deg, #f8fbff 0%, #f8fafc 34%, #f8fafc 100%);
+  min-height: 100vh;
+  background: #f6f7f9;
+  color: var(--clinical-ink);
 }
 
-.workspace-header {
-  border-bottom-color: rgba(203, 213, 225, 0.72);
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.025), 0 10px 30px rgba(15, 23, 42, 0.025);
+.workspace-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 60;
+  width: var(--clinical-sidebar-width);
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 16px 18px;
+  overflow-y: auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: #121418;
+  color: #ffffff;
 }
 
-.workspace-nav-item {
-  transition: background-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
+.workspace-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 44px;
+  padding: 4px 8px;
+  color: #ffffff;
+  text-decoration: none;
 }
 
-.workspace-nav-item-active {
-  background: #eff6ff;
-  color: #1d4ed8;
-  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.08);
+.workspace-brand-mark {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid #2f6df6;
+  border-radius: 9px;
+  background: #2f6df6;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.26);
 }
 
-/* Scope this treatment to the seven-step NewCase consultation page. */
-main.app-container > .app-page.max-w-\[980px\] {
-  width: 100%;
-  max-width: 1120px;
-  margin-inline: auto;
-  padding-top: 34px;
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div {
-  position: relative;
-  overflow: hidden;
-  border-color: #dce6f4;
-  border-radius: 26px;
-  background: rgba(255, 255, 255, 0.98);
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.03),
-    0 22px 70px rgba(37, 99, 235, 0.08),
-    0 8px 24px rgba(15, 23, 42, 0.04);
-}
-
-/* Turn the existing step header into a proper SaaS product header. */
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child {
-  position: relative;
-  margin: -32px -32px 32px;
-  padding: 30px 32px 27px;
-  overflow: hidden;
-  border-bottom: 0;
-  background:
-    radial-gradient(circle at 88% 18%, rgba(255, 255, 255, 0.16), transparent 15rem),
-    linear-gradient(135deg, #1747c7 0%, #2563eb 52%, #3b82f6 100%);
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child::after {
-  position: absolute;
-  inset: auto -4rem -7rem auto;
-  width: 16rem;
-  height: 16rem;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 999px;
-  content: "";
-  pointer-events: none;
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child p,
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child h1,
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child span {
-  position: relative;
-  z-index: 1;
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child p {
-  color: #bfdbfe !important;
-  letter-spacing: 0.11em;
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child h1 {
-  color: #ffffff !important;
-  font-size: clamp(1.55rem, 3vw, 2rem);
-  letter-spacing: -0.035em;
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child span {
-  color: #dbeafe !important;
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child .bg-slate-100 {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.18) !important;
-}
-
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child .bg-blue-600 {
-  background: #ffffff !important;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
-}
-
-/* Form hierarchy */
-main.app-container > .app-page.max-w-\[980px\] .field-label {
-  margin-bottom: 8px;
-  color: #334155;
-  font-size: 11px;
+.workspace-brand strong {
+  display: block;
+  font-size: 13px;
   font-weight: 650;
-  letter-spacing: 0.015em;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
-main.app-container > .app-page.max-w-\[980px\] input,
-main.app-container > .app-page.max-w-\[980px\] textarea,
-main.app-container > .app-page.max-w-\[980px\] select {
-  border-color: #d9e2ee !important;
-  background: #fbfdff !important;
-  box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.018) !important;
+.workspace-brand small {
+  display: block;
+  margin-top: 3px;
+  color: #737b89;
+  font-size: 9px;
+  font-weight: 550;
+  letter-spacing: 0.01em;
 }
 
-main.app-container > .app-page.max-w-\[980px\] input:hover,
-main.app-container > .app-page.max-w-\[980px\] textarea:hover,
-main.app-container > .app-page.max-w-\[980px\] select:hover {
-  border-color: #b8c8dc !important;
-  background: #ffffff !important;
+.workspace-nav-label {
+  margin: 30px 10px 9px;
+  color: #626a77;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-main.app-container > .app-page.max-w-\[980px\] input:focus,
-main.app-container > .app-page.max-w-\[980px\] textarea:focus,
-main.app-container > .app-page.max-w-\[980px\] select:focus {
-  border-color: #60a5fa !important;
-  background: #ffffff !important;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.085) !important;
+.workspace-side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
-/* Make nested question/investigation cards read like SaaS modules. */
-main.app-container > .app-page.max-w-\[980px\] .space-y-4 > .rounded-2xl.border,
-main.app-container > .app-page.max-w-\[980px\] .space-y-5 > .rounded-2xl.border {
-  border-color: #e1e8f1;
+.workspace-side-nav-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #8e96a3;
+  font-size: 12px;
+  font-weight: 560;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.workspace-side-nav-item:hover {
+  background: rgba(255, 255, 255, 0.055);
+  color: #d9dde5;
+}
+
+.workspace-side-nav-item-active {
+  background: #22262d;
+  color: #ffffff;
+}
+
+.workspace-side-nav-item-active::before {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 0;
+  width: 2px;
+  border-radius: 999px;
+  background: #4b82ff;
+  content: "";
+}
+
+.workspace-side-nav-icon {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.workspace-side-nav-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.workspace-side-nav-item-active .workspace-side-nav-icon {
+  color: #77a0ff;
+}
+
+.workspace-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.workspace-engine-card {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.workspace-engine-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d7dbe2;
+  font-size: 10px;
+  font-weight: 620;
+}
+
+.workspace-engine-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.08);
+}
+
+.workspace-engine-card p {
+  margin-top: 7px;
+  color: #676f7d;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.workspace-research-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: #737b89;
+  font-size: 10px;
+  font-weight: 560;
+  transition: color 150ms ease, background-color 150ms ease;
+}
+
+.workspace-research-link:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: #cbd0d9;
+}
+
+.workspace-research-link svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.workspace-main {
+  min-width: 0;
+  min-height: 100vh;
+  margin-left: var(--clinical-sidebar-width);
+}
+
+.workspace-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 34px;
+  border-bottom: 1px solid var(--clinical-line);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+}
+
+.workspace-topbar-kicker {
+  color: #98a2b3;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-topbar-title {
+  margin-top: 2px;
+  color: #1f2937;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.workspace-prototype-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid #e7e9ed;
+  border-radius: 999px;
   background: #ffffff;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.025);
+  color: #7b8492;
+  font-size: 9px;
+  font-weight: 600;
 }
 
-main.app-container > .app-page.max-w-\[980px\] button {
-  transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+.workspace-prototype-badge span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #2563eb;
 }
 
-main.app-container > .app-page.max-w-\[980px\] .button-accent {
-  background: linear-gradient(135deg, #1d4ed8, #2563eb 62%, #3b82f6);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+.workspace-content {
+  min-width: 0;
+  padding: 18px 34px 56px;
 }
 
-main.app-container > .app-page.max-w-\[980px\] .button-accent:hover {
+.workspace-content-inner {
+  width: min(100%, 1240px);
+  margin-inline: auto;
+}
+
+.workspace-safety {
+  width: min(100%, 1240px);
+  margin: 0 auto;
+  padding: 9px 12px;
+  border: 1px solid #e7e9ed;
+  border-radius: 9px;
+  background: #fbfbfc;
+  color: #8a93a1;
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.workspace-mobile-header {
+  position: sticky;
+  top: 0;
+  z-index: 55;
+  height: 60px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--clinical-line);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(14px);
+}
+
+.workspace-mobile-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.workspace-mobile-menu-button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #667085;
+}
+
+.workspace-mobile-menu-button svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+}
+
+.workspace-mobile-menu {
+  position: sticky;
+  top: 60px;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--clinical-line);
+  background: #ffffff;
+}
+
+.workspace-mobile-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 580;
+  text-align: left;
+}
+
+.workspace-mobile-menu button.active {
+  background: #eff4ff;
+  color: #2455c3;
+}
+
+/* Shared app pages inside the SaaS shell. */
+.workspace-content-inner > .app-page {
+  width: 100%;
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-top: 26px;
+}
+
+.workspace-content-inner .app-page-header {
+  margin-bottom: 32px;
+}
+
+.workspace-content-inner .app-page-header h1 {
+  font-size: clamp(1.65rem, 3vw, 2.15rem);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+}
+
+.workspace-content-inner .app-page-header p {
+  margin-top: 7px;
+  color: #7b8492;
+  font-size: 12px;
+}
+
+/* Seven-step consultation workflow. */
+.workspace-content-inner > .app-page.max-w-\[980px\] {
+  max-width: 1120px;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div {
+  overflow: hidden;
+  border: 1px solid #e3e6eb;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.025), 0 8px 26px rgba(17, 24, 39, 0.035);
+}
+
+/* Existing StepHeader becomes the clean page/card header from the Figma direction. */
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:first-child {
+  margin: -32px -32px 30px;
+  padding: 27px 32px 23px;
+  border-bottom: 1px solid #eceef2;
+  background: #ffffff;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:first-child p {
+  color: #2563eb !important;
+  font-size: 9px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0.12em !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:first-child h1 {
+  margin-top: 7px !important;
+  color: #111827 !important;
+  font-size: clamp(1.5rem, 3vw, 1.9rem) !important;
+  font-weight: 650 !important;
+  letter-spacing: -0.04em !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:first-child span {
+  color: #98a2b3 !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:first-child .bg-slate-100 {
+  height: 4px !important;
+  background: #eef0f3 !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:first-child .bg-blue-600 {
+  background: #2563eb !important;
+  box-shadow: none !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] .field-label {
+  display: block;
+  margin-bottom: 7px;
+  color: #3f4753;
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.005em;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] input,
+.workspace-content-inner > .app-page.max-w-\[980px\] textarea,
+.workspace-content-inner > .app-page.max-w-\[980px\] select {
+  border-color: #dfe3e8 !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #2e3540 !important;
+  box-shadow: 0 1px 1px rgba(17, 24, 39, 0.015) !important;
+  transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] input:hover,
+.workspace-content-inner > .app-page.max-w-\[980px\] textarea:hover,
+.workspace-content-inner > .app-page.max-w-\[980px\] select:hover {
+  border-color: #c9cfd8 !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] input:focus,
+.workspace-content-inner > .app-page.max-w-\[980px\] textarea:focus,
+.workspace-content-inner > .app-page.max-w-\[980px\] select:focus {
+  border-color: #7aa2ff !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08) !important;
+  outline: none !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] .rounded-2xl.border-blue-100 {
+  border-color: #dbe6fb !important;
+  border-radius: 10px !important;
+  background: #f5f8ff !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] .rounded-2xl.border-slate-200,
+.workspace-content-inner > .app-page.max-w-\[980px\] .space-y-4 > .rounded-2xl.border,
+.workspace-content-inner > .app-page.max-w-\[980px\] .space-y-5 > .rounded-2xl.border {
+  border-color: #e4e7eb !important;
+  border-radius: 11px !important;
+  background: #ffffff;
+  box-shadow: 0 1px 1px rgba(17, 24, 39, 0.018);
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] button {
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] button[class*="border-blue-200"] {
+  border-color: #d7e3fb !important;
+  border-radius: 9px !important;
+  background: #f5f8ff !important;
+  color: #2455c3 !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] button[class*="border-blue-200"]:hover {
+  background: #edf3ff !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] .button-accent {
+  border: 1px solid #2563eb;
+  border-radius: 9px !important;
+  background: #2563eb !important;
+  box-shadow: 0 2px 5px rgba(37, 99, 235, 0.16) !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] .button-accent:hover {
   transform: translateY(-1px);
-  box-shadow: 0 11px 24px rgba(37, 99, 235, 0.24);
+  border-color: #1d4ed8;
+  background: #1d4ed8 !important;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18) !important;
 }
 
-/* Bottom action row becomes a compact product footer. */
-main.app-container > .app-page.max-w-\[980px\] > form > div > div:last-child {
-  margin: 32px -32px -32px;
-  padding: 18px 32px;
-  border-top: 1px solid #e7edf5;
-  background: rgba(248, 250, 252, 0.82);
-  backdrop-filter: blur(12px);
+.workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:last-child {
+  margin: 30px -32px -32px;
+  padding: 16px 32px;
+  border-top: 1px solid #eceef2;
+  background: #fafbfc;
+}
+
+/* Keep semantic finding colours soft and readable instead of glossy. */
+.workspace-content-inner > .app-page.max-w-\[980px\] .border-emerald-200 {
+  border-color: #cfe8d8 !important;
+  background: #f5fbf7 !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] .border-amber-200 {
+  border-color: #eadfc1 !important;
+  background: #fdfaf2 !important;
+}
+
+.workspace-content-inner > .app-page.max-w-\[980px\] .border-rose-200 {
+  border-color: #efcfd2 !important;
+  background: #fff7f7 !important;
+}
+
+@media (max-width: 1023px) {
+  .workspace-main {
+    margin-left: 0;
+  }
+
+  .workspace-content {
+    padding: 14px 20px 48px;
+  }
+
+  .workspace-content-inner > .app-page {
+    padding-top: 20px;
+  }
 }
 
 @media (max-width: 639px) {
-  main.app-container > .app-page.max-w-\[980px\] {
-    padding-top: 20px;
+  .workspace-content {
+    padding: 12px 14px 40px;
   }
 
-  main.app-container > .app-page.max-w-\[980px\] > form > div {
-    border-radius: 20px;
+  .workspace-safety {
+    padding: 8px 10px;
+    font-size: 8.5px;
   }
 
-  main.app-container > .app-page.max-w-\[980px\] > form > div > div:first-child {
-    margin: -20px -20px 25px;
-    padding: 24px 20px 22px;
+  .workspace-content-inner > .app-page.max-w-\[980px\] > form > div {
+    border-radius: 12px;
   }
 
-  main.app-container > .app-page.max-w-\[980px\] > form > div > div:last-child {
-    margin: 28px -20px -20px;
-    padding: 16px 20px;
+  .workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:first-child {
+    margin: -20px -20px 24px;
+    padding: 22px 20px 19px;
+  }
+
+  .workspace-content-inner > .app-page.max-w-\[980px\] > form > div > div:last-child {
+    margin: 26px -20px -20px;
+    padding: 14px 20px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  main.app-container > .app-page.max-w-\[980px\] button {
-    transition: none;
+  .workspace-side-nav-item,
+  .workspace-research-link,
+  .workspace-content-inner > .app-page.max-w-\[980px\] button,
+  .workspace-content-inner > .app-page.max-w-\[980px\] input,
+  .workspace-content-inner > .app-page.max-w-\[980px\] textarea,
+  .workspace-content-inner > .app-page.max-w-\[980px\] select {
+    transition: none !important;
   }
 }
