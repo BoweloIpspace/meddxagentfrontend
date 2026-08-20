@@ -3,14 +3,14 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   {
-    path: "/app",
+    path: "/workspace",
     label: "Overview",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="7" rx="1.5" />
-        <rect x="14" y="3" width="7" height="7" rx="1.5" />
-        <rect x="3" y="14" width="7" height="7" rx="1.5" />
-        <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.2" />
+        <rect x="14" y="3.5" width="6.5" height="6.5" rx="1.2" />
+        <rect x="3.5" y="14" width="6.5" height="6.5" rx="1.2" />
+        <rect x="14" y="14" width="6.5" height="6.5" rx="1.2" />
       </svg>
     ),
   },
@@ -19,8 +19,8 @@ const navItems = [
     label: "Cases",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4 6.5h16v13H4z" />
-        <path d="M8 3.5h8v3H8z" />
+        <path d="M4 7h16v12H4z" />
+        <path d="M8 4h8v3H8z" />
         <path d="M8 11h8M8 15h5" />
       </svg>
     ),
@@ -46,16 +46,37 @@ const navItems = [
   },
 ];
 
+function resolveActivePath(pathname: string) {
+  if (pathname === "/cases/new" || pathname.endsWith("/edit")) return "/cases/new";
+  if (pathname.startsWith("/case/")) return "/cases";
+  return (
+    navItems.find(
+      (item) => item.path === pathname || pathname.startsWith(`${item.path}/`)
+    )?.path ?? pathname
+  );
+}
+
+function resolveHeader(pathname: string) {
+  if (pathname === "/cases/new") {
+    return { eyebrow: "Cases / New consultation", title: "New consultation" };
+  }
+  if (pathname.endsWith("/edit")) {
+    return { eyebrow: "Cases / Edit consultation", title: "Edit consultation" };
+  }
+  if (pathname.startsWith("/case/")) {
+    return { eyebrow: "Cases / Case", title: "Case workspace" };
+  }
+  if (pathname === "/cases") return { eyebrow: "Workspace / Cases", title: "Cases" };
+  if (pathname === "/settings") return { eyebrow: "Workspace / Settings", title: "Settings" };
+  return { eyebrow: "Workspace", title: "Overview" };
+}
+
 export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-
-  const activePath = location.pathname.startsWith("/case/")
-    ? "/cases"
-    : navItems.find(
-        (item) => item.path === location.pathname || location.pathname.startsWith(item.path + "/")
-      )?.path ?? location.pathname;
+  const activePath = resolveActivePath(location.pathname);
+  const header = resolveHeader(location.pathname);
 
   const navigateTo = (path: string) => {
     navigate(path);
@@ -68,7 +89,7 @@ export default function AppShell() {
         <div>
           <Link to="/app" className="workspace-brand">
             <span className="workspace-brand-mark">M</span>
-            <span>
+            <span className="workspace-brand-copy">
               <strong>MEDDxAgent</strong>
               <small>Clinical workspace</small>
             </span>
@@ -101,10 +122,8 @@ export default function AppShell() {
             <p>UI prototype · backend pending</p>
           </div>
           <Link to="/" className="workspace-research-link">
-            Research site
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 12h14M13 6l6 6-6 6" />
-            </svg>
+            <span>Research site</span>
+            <span aria-hidden="true">→</span>
           </Link>
         </div>
       </aside>
@@ -122,15 +141,7 @@ export default function AppShell() {
             aria-label="Toggle workspace menu"
             aria-expanded={mobileOpen}
           >
-            {mobileOpen ? (
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 6l12 12M18 6 6 18" />
-              </svg>
-            ) : (
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
-            )}
+            {mobileOpen ? "×" : "☰"}
           </button>
         </header>
 
@@ -150,23 +161,23 @@ export default function AppShell() {
           </div>
         )}
 
-        <div className="workspace-topbar hidden lg:flex">
+        <header className="workspace-topbar hidden lg:flex">
           <div>
-            <p className="workspace-topbar-kicker">MEDDxAgent</p>
-            <p className="workspace-topbar-title">
-              {activePath === "/cases/new"
-                ? "New consultation"
-                : navItems.find((item) => item.path === activePath)?.label ?? "Workspace"}
-            </p>
+            <p className="workspace-topbar-kicker">{header.eyebrow}</p>
+            <p className="workspace-topbar-title">{header.title}</p>
           </div>
-          <div className="workspace-prototype-badge">
-            <span />
-            Clinical workflow prototype
+          <div className="workspace-top-actions">
+            <div className="workspace-prototype-badge">
+              <span />
+              Clinical workflow prototype
+            </div>
+            <div className="workspace-avatar" aria-label="Workspace account">M</div>
           </div>
-        </div>
+        </header>
 
         <div className="workspace-content">
           <div className="workspace-safety">
+            <span className="workspace-safety-dot" />
             Clinical decision support — review all outputs before making clinical decisions.
           </div>
           <main className="workspace-content-inner">
