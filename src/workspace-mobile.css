@@ -1,0 +1,569 @@
+/* Workspace-only mobile responsiveness. Landing page intentionally untouched. */
+
+@media (max-width: 1023px) {
+  .workspace-shell,
+  .workspace-main,
+  .workspace-content,
+  .workspace-content-inner {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .workspace-shell {
+    overflow-x: hidden;
+  }
+
+  .workspace-main {
+    margin-left: 0 !important;
+  }
+
+  .workspace-mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    display: flex !important;
+    height: 60px;
+    padding: 0 16px;
+    border-bottom: 1px solid #ececea;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(14px);
+  }
+
+  .workspace-mobile-brand {
+    min-width: 0;
+    gap: 10px;
+    font-size: 14px;
+  }
+
+  .workspace-mobile-header .workspace-brand-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .workspace-mobile-menu-button {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+    border-radius: 10px;
+    color: #434343;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .workspace-mobile-menu {
+    position: fixed;
+    top: 60px;
+    right: 0;
+    bottom: 0;
+    z-index: 75;
+    display: flex;
+    width: min(86vw, 320px);
+    flex-direction: column;
+    gap: 5px;
+    padding: 14px 12px calc(18px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border-bottom: 0;
+    border-left: 1px solid #ececea;
+    background: #f7f7f5;
+    box-shadow: -100vw 0 0 rgba(17, 24, 39, 0.16), -18px 0 40px rgba(17, 24, 39, 0.08);
+  }
+
+  .workspace-mobile-menu button {
+    min-height: 48px;
+    gap: 12px;
+    padding: 0 13px;
+    border-radius: 10px;
+    color: #5f6368;
+    font-size: 14px;
+    font-weight: 560;
+  }
+
+  .workspace-mobile-menu button:hover,
+  .workspace-mobile-menu button.active {
+    background: #e9e9e6;
+    color: #202123;
+  }
+
+  .workspace-mobile-menu .workspace-side-nav-icon,
+  .workspace-mobile-menu .workspace-side-nav-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .workspace-content {
+    padding: 14px 16px calc(44px + env(safe-area-inset-bottom));
+  }
+
+  .workspace-safety {
+    min-height: 40px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .workspace-content-inner,
+  .workspace-safety {
+    max-width: 100%;
+  }
+
+  .consultation-page {
+    padding: 26px 0 10px;
+  }
+
+  .consultation-page-heading {
+    max-width: 100%;
+  }
+
+  .consultation-page-heading h1 {
+    font-size: clamp(27px, 6vw, 34px);
+    line-height: 1.1;
+  }
+
+  .consultation-page-heading > p:last-child {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .consultation-steps {
+    display: flex;
+    gap: 7px;
+    margin: 22px -2px 0;
+    padding: 0 2px 5px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .consultation-steps::-webkit-scrollbar {
+    display: none;
+  }
+
+  .consultation-step {
+    min-height: 42px;
+    flex: 0 0 44px;
+    justify-content: center;
+    padding: 0 10px;
+    scroll-snap-align: start;
+  }
+
+  .consultation-step-label {
+    display: none !important;
+  }
+
+  .consultation-step-current {
+    flex-basis: auto;
+    min-width: 150px;
+    justify-content: flex-start;
+  }
+
+  .consultation-step-current .consultation-step-label {
+    display: block !important;
+    overflow: visible;
+    font-size: 11px;
+    text-overflow: clip;
+  }
+
+  .consultation-layout {
+    grid-template-columns: 1fr !important;
+    gap: 16px;
+    margin-top: 18px;
+  }
+
+  .consultation-summary-card {
+    position: static !important;
+    top: auto !important;
+  }
+
+  .clinical-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .clinical-grid-investigation {
+    grid-template-columns: minmax(0, 1fr) 160px;
+  }
+
+  .clinical-control,
+  .clinical-segmented button,
+  .clinical-button {
+    min-height: 44px;
+  }
+
+  .workspace-overview-grid,
+  .case-top-grid,
+  .case-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-page-heading,
+  .workspace-cases-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workspace-page-heading {
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .workspace-page-heading h1,
+  .case-hero h1,
+  .settings-heading h1,
+  .case-page-empty h1 {
+    font-size: clamp(29px, 7vw, 36px);
+  }
+
+  .workspace-page-heading .workspace-primary-action {
+    align-self: flex-start;
+  }
+
+  .workspace-search-control {
+    width: 100%;
+  }
+
+  .workspace-filter-row {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .workspace-filter-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workspace-filter-row button {
+    flex: 0 0 auto;
+    min-height: 40px;
+  }
+
+  .settings-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 26px;
+    padding-top: 24px;
+  }
+
+  .case-hero {
+    gap: 20px;
+  }
+
+  .case-panel {
+    padding: 18px;
+  }
+
+  .case-diagnosis-grid {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .workspace-content {
+    padding-inline: 14px;
+  }
+
+  .workspace-safety {
+    align-items: flex-start;
+  }
+
+  .workspace-safety-dot {
+    margin-top: 4px;
+  }
+
+  .consultation-card {
+    padding: 18px;
+  }
+
+  .consultation-card-heading {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .consultation-card-heading h2 {
+    font-size: 16px;
+  }
+
+  .consultation-summary-card {
+    padding: 18px;
+  }
+
+  .clinical-grid-2,
+  .clinical-grid-4,
+  .clinical-grid-investigation {
+    grid-template-columns: 1fr;
+  }
+
+  .clinical-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .consultation-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .consultation-actions > div {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .consultation-actions > .clinical-button,
+  .consultation-actions > div .clinical-button {
+    width: 100%;
+  }
+
+  .workspace-overview-page,
+  .workspace-cases-page,
+  .settings-page,
+  .case-page {
+    padding-top: 28px;
+  }
+
+  .workspace-page-heading p:last-child,
+  .settings-heading > p:last-child {
+    font-size: 13px;
+  }
+
+  .workspace-page-heading .workspace-primary-action,
+  .workspace-primary-action {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .workspace-metric-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .workspace-metric-card {
+    padding: 18px;
+  }
+
+  .workspace-panel {
+    padding: 18px;
+  }
+
+  .workspace-case-list-heading {
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .workspace-case-row-main {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .workspace-case-row-copy > p {
+    white-space: normal;
+  }
+
+  .workspace-case-row-meta {
+    min-width: 0;
+    align-items: flex-start;
+  }
+
+  .workspace-case-row-meta strong {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .settings-row,
+  .settings-action-card {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .settings-row {
+    padding: 17px;
+  }
+
+  .settings-action-card {
+    padding: 18px;
+  }
+
+  .settings-button {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .case-hero {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .case-header-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .case-header-actions .workspace-page-button,
+  .case-header-actions a {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .case-findings-grid,
+  .case-diagnosis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .case-detail-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .case-panel-heading,
+  .case-diagnosis-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .case-investigation-list > div > div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .case-empty-panel,
+  .case-awaiting {
+    min-height: 118px;
+    padding: 18px;
+  }
+
+  .case-differential-list button {
+    min-height: 62px;
+  }
+}
+
+@media (max-width: 479px) {
+  .workspace-mobile-header {
+    padding-inline: 12px;
+  }
+
+  .workspace-mobile-brand {
+    font-size: 13px;
+  }
+
+  .workspace-mobile-header .workspace-brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .workspace-content {
+    padding: 12px 12px calc(36px + env(safe-area-inset-bottom));
+  }
+
+  .workspace-safety {
+    font-size: 10px;
+  }
+
+  .consultation-page {
+    padding-top: 22px;
+  }
+
+  .consultation-page-heading h1 {
+    font-size: 27px;
+  }
+
+  .consultation-page-heading > p:last-child {
+    font-size: 12px;
+  }
+
+  .consultation-step-current {
+    min-width: 138px;
+  }
+
+  .consultation-card,
+  .consultation-summary-card,
+  .workspace-panel,
+  .case-panel {
+    padding: 15px;
+  }
+
+  .clinical-segmented {
+    gap: 5px;
+  }
+
+  .clinical-segmented button {
+    padding-inline: 6px;
+    font-size: 11px;
+  }
+
+  .consultation-actions > div {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-page-heading h1,
+  .case-hero h1,
+  .settings-heading h1,
+  .case-page-empty h1 {
+    font-size: 28px;
+  }
+
+  .workspace-page-heading,
+  .case-hero {
+    margin-bottom: 22px;
+  }
+
+  .workspace-case-list-heading {
+    padding: 15px;
+  }
+
+  .workspace-case-row-main {
+    padding: 15px;
+  }
+
+  .workspace-panel-actions,
+  .case-header-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-panel-actions {
+    display: grid;
+  }
+
+  .workspace-panel-actions > * {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .case-meta {
+    flex-wrap: wrap;
+  }
+
+  .case-detail-row,
+  .case-history-list > div,
+  .case-investigation-list > div {
+    padding: 12px;
+  }
+
+  .case-diagnosis-heading h3 {
+    font-size: 19px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .workspace-mobile-menu button,
+  .workspace-primary-action,
+  .workspace-secondary-action,
+  .workspace-filter-row button,
+  .settings-button,
+  .case-differential-list button,
+  .clinical-button,
+  .clinical-segmented button {
+    min-height: 44px;
+  }
+}
