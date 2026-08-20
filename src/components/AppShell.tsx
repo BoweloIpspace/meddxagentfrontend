@@ -71,12 +71,20 @@ function resolveHeader(pathname: string) {
   return { eyebrow: "Workspace", title: "Overview" };
 }
 
+function resolveRouteClass(pathname: string) {
+  if (pathname === "/workspace") return "workspace-route-overview";
+  if (pathname === "/cases") return "workspace-route-cases";
+  if (pathname.startsWith("/case/") && !pathname.endsWith("/edit")) return "workspace-route-case";
+  return "";
+}
+
 export default function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const activePath = resolveActivePath(location.pathname);
   const header = resolveHeader(location.pathname);
+  const routeClass = resolveRouteClass(location.pathname);
 
   const navigateTo = (path: string) => {
     navigate(path);
@@ -84,7 +92,7 @@ export default function AppShell() {
   };
 
   return (
-    <div className="workspace-shell">
+    <div className={`workspace-shell ${routeClass}`}>
       <aside className="workspace-sidebar hidden lg:flex">
         <div>
           <Link to="/app" className="workspace-brand">
