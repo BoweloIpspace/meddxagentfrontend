@@ -14,6 +14,16 @@ import type {
 } from "../types";
 
 const steps = [
+  "Patient",
+  "Complaint",
+  "History",
+  "Summary",
+  "Examination",
+  "Investigations",
+  "Differential",
+] as const;
+
+const stepTitles = [
   "Patient information",
   "Chief complaint",
   "Targeted history",
@@ -21,6 +31,16 @@ const steps = [
   "Physical examination",
   "Investigations",
   "Differential diagnosis",
+] as const;
+
+const stepDescriptions = [
+  "Capture only clinically relevant context. No patient name or patient ID is required.",
+  "Record the main presenting problem and any information already known at presentation.",
+  "Capture complaint-specific follow-up questions and clinically relevant responses.",
+  "Organise the history into positive findings, negatives, risks and urgent concerns.",
+  "Record the examination findings that materially affect the differential diagnosis.",
+  "Capture investigations, why they were requested and results when available.",
+  "Review the structured consultation and the ranked output returned by MEDDxAgent.",
 ] as const;
 
 const emptyCaseInput: CaseInput = {
@@ -58,31 +78,20 @@ function listToLines(value: string[]) {
   return value.join("\n");
 }
 
-function StepHeader({ step }: { step: number }) {
-  const progress = (step / steps.length) * 100;
-
+function WorkflowProgress({ step }: { step: number }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-600">
-            Consultation workflow
-          </p>
-          <h1 className="mt-2 text-[26px] font-semibold tracking-[-0.035em] text-slate-950 sm:text-[30px]">
-            {step}. {steps[step - 1]}
-          </h1>
-        </div>
-        <span className="font-mono text-[11px] text-slate-400">
-          {step}/{steps.length}
-        </span>
-      </div>
-      <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-slate-100">
-        <div
-          className="h-full rounded-full bg-blue-600 transition-[width] duration-300"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-    </div>
+    <ol className="consultation-steps" aria-label="Consultation progress">
+      {steps.map((label, index) => {
+        const stepNumber = index + 1;
+        const state = stepNumber === step ? "current" : stepNumber < step ? "complete" : "upcoming";
+        return (
+          <li key={label} className={`consultation-step consultation-step-${state}`}>
+            <span className="consultation-step-number">{stepNumber}</span>
+            <span className="consultation-step-label">{label}</span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -97,24 +106,94 @@ function FindingTextarea({
   value: string[];
   onChange: (items: string[]) => void;
 }) {
-  const toneClasses = {
-    emerald: "border-emerald-200 bg-emerald-50/60",
-    slate: "border-slate-200 bg-slate-50/70",
-    amber: "border-amber-200 bg-amber-50/60",
-    rose: "border-rose-200 bg-rose-50/60",
-  }[tone];
-
   return (
-    <div className={`rounded-2xl border p-4 ${toneClasses}`}>
-      <label className="text-[12px] font-semibold text-slate-800">{label}</label>
+    <div className={`finding-card finding-card-${tone}`}>
+      <label>{label}</label>
       <textarea
         rows={5}
         value={listToLines(value)}
         onChange={(event) => onChange(linesToList(event.target.value))}
         placeholder="One finding per line"
-        className="mt-3 w-full resize-none rounded-xl border border-white/80 bg-white px-3.5 py-3 text-[13px] leading-[1.6] text-slate-700 outline-none placeholder:text-slate-300 focus:border-blue-300"
+        className="clinical-control clinical-textarea"
       />
     </div>
+  );
+}
+
+function ConsultationSummary({
+  step,
+  form,
+  workflow,
+}: {
+  step: number;
+  form: CaseInput;
+  workflow: ClinicalWorkflow;
+}) {
+  const answeredHistory = workflow.historyQuestions.filter((item) => item.answer.trim()).length;
+  const investigationCount = workflow.investigations.length;
+
+  return (
+    <aside className="consultation-summary-card">
+      <div>
+        <p className="consultation-summary-eyebrow">Consultation</p>
+        <p className="consultation-summary-step">Step {step} of {steps.length}</p>
+      </div>
+
+      <div className="consultation-summary-divider" />
+
+      <div className="consultation-summary-copy">
+        {step === 1 && (
+          <p>Patient identifiers are intentionally excluded. Collect only information needed for differential diagnosis.</p>
+        )}
+        {step === 2 && (
+          <p>{form.chiefComplaint || "Add the presenting complaint before moving into targeted history."}</p>
+        )}
+        {step === 3 && (
+          <p>{answeredHistory} answered history question{answeredHistory === 1 ? "" : "s"} recorded for this consultation.</p>
+        )}
+        {step === 4 && (
+          <p>{workflow.historySummary.positiveFindings.length} positive findings and {workflow.historySummary.redFlags.length} red flags currently captured.</p>
+        )}
+        {step === 5 && (
+          <p>Record only examination findings that are observed or available. Empty fields remain explicitly unknown.</p>
+        )}
+        {step === 6 && (
+          <p>{investigationCount} investigation{investigationCount === 1 ? "" : "s"} recorded. MEDDxAgent recommendations are not fabricated by the frontend.</p>
+        )}
+        {step === 7 && (
+          <p>The structured consultation is ready. Ranked diagnoses appear only when real MEDDxAgent output exists.</p>
+        )}
+      </div>
+
+      <div className="consultation-status-card">
+        <span className="consultation-status-dot" />
+        <div>
+          <strong>
+            {step === 1
+              ? "Ready for structured history"
+              : step === 7
+                ? "Ready for MEDDxAgent"
+                : `${stepTitles[step - 1]} in progress`}
+          </strong>
+          <span>{step < steps.length ? `Next: ${stepTitles[step]}` : "Final consultation step"}</span>
+        </div>
+      </div>
+
+      <dl className="consultation-mini-details">
+        <div>
+          <dt>Age</dt>
+          <dd>{form.age || "—"}</dd>
+        </div>
+        <div>
+          <dt>Sex</dt>
+          <dd>{form.sex || "—"}</dd>
+        </div>
+        <div>
+          <dt>Complaint</dt>
+          <dd>{form.chiefComplaint || "Not entered"}</dd>
+        </div>
+      </dl>
+    </aside>
   );
 }
 
@@ -135,20 +214,12 @@ export default function NewCase() {
 
   if (id && !existingCase) {
     return (
-      <div className="app-page max-w-[760px] text-center">
-        <div className="py-16">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Case unavailable</p>
-          <h1 className="mt-4 text-[26px] font-semibold tracking-[-0.035em] text-slate-950">
-            This case cannot be edited because it is not in the local workspace.
-          </h1>
-          <div className="mt-7 flex flex-wrap justify-center gap-2">
-            <Link to="/cases" className="rounded-xl bg-slate-950 px-4 py-2.5 text-[13px] font-semibold text-white">
-              View cases
-            </Link>
-            <Link to="/cases/new" className="rounded-xl border border-slate-200 px-4 py-2.5 text-[13px] font-semibold text-slate-600">
-              New case
-            </Link>
-          </div>
+      <div className="consultation-page consultation-empty-state">
+        <p className="consultation-page-eyebrow">Case unavailable</p>
+        <h1>This case is not in the local workspace.</h1>
+        <div className="consultation-empty-actions">
+          <Link to="/cases" className="clinical-button clinical-button-primary">View cases</Link>
+          <Link to="/cases/new" className="clinical-button clinical-button-secondary">New consultation</Link>
         </div>
       </div>
     );
@@ -235,259 +306,298 @@ export default function NewCase() {
   const diagnosticEntries = existingCase?.differential ?? [];
 
   return (
-    <div className="app-page max-w-[980px]">
+    <div className="consultation-page">
+      <div className="consultation-page-heading">
+        <p className="consultation-page-eyebrow">New consultation</p>
+        <h1>{stepTitles[step - 1]}</h1>
+        <p>{stepDescriptions[step - 1]}</p>
+      </div>
+
+      <WorkflowProgress step={step} />
+
       <form onSubmit={handleFinish}>
-        <div className="rounded-[22px] border border-slate-200 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.04)] sm:p-8">
-          <StepHeader step={step} />
-
-          {step === 1 && (
-            <div className="space-y-7">
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/60 px-4 py-3 text-[12px] leading-[1.6] text-blue-800">
-                MEDDxAgent does not require a patient name or patient ID. Capture only clinically relevant context.
+        <div className="consultation-layout">
+          <section className="consultation-card">
+            <div className="consultation-card-heading">
+              <div>
+                <p className="consultation-card-eyebrow">Clinical context</p>
+                <h2>{stepTitles[step - 1]}</h2>
               </div>
+              <span className="consultation-card-count">{step}/{steps.length}</span>
+            </div>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="patient-age" className="field-label">Age</label>
-                  <input
-                    id="patient-age"
-                    type="number"
-                    min={0}
-                    max={150}
-                    value={form.age}
-                    onChange={(event) => updateField("age", event.target.value)}
-                    placeholder="Age"
-                    className="field-control placeholder:text-slate-300"
-                  />
+            {step === 1 && (
+              <div className="consultation-fields">
+                <div className="clinical-grid clinical-grid-2">
+                  <label className="clinical-field" htmlFor="patient-age">
+                    <span>Age</span>
+                    <input
+                      id="patient-age"
+                      type="number"
+                      min={0}
+                      max={150}
+                      value={form.age}
+                      onChange={(event) => updateField("age", event.target.value)}
+                      placeholder="45"
+                      className="clinical-control"
+                    />
+                  </label>
+
+                  <fieldset className="clinical-field">
+                    <legend>Sex / gender</legend>
+                    <div className="clinical-segmented">
+                      {(["Male", "Female", "Other"] as const).map((value) => (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => updateField("sex", value)}
+                          className={form.sex === value ? "active" : ""}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
                 </div>
-                <div>
-                  <label className="field-label">Sex / gender</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(["Male", "Female", "Other"] as const).map((value) => (
-                      <button
-                        key={value}
-                        type="button"
-                        onClick={() => updateField("sex", value)}
-                        className={`rounded-xl border px-3 py-3 text-[12px] font-semibold transition-colors ${
-                          form.sex === value
-                            ? "border-blue-600 bg-blue-600 text-white"
-                            : "border-slate-200 bg-white text-slate-500 hover:border-blue-200"
-                        }`}
-                      >
-                        {value}
-                      </button>
-                    ))}
+
+                <label className="clinical-field" htmlFor="known-conditions">
+                  <span>Relevant chronic conditions</span>
+                  <input
+                    id="known-conditions"
+                    value={form.knownConditions}
+                    onChange={(event) => updateField("knownConditions", event.target.value)}
+                    placeholder="Hypertension, Type 2 diabetes"
+                    className="clinical-control"
+                  />
+                </label>
+
+                <label className="clinical-field" htmlFor="medications">
+                  <span>Current medications</span>
+                  <input
+                    id="medications"
+                    value={form.medications}
+                    onChange={(event) => updateField("medications", event.target.value)}
+                    placeholder="Amlodipine 5 mg, Metformin 500 mg"
+                    className="clinical-control"
+                  />
+                </label>
+
+                <div className="clinical-grid clinical-grid-2">
+                  <label className="clinical-field" htmlFor="medical-history">
+                    <span>Other relevant background</span>
+                    <textarea
+                      id="medical-history"
+                      rows={4}
+                      value={form.medicalHistory}
+                      onChange={(event) => updateField("medicalHistory", event.target.value)}
+                      placeholder="Allergies, travel, exposure, pregnancy status or other clinically relevant context"
+                      className="clinical-control clinical-textarea"
+                    />
+                  </label>
+
+                  <label className="clinical-field" htmlFor="risk-factors">
+                    <span>Known risk factors</span>
+                    <textarea
+                      id="risk-factors"
+                      rows={4}
+                      value={form.riskFactors}
+                      onChange={(event) => updateField("riskFactors", event.target.value)}
+                      placeholder="Smoking, immobility, family history, occupation or exposure"
+                      className="clinical-control clinical-textarea"
+                    />
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="consultation-fields">
+                <label className="clinical-field" htmlFor="chief-complaint">
+                  <span>Main presenting complaint</span>
+                  <input
+                    id="chief-complaint"
+                    value={form.chiefComplaint}
+                    onChange={(event) => updateField("chiefComplaint", event.target.value)}
+                    placeholder="Shortness of breath"
+                    className="clinical-control clinical-control-prominent"
+                  />
+                </label>
+
+                <label className="clinical-field" htmlFor="initial-information">
+                  <span>Initial presentation context</span>
+                  <textarea
+                    id="initial-information"
+                    rows={7}
+                    value={form.initialInformation}
+                    onChange={(event) => updateField("initialInformation", event.target.value)}
+                    placeholder="Optional details already known at presentation"
+                    className="clinical-control clinical-textarea"
+                  />
+                </label>
+
+                <div className="clinical-info-panel">
+                  <span className="clinical-info-icon">i</span>
+                  <div>
+                    <strong>Targeted history comes next</strong>
+                    <p>Complaint-specific follow-up questions can be entered manually until the real MEDDxAgent application layer supplies them.</p>
                   </div>
                 </div>
               </div>
+            )}
 
-              <div>
-                <label htmlFor="known-conditions" className="field-label">Relevant chronic conditions</label>
-                <input
-                  id="known-conditions"
-                  value={form.knownConditions}
-                  onChange={(event) => updateField("knownConditions", event.target.value)}
-                  placeholder="e.g. hypertension, diabetes, COPD"
-                  className="field-control placeholder:text-slate-300"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="medications" className="field-label">Current medications</label>
-                <input
-                  id="medications"
-                  value={form.medications}
-                  onChange={(event) => updateField("medications", event.target.value)}
-                  placeholder="Relevant existing medications"
-                  className="field-control placeholder:text-slate-300"
-                />
-              </div>
-
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="medical-history" className="field-label">Other relevant background</label>
-                  <textarea
-                    id="medical-history"
-                    rows={4}
-                    value={form.medicalHistory}
-                    onChange={(event) => updateField("medicalHistory", event.target.value)}
-                    placeholder="Previous disease, procedures, allergies, pregnancy status, travel, exposure..."
-                    className="field-control resize-none leading-[1.6] placeholder:text-slate-300"
-                  />
+            {step === 3 && (
+              <div className="consultation-fields">
+                <div className="clinical-section-heading">
+                  <div>
+                    <h3>Complaint-specific follow-up</h3>
+                    <p>Capture targeted clinician questions and the patient responses that materially affect the differential.</p>
+                  </div>
+                  <button type="button" onClick={addHistoryQuestion} className="clinical-button clinical-button-secondary">
+                    + Add question
+                  </button>
                 </div>
-                <div>
-                  <label htmlFor="risk-factors" className="field-label">Known risk factors</label>
-                  <textarea
-                    id="risk-factors"
-                    rows={4}
-                    value={form.riskFactors}
-                    onChange={(event) => updateField("riskFactors", event.target.value)}
-                    placeholder="Smoking, immobility, family history, occupation, exposure..."
-                    className="field-control resize-none leading-[1.6] placeholder:text-slate-300"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
 
-          {step === 2 && (
-            <div className="space-y-6">
-              <div>
-                <label htmlFor="chief-complaint" className="field-label">Main presenting complaint</label>
-                <input
-                  id="chief-complaint"
-                  value={form.chiefComplaint}
-                  onChange={(event) => updateField("chiefComplaint", event.target.value)}
-                  placeholder="e.g. Shortness of breath"
-                  className="field-control text-[15px] placeholder:text-slate-300"
-                />
-              </div>
-              <div>
-                <label htmlFor="initial-information" className="field-label">Initial presentation context</label>
-                <textarea
-                  id="initial-information"
-                  rows={6}
-                  value={form.initialInformation}
-                  onChange={(event) => updateField("initialInformation", event.target.value)}
-                  placeholder="Optional details already known at presentation"
-                  className="field-control resize-none leading-[1.65] placeholder:text-slate-300"
-                />
-              </div>
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
-                <p className="text-[12px] font-semibold text-blue-900">Targeted history comes next</p>
-                <p className="mt-1 text-[12px] leading-[1.6] text-blue-700">
-                  The workflow is structured to receive complaint-specific follow-up questions from MEDDxAgent. Until that integration is connected, questions can be entered manually rather than fabricated by the frontend.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="space-y-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <h2 className="text-[15px] font-semibold text-slate-900">Complaint-specific follow-up</h2>
-                  <p className="mt-1 max-w-[640px] text-[12px] leading-[1.6] text-slate-400">
-                    MEDDxAgent-generated questions will populate this section when the application layer is connected. You can capture targeted clinician questions and answers now.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={addHistoryQuestion}
-                  className="shrink-0 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2.5 text-[12px] font-semibold text-blue-700"
-                >
-                  + Add question
-                </button>
-              </div>
-
-              {workflow.historyQuestions.length === 0 ? (
-                <button
-                  type="button"
-                  onClick={addHistoryQuestion}
-                  className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 px-6 py-10 text-center"
-                >
-                  <span className="text-[13px] font-semibold text-slate-700">Add the first targeted history question</span>
-                  <span className="mt-1 block text-[12px] text-slate-400">Questions and answers are stored with this case.</span>
-                </button>
-              ) : (
-                <div className="space-y-4">
-                  {workflow.historyQuestions.map((item, index) => (
-                    <div key={item.id} className="rounded-2xl border border-slate-200 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-mono text-[10px] text-blue-600">Q{String(index + 1).padStart(2, "0")}</span>
-                        <button
-                          type="button"
-                          onClick={() =>
+                {workflow.historyQuestions.length === 0 ? (
+                  <button type="button" onClick={addHistoryQuestion} className="clinical-empty-control">
+                    <strong>Add the first targeted history question</strong>
+                    <span>Questions and answers are stored with this case.</span>
+                  </button>
+                ) : (
+                  <div className="clinical-stack">
+                    {workflow.historyQuestions.map((item, index) => (
+                      <div key={item.id} className="clinical-module">
+                        <div className="clinical-module-heading">
+                          <span>Q{String(index + 1).padStart(2, "0")}</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setWorkflow((current) => ({
+                                ...current,
+                                historyQuestions: current.historyQuestions.filter((question) => question.id !== item.id),
+                              }))
+                            }
+                          >
+                            Remove
+                          </button>
+                        </div>
+                        <input
+                          value={item.question}
+                          onChange={(event) =>
                             setWorkflow((current) => ({
                               ...current,
-                              historyQuestions: current.historyQuestions.filter((question) => question.id !== item.id),
+                              historyQuestions: current.historyQuestions.map((question) =>
+                                question.id === item.id ? { ...question, question: event.target.value } : question
+                              ),
                             }))
                           }
-                          className="text-[11px] font-medium text-slate-300 hover:text-rose-500"
-                        >
-                          Remove
-                        </button>
+                          placeholder="Targeted question"
+                          className="clinical-control"
+                        />
+                        <textarea
+                          rows={3}
+                          value={item.answer}
+                          onChange={(event) =>
+                            setWorkflow((current) => ({
+                              ...current,
+                              historyQuestions: current.historyQuestions.map((question) =>
+                                question.id === item.id ? { ...question, answer: event.target.value } : question
+                              ),
+                            }))
+                          }
+                          placeholder="Patient answer / clinically relevant response"
+                          className="clinical-control clinical-textarea"
+                        />
                       </div>
-                      <input
-                        value={item.question}
-                        onChange={(event) =>
-                          setWorkflow((current) => ({
-                            ...current,
-                            historyQuestions: current.historyQuestions.map((question) =>
-                              question.id === item.id ? { ...question, question: event.target.value } : question
-                            ),
-                          }))
-                        }
-                        placeholder="Targeted question"
-                        className="mt-3 w-full rounded-xl border border-slate-200 px-3.5 py-3 text-[13px] text-slate-800 outline-none placeholder:text-slate-300 focus:border-blue-300"
-                      />
-                      <textarea
-                        rows={3}
-                        value={item.answer}
-                        onChange={(event) =>
-                          setWorkflow((current) => ({
-                            ...current,
-                            historyQuestions: current.historyQuestions.map((question) =>
-                              question.id === item.id ? { ...question, answer: event.target.value } : question
-                            ),
-                          }))
-                        }
-                        placeholder="Patient answer / clinically relevant response"
-                        className="mt-3 w-full resize-none rounded-xl border border-slate-200 px-3.5 py-3 text-[13px] leading-[1.6] text-slate-700 outline-none placeholder:text-slate-300 focus:border-blue-300"
-                      />
-                    </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="consultation-fields">
+                <p className="clinical-section-copy">Organise the history into clinically meaningful findings. These fields stay structured for the MEDDxAgent integration layer.</p>
+                <div className="clinical-grid clinical-grid-2">
+                  <FindingTextarea
+                    label="Key positive findings"
+                    tone="emerald"
+                    value={workflow.historySummary.positiveFindings}
+                    onChange={(value) => updateSummary("positiveFindings", value)}
+                  />
+                  <FindingTextarea
+                    label="Important negative findings"
+                    tone="slate"
+                    value={workflow.historySummary.negativeFindings}
+                    onChange={(value) => updateSummary("negativeFindings", value)}
+                  />
+                  <FindingTextarea
+                    label="Risk factors"
+                    tone="amber"
+                    value={workflow.historySummary.riskFactors}
+                    onChange={(value) => updateSummary("riskFactors", value)}
+                  />
+                  <FindingTextarea
+                    label="Red flags / urgent concerns"
+                    tone="rose"
+                    value={workflow.historySummary.redFlags}
+                    onChange={(value) => updateSummary("redFlags", value)}
+                  />
+                </div>
+              </div>
+            )}
+
+            {step === 5 && (
+              <div className="consultation-fields">
+                <div className="clinical-grid clinical-grid-4">
+                  {[
+                    ["respiratoryRate", "Respiratory rate", "breaths/min"],
+                    ["oxygenSaturation", "Oxygen saturation", "%"],
+                    ["heartRate", "Heart rate", "beats/min"],
+                    ["temperature", "Temperature", "°C"],
+                  ].map(([key, label, unit]) => (
+                    <label className="clinical-field" key={key}>
+                      <span>{label}</span>
+                      <div className="clinical-unit-control">
+                        <input
+                          value={workflow.examination[key as keyof ClinicalWorkflow["examination"]]}
+                          onChange={(event) =>
+                            setWorkflow((current) => ({
+                              ...current,
+                              examination: { ...current.examination, [key]: event.target.value },
+                            }))
+                          }
+                          className="clinical-control"
+                        />
+                        <em>{unit}</em>
+                      </div>
+                    </label>
                   ))}
                 </div>
-              )}
-            </div>
-          )}
 
-          {step === 4 && (
-            <div>
-              <p className="mb-5 max-w-[680px] text-[12px] leading-[1.6] text-slate-400">
-                Organise the history into clinically meaningful findings. These fields are stored as structured data and can later be populated by the MEDDxAgent application layer.
-              </p>
-              <div className="grid gap-4 md:grid-cols-2">
-                <FindingTextarea
-                  label="Key positive findings"
-                  tone="emerald"
-                  value={workflow.historySummary.positiveFindings}
-                  onChange={(value) => updateSummary("positiveFindings", value)}
-                />
-                <FindingTextarea
-                  label="Important negative findings"
-                  tone="slate"
-                  value={workflow.historySummary.negativeFindings}
-                  onChange={(value) => updateSummary("negativeFindings", value)}
-                />
-                <FindingTextarea
-                  label="Risk factors"
-                  tone="amber"
-                  value={workflow.historySummary.riskFactors}
-                  onChange={(value) => updateSummary("riskFactors", value)}
-                />
-                <FindingTextarea
-                  label="Red flags / urgent concerns"
-                  tone="rose"
-                  value={workflow.historySummary.redFlags}
-                  onChange={(value) => updateSummary("redFlags", value)}
-                />
-              </div>
-            </div>
-          )}
+                <label className="clinical-field">
+                  <span>Blood pressure</span>
+                  <input
+                    value={workflow.examination.bloodPressure}
+                    onChange={(event) =>
+                      setWorkflow((current) => ({
+                        ...current,
+                        examination: { ...current.examination, bloodPressure: event.target.value },
+                      }))
+                    }
+                    placeholder="135/85 mmHg"
+                    className="clinical-control"
+                  />
+                </label>
 
-          {step === 5 && (
-            <div className="space-y-7">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {[
-                  ["respiratoryRate", "Respiratory rate", "breaths/min"],
-                  ["oxygenSaturation", "Oxygen saturation", "%"],
-                  ["heartRate", "Heart rate", "beats/min"],
-                  ["temperature", "Temperature", "°C"],
-                ].map(([key, label, unit]) => (
-                  <div key={key}>
-                    <label className="field-label">{label}</label>
-                    <div className="relative">
+                <div className="clinical-grid clinical-grid-2">
+                  {[
+                    ["generalAppearance", "General appearance"],
+                    ["respiratoryDistress", "Respiratory distress"],
+                    ["cyanosis", "Cyanosis"],
+                    ["pallor", "Pallor"],
+                  ].map(([key, label]) => (
+                    <label className="clinical-field" key={key}>
+                      <span>{label}</span>
                       <input
                         value={workflow.examination[key as keyof ClinicalWorkflow["examination"]]}
                         onChange={(event) =>
@@ -496,299 +606,224 @@ export default function NewCase() {
                             examination: { ...current.examination, [key]: event.target.value },
                           }))
                         }
-                        className="field-control pr-20"
+                        placeholder="Enter observed finding"
+                        className="clinical-control"
                       />
-                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-300">{unit}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                    </label>
+                  ))}
+                </div>
 
-              <div>
-                <label className="field-label">Blood pressure</label>
-                <input
-                  value={workflow.examination.bloodPressure}
-                  onChange={(event) =>
-                    setWorkflow((current) => ({
-                      ...current,
-                      examination: { ...current.examination, bloodPressure: event.target.value },
-                    }))
-                  }
-                  placeholder="e.g. 135/85 mmHg"
-                  className="field-control placeholder:text-slate-300"
-                />
-              </div>
-
-              <div className="grid gap-5 sm:grid-cols-2">
-                {[
-                  ["generalAppearance", "General appearance"],
-                  ["respiratoryDistress", "Respiratory distress"],
-                  ["cyanosis", "Cyanosis"],
-                  ["pallor", "Pallor"],
-                ].map(([key, label]) => (
-                  <div key={key}>
-                    <label className="field-label">{label}</label>
-                    <input
-                      value={workflow.examination[key as keyof ClinicalWorkflow["examination"]]}
+                <div className="clinical-grid clinical-grid-2">
+                  <label className="clinical-field">
+                    <span>Respiratory examination</span>
+                    <textarea
+                      rows={5}
+                      value={workflow.examination.respiratoryExam}
                       onChange={(event) =>
                         setWorkflow((current) => ({
                           ...current,
-                          examination: { ...current.examination, [key]: event.target.value },
+                          examination: { ...current.examination, respiratoryExam: event.target.value },
                         }))
                       }
-                      placeholder="Enter observed finding"
-                      className="field-control placeholder:text-slate-300"
+                      placeholder="Inspection, palpation, percussion, auscultation"
+                      className="clinical-control clinical-textarea"
                     />
+                  </label>
+                  <label className="clinical-field">
+                    <span>Cardiovascular examination</span>
+                    <textarea
+                      rows={5}
+                      value={workflow.examination.cardiovascularExam}
+                      onChange={(event) =>
+                        setWorkflow((current) => ({
+                          ...current,
+                          examination: { ...current.examination, cardiovascularExam: event.target.value },
+                        }))
+                      }
+                      placeholder="JVP, heart sounds, murmurs, oedema, perfusion"
+                      className="clinical-control clinical-textarea"
+                    />
+                  </label>
+                </div>
+
+                <label className="clinical-field">
+                  <span>Other examination findings</span>
+                  <textarea
+                    rows={4}
+                    value={workflow.examination.otherFindings}
+                    onChange={(event) =>
+                      setWorkflow((current) => ({
+                        ...current,
+                        examination: { ...current.examination, otherFindings: event.target.value },
+                      }))
+                    }
+                    placeholder="Other complaint-specific or clinically significant findings"
+                    className="clinical-control clinical-textarea"
+                  />
+                </label>
+              </div>
+            )}
+
+            {step === 6 && (
+              <div className="consultation-fields">
+                <div className="clinical-section-heading">
+                  <div>
+                    <h3>Investigations and results</h3>
+                    <p>Capture initial, targeted or conditional investigations and results when available.</p>
                   </div>
-                ))}
-              </div>
-
-              <div className="grid gap-5 md:grid-cols-2">
-                <div>
-                  <label className="field-label">Respiratory examination</label>
-                  <textarea
-                    rows={5}
-                    value={workflow.examination.respiratoryExam}
-                    onChange={(event) =>
-                      setWorkflow((current) => ({
-                        ...current,
-                        examination: { ...current.examination, respiratoryExam: event.target.value },
-                      }))
-                    }
-                    placeholder="Inspection, palpation, percussion, auscultation"
-                    className="field-control resize-none leading-[1.6] placeholder:text-slate-300"
-                  />
+                  <button type="button" onClick={addInvestigation} className="clinical-button clinical-button-secondary">
+                    + Add investigation
+                  </button>
                 </div>
-                <div>
-                  <label className="field-label">Cardiovascular examination</label>
-                  <textarea
-                    rows={5}
-                    value={workflow.examination.cardiovascularExam}
-                    onChange={(event) =>
-                      setWorkflow((current) => ({
-                        ...current,
-                        examination: { ...current.examination, cardiovascularExam: event.target.value },
-                      }))
-                    }
-                    placeholder="JVP, heart sounds, murmurs, oedema, perfusion"
-                    className="field-control resize-none leading-[1.6] placeholder:text-slate-300"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <label className="field-label">Other examination findings</label>
-                <textarea
-                  rows={4}
-                  value={workflow.examination.otherFindings}
-                  onChange={(event) =>
-                    setWorkflow((current) => ({
-                      ...current,
-                      examination: { ...current.examination, otherFindings: event.target.value },
-                    }))
-                  }
-                  placeholder="Other complaint-specific or clinically significant findings"
-                  className="field-control resize-none leading-[1.6] placeholder:text-slate-300"
-                />
-              </div>
-            </div>
-          )}
+                {workflow.investigations.length === 0 ? (
+                  <button type="button" onClick={addInvestigation} className="clinical-empty-control">
+                    <strong>Add an investigation</strong>
+                    <span>Record why it is being requested and the result when available.</span>
+                  </button>
+                ) : (
+                  <div className="clinical-stack">
+                    {workflow.investigations.map((item, index) => (
+                      <div key={item.id} className="clinical-module">
+                        <div className="clinical-module-heading">
+                          <span>INV {String(index + 1).padStart(2, "0")}</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setWorkflow((current) => ({
+                                ...current,
+                                investigations: current.investigations.filter((investigation) => investigation.id !== item.id),
+                              }))
+                            }
+                          >
+                            Remove
+                          </button>
+                        </div>
 
-          {step === 6 && (
-            <div className="space-y-5">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <h2 className="text-[15px] font-semibold text-slate-900">Investigations and results</h2>
-                  <p className="mt-1 max-w-[640px] text-[12px] leading-[1.6] text-slate-400">
-                    Capture initial, targeted, or conditional investigations. MEDDxAgent recommendations should populate this structure only when the real engine is connected.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={addInvestigation}
-                  className="shrink-0 rounded-xl border border-blue-200 bg-blue-50 px-3.5 py-2.5 text-[12px] font-semibold text-blue-700"
-                >
-                  + Add investigation
-                </button>
-              </div>
+                        <div className="clinical-grid clinical-grid-investigation">
+                          <input
+                            value={item.name}
+                            onChange={(event) =>
+                              setWorkflow((current) => ({
+                                ...current,
+                                investigations: current.investigations.map((investigation) =>
+                                  investigation.id === item.id ? { ...investigation, name: event.target.value } : investigation
+                                ),
+                              }))
+                            }
+                            placeholder="Investigation name"
+                            className="clinical-control"
+                          />
+                          <select
+                            value={item.category}
+                            onChange={(event) =>
+                              setWorkflow((current) => ({
+                                ...current,
+                                investigations: current.investigations.map((investigation) =>
+                                  investigation.id === item.id
+                                    ? { ...investigation, category: event.target.value as InvestigationCategory }
+                                    : investigation
+                                ),
+                              }))
+                            }
+                            className="clinical-control"
+                          >
+                            {Object.entries(investigationCategoryLabels).map(([value, label]) => (
+                              <option key={value} value={value}>{label}</option>
+                            ))}
+                          </select>
+                        </div>
 
-              {workflow.investigations.length === 0 ? (
-                <button
-                  type="button"
-                  onClick={addInvestigation}
-                  className="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 px-6 py-10 text-center"
-                >
-                  <span className="text-[13px] font-semibold text-slate-700">Add an investigation</span>
-                  <span className="mt-1 block text-[12px] text-slate-400">Record why it is being requested and the result when available.</span>
-                </button>
-              ) : (
-                <div className="space-y-4">
-                  {workflow.investigations.map((item, index) => (
-                    <div key={item.id} className="rounded-2xl border border-slate-200 p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="font-mono text-[10px] text-blue-600">INV {String(index + 1).padStart(2, "0")}</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setWorkflow((current) => ({
-                              ...current,
-                              investigations: current.investigations.filter((investigation) => investigation.id !== item.id),
-                            }))
-                          }
-                          className="text-[11px] font-medium text-slate-300 hover:text-rose-500"
-                        >
-                          Remove
-                        </button>
+                        <div className="clinical-grid clinical-grid-2">
+                          <textarea
+                            rows={3}
+                            value={item.rationale}
+                            onChange={(event) =>
+                              setWorkflow((current) => ({
+                                ...current,
+                                investigations: current.investigations.map((investigation) =>
+                                  investigation.id === item.id ? { ...investigation, rationale: event.target.value } : investigation
+                                ),
+                              }))
+                            }
+                            placeholder="Why requested / what it helps assess"
+                            className="clinical-control clinical-textarea"
+                          />
+                          <textarea
+                            rows={3}
+                            value={item.result}
+                            onChange={(event) =>
+                              setWorkflow((current) => ({
+                                ...current,
+                                investigations: current.investigations.map((investigation) =>
+                                  investigation.id === item.id ? { ...investigation, result: event.target.value } : investigation
+                                ),
+                              }))
+                            }
+                            placeholder="Result / interpretation"
+                            className="clinical-control clinical-textarea"
+                          />
+                        </div>
                       </div>
-                      <div className="mt-3 grid gap-3 md:grid-cols-[1fr_190px]">
-                        <input
-                          value={item.name}
-                          onChange={(event) =>
-                            setWorkflow((current) => ({
-                              ...current,
-                              investigations: current.investigations.map((investigation) =>
-                                investigation.id === item.id ? { ...investigation, name: event.target.value } : investigation
-                              ),
-                            }))
-                          }
-                          placeholder="Investigation name"
-                          className="rounded-xl border border-slate-200 px-3.5 py-3 text-[13px] outline-none placeholder:text-slate-300 focus:border-blue-300"
-                        />
-                        <select
-                          value={item.category}
-                          onChange={(event) =>
-                            setWorkflow((current) => ({
-                              ...current,
-                              investigations: current.investigations.map((investigation) =>
-                                investigation.id === item.id
-                                  ? { ...investigation, category: event.target.value as InvestigationCategory }
-                                  : investigation
-                              ),
-                            }))
-                          }
-                          className="rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-[12px] text-slate-600 outline-none focus:border-blue-300"
-                        >
-                          {Object.entries(investigationCategoryLabels).map(([value, label]) => (
-                            <option key={value} value={value}>{label}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="mt-3 grid gap-3 md:grid-cols-2">
-                        <textarea
-                          rows={3}
-                          value={item.rationale}
-                          onChange={(event) =>
-                            setWorkflow((current) => ({
-                              ...current,
-                              investigations: current.investigations.map((investigation) =>
-                                investigation.id === item.id ? { ...investigation, rationale: event.target.value } : investigation
-                              ),
-                            }))
-                          }
-                          placeholder="Why requested / what it helps assess"
-                          className="resize-none rounded-xl border border-slate-200 px-3.5 py-3 text-[12px] leading-[1.6] outline-none placeholder:text-slate-300 focus:border-blue-300"
-                        />
-                        <textarea
-                          rows={3}
-                          value={item.result}
-                          onChange={(event) =>
-                            setWorkflow((current) => ({
-                              ...current,
-                              investigations: current.investigations.map((investigation) =>
-                                investigation.id === item.id ? { ...investigation, result: event.target.value } : investigation
-                              ),
-                            }))
-                          }
-                          placeholder="Result / interpretation"
-                          className="resize-none rounded-xl border border-slate-200 px-3.5 py-3 text-[12px] leading-[1.6] outline-none placeholder:text-slate-300 focus:border-blue-300"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {step === 7 && (
-            <div className="space-y-6">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">Case ready</p>
-                <h2 className="mt-2 text-[20px] font-semibold tracking-[-0.025em] text-slate-950">
-                  {form.chiefComplaint || "Clinical consultation"}
-                </h2>
-                <p className="mt-2 text-[12px] leading-[1.6] text-slate-500">
-                  {form.age ? `${form.age}y` : "Age not entered"}{form.sex ? ` · ${form.sex}` : ""}
-                </p>
+                    ))}
+                  </div>
+                )}
               </div>
+            )}
 
-              {diagnosticEntries.length > 0 ? (
-                <div className="overflow-hidden rounded-2xl border border-slate-200">
-                  {diagnosticEntries.map((entry) => (
-                    <div key={`${entry.rank}-${entry.diagnosis}`} className="flex items-center gap-4 border-b border-slate-100 px-5 py-4 last:border-0">
-                      <span className="grid h-8 w-8 place-items-center rounded-lg bg-blue-50 font-mono text-[10px] text-blue-700">
-                        {entry.rank}
-                      </span>
-                      <p className="text-[14px] font-semibold text-slate-800">{entry.diagnosis}</p>
-                    </div>
-                  ))}
+            {step === 7 && (
+              <div className="consultation-fields">
+                <div className="clinical-case-ready">
+                  <p>Case ready</p>
+                  <h3>{form.chiefComplaint || "Clinical consultation"}</h3>
+                  <span>{form.age ? `${form.age}y` : "Age not entered"}{form.sex ? ` · ${form.sex}` : ""}</span>
                 </div>
-              ) : (
-                <div className="rounded-2xl border border-dashed border-blue-200 bg-blue-50/40 px-6 py-9">
-                  <p className="text-[14px] font-semibold text-slate-900">Awaiting real MEDDxAgent output</p>
-                  <p className="mt-2 max-w-[680px] text-[12px] leading-[1.7] text-slate-500">
-                    The consultation data is now structured for History → Examination → Investigations → Ranked Differential. The frontend will not invent diagnoses, probabilities, discriminators, or management while the engine/API integration is unavailable.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
 
-          {error && (
-            <div className="mt-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-[12px] font-medium text-rose-700">
-              {error}
-            </div>
-          )}
+                {diagnosticEntries.length > 0 ? (
+                  <div className="clinical-differential-list">
+                    {diagnosticEntries.map((entry) => (
+                      <div key={`${entry.rank}-${entry.diagnosis}`}>
+                        <span>{entry.rank}</span>
+                        <strong>{entry.diagnosis}</strong>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="clinical-empty-output">
+                    <strong>Awaiting real MEDDxAgent output</strong>
+                    <p>The frontend does not invent diagnoses, probabilities, discriminators or management while the engine/API integration is unavailable.</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
 
-          <div className="mt-8 flex flex-col-reverse gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex gap-2">
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={handleBack}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-[12px] font-semibold text-slate-600"
-                >
-                  Back
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={handleSaveDraft}
-                className="rounded-xl px-3 py-2.5 text-[12px] font-medium text-slate-400 hover:text-slate-700"
-              >
-                {saved ? "Draft saved" : "Save draft"}
-              </button>
-            </div>
+          <ConsultationSummary step={step} form={form} workflow={workflow} />
+        </div>
 
-            {step < steps.length ? (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="button-primary button-accent inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[13px] font-semibold text-white"
-              >
-                Save & continue
-                <span aria-hidden="true">→</span>
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="button-primary button-accent inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[13px] font-semibold text-white"
-              >
-                Save consultation
-                <span aria-hidden="true">→</span>
+        {error && <div className="clinical-error">{error}</div>}
+
+        <div className="consultation-actions">
+          <div>
+            {step > 1 && (
+              <button type="button" onClick={handleBack} className="clinical-button clinical-button-secondary">
+                Back
               </button>
             )}
+            <button type="button" onClick={handleSaveDraft} className="clinical-button clinical-button-ghost">
+              {saved ? "Draft saved" : "Save draft"}
+            </button>
           </div>
+
+          {step < steps.length ? (
+            <button type="button" onClick={handleNext} className="clinical-button clinical-button-primary">
+              Save & continue <span aria-hidden="true">→</span>
+            </button>
+          ) : (
+            <button type="submit" className="clinical-button clinical-button-primary">
+              Save consultation <span aria-hidden="true">→</span>
+            </button>
+          )}
         </div>
       </form>
     </div>
