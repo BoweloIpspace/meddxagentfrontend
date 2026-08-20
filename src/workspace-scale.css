@@ -1,0 +1,462 @@
+/* Workspace-only sizing and visual polish based on the approved clinical UI.
+   Landing page intentionally untouched. */
+
+:root {
+  --clinical-sidebar-width: 280px;
+}
+
+.workspace-shell {
+  background: #ffffff;
+}
+
+.workspace-sidebar {
+  width: var(--clinical-sidebar-width);
+  padding: 18px 12px 16px;
+  border-right: 0;
+  background: #f7f7f5;
+  color: #202123;
+  box-shadow: inset -1px 0 0 #ececea;
+}
+
+.workspace-brand {
+  min-height: 48px;
+  padding: 4px 10px;
+  color: #202123;
+}
+
+.workspace-brand-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.workspace-brand-copy strong {
+  color: #202123;
+  font-size: 14px;
+}
+
+.workspace-brand-copy small {
+  margin-top: 3px;
+  color: #8b8b87;
+  font-size: 11px;
+}
+
+.workspace-nav-label {
+  margin: 28px 12px 10px;
+  color: #9a9a96;
+  font-size: 10px;
+}
+
+.workspace-side-nav {
+  gap: 4px;
+}
+
+.workspace-side-nav-item {
+  min-height: 44px;
+  gap: 11px;
+  padding: 0 12px;
+  border-radius: 10px;
+  color: #5f6368;
+  font-size: 14px;
+  font-weight: 520;
+}
+
+.workspace-side-nav-item:hover {
+  background: #efefed;
+  color: #202123;
+}
+
+.workspace-side-nav-item-active {
+  background: #e9e9e6;
+  color: #202123;
+}
+
+.workspace-side-nav-item-active::before {
+  display: none;
+}
+
+.workspace-side-nav-icon,
+.workspace-side-nav-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.workspace-sidebar-footer {
+  gap: 10px;
+}
+
+.workspace-engine-card {
+  padding: 13px 14px;
+  border: 1px solid #e2e2df;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.workspace-engine-row {
+  color: #343541;
+  font-size: 12px;
+}
+
+.workspace-engine-card p {
+  margin-top: 7px;
+  color: #8b8b87;
+  font-size: 11px;
+}
+
+.workspace-research-link {
+  padding: 9px 11px;
+  color: #6f6f6b;
+  font-size: 12px;
+}
+
+.workspace-research-link:hover {
+  color: #202123;
+}
+
+@media (min-width: 1024px) {
+  .workspace-main {
+    margin-left: var(--clinical-sidebar-width);
+  }
+}
+
+.workspace-topbar {
+  height: 64px;
+  padding: 0 28px;
+  border-bottom-color: #ededeb;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.workspace-topbar-kicker {
+  margin-bottom: 5px;
+  font-size: 10px;
+}
+
+.workspace-topbar-title {
+  font-size: 14px;
+}
+
+.workspace-prototype-badge {
+  height: 34px;
+  padding: 0 13px;
+  font-size: 11px;
+}
+
+.workspace-avatar {
+  width: 34px;
+  height: 34px;
+  font-size: 11px;
+}
+
+.workspace-content {
+  padding: 22px 30px 64px;
+  background: #ffffff;
+}
+
+.workspace-safety,
+.workspace-content-inner {
+  max-width: 1100px;
+}
+
+.workspace-safety {
+  min-height: 38px;
+  padding: 0 14px;
+  border-color: #ececea;
+  border-radius: 10px;
+  background: #fafaf9;
+  color: #8b8b87;
+  font-size: 11px;
+}
+
+.consultation-page {
+  padding-top: 38px;
+}
+
+.consultation-page-heading {
+  max-width: 780px;
+}
+
+.consultation-page-eyebrow,
+.consultation-card-eyebrow,
+.consultation-summary-eyebrow {
+  font-size: 10px;
+}
+
+.consultation-page-heading h1 {
+  margin-top: 9px;
+  font-size: clamp(29px, 2.4vw, 36px);
+}
+
+.consultation-page-heading > p:last-child {
+  max-width: 720px;
+  margin-top: 11px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.consultation-steps {
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.consultation-step {
+  min-height: 44px;
+  gap: 8px;
+  padding: 0 10px;
+  border-radius: 10px;
+}
+
+.consultation-step-number {
+  width: 22px;
+  height: 22px;
+  font-size: 10px;
+}
+
+.consultation-step-label {
+  font-size: 11px;
+}
+
+.consultation-layout {
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.consultation-card {
+  padding: 28px;
+}
+
+.consultation-card,
+.consultation-summary-card {
+  border-radius: 14px;
+}
+
+.consultation-card-heading {
+  margin-bottom: 24px;
+}
+
+.consultation-card-heading h2 {
+  margin-top: 7px;
+  font-size: 17px;
+}
+
+.consultation-card-count {
+  font-size: 10px;
+}
+
+.consultation-fields {
+  gap: 21px;
+}
+
+.clinical-grid {
+  gap: 18px;
+}
+
+.clinical-field {
+  gap: 8px;
+}
+
+.clinical-field > span,
+.clinical-field > legend,
+.finding-card > label {
+  font-size: 12px;
+}
+
+.clinical-control {
+  min-height: 44px;
+  padding: 0 13px;
+  border-radius: 9px !important;
+  font-size: 13px;
+}
+
+.clinical-control-prominent {
+  font-size: 14px;
+}
+
+.clinical-textarea {
+  min-height: 108px;
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+
+.clinical-segmented button {
+  min-height: 44px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.consultation-summary-card {
+  top: 84px;
+  padding: 22px;
+  background: #fafaf9;
+}
+
+.consultation-summary-step {
+  font-size: 16px;
+}
+
+.consultation-summary-copy {
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.consultation-status-card {
+  padding: 13px;
+}
+
+.consultation-status-card strong {
+  font-size: 12px;
+}
+
+.consultation-status-card span,
+.consultation-mini-details dt,
+.consultation-mini-details dd {
+  font-size: 11px;
+}
+
+.consultation-mini-details > div {
+  grid-template-columns: 78px minmax(0, 1fr);
+}
+
+.consultation-actions {
+  margin-top: 20px;
+  padding-top: 18px;
+}
+
+.clinical-button {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.clinical-section-heading h3 {
+  font-size: 14px;
+}
+
+.clinical-section-heading p,
+.clinical-section-copy {
+  font-size: 11px;
+}
+
+.clinical-info-panel strong,
+.clinical-empty-control strong {
+  font-size: 12px;
+}
+
+.clinical-info-panel p,
+.clinical-empty-control span {
+  font-size: 11px;
+}
+
+.clinical-module {
+  gap: 12px;
+  padding: 16px;
+  border-radius: 10px;
+}
+
+.clinical-module-heading > span,
+.clinical-module-heading button {
+  font-size: 10px;
+}
+
+.finding-card {
+  padding: 15px;
+}
+
+/* Step 7: use the same neutral card/module language as steps 1–6. */
+.clinical-case-ready {
+  padding: 16px;
+  border-color: var(--clinical-line);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.clinical-case-ready p {
+  font-size: 10px;
+}
+
+.clinical-case-ready h3 {
+  margin-top: 6px;
+  font-size: 17px;
+}
+
+.clinical-case-ready span {
+  margin-top: 7px;
+  font-size: 11px;
+}
+
+.clinical-differential-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+}
+
+.clinical-differential-list > div {
+  min-height: 54px;
+  padding: 0 16px;
+  border: 1px solid var(--clinical-line);
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.clinical-differential-list > div:last-child {
+  border-bottom: 1px solid var(--clinical-line);
+}
+
+.clinical-differential-list span {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  font-size: 10px;
+}
+
+.clinical-differential-list strong {
+  font-size: 13px;
+}
+
+.clinical-empty-output {
+  display: flex;
+  min-height: 132px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  border-color: #ccd3dd;
+  border-radius: 10px;
+  background: #fbfcfd;
+  text-align: center;
+}
+
+.clinical-empty-output strong {
+  font-size: 12px;
+}
+
+.clinical-empty-output p {
+  max-width: 620px;
+  margin-top: 7px;
+  font-size: 11px;
+}
+
+.clinical-error {
+  font-size: 11px;
+}
+
+@media (max-width: 1180px) {
+  .consultation-step-label {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .workspace-content {
+    padding: 18px 18px 48px;
+  }
+
+  .consultation-layout {
+    grid-template-columns: 1fr;
+  }
+}

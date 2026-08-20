@@ -1,4 +1,4 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Navigate, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import ProductPreview from "./components/ProductPreview";
@@ -57,7 +57,8 @@ export default function App() {
       <Route path="/" element={<LandingPage />} />
 
       <Route element={<AppShell />}>
-        <Route path="/app" element={<WorkspaceHome />} />
+        <Route path="/app" element={<Navigate to="/cases/new" replace />} />
+        <Route path="/workspace" element={<WorkspaceHome />} />
         <Route path="/cases" element={<Cases />} />
         <Route path="/cases/new" element={<NewCase />} />
         <Route path="/case/:id" element={<ActiveCase />} />

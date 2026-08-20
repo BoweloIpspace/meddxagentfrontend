@@ -1,4 +1,10 @@
-import type { Case, CaseInput, CaseStatus, Patient } from "../types";
+import type {
+  Case,
+  CaseInput,
+  CaseStatus,
+  ClinicalWorkflow,
+  Patient,
+} from "../types";
 
 const STORAGE_KEY = "meddxagent.cases.v1";
 
@@ -14,12 +20,50 @@ function createCaseId() {
   return `CASE-${Date.now().toString(36).toUpperCase()}`;
 }
 
+export function createEmptyClinicalWorkflow(): ClinicalWorkflow {
+  return {
+    historyQuestions: [],
+    historySummary: {
+      positiveFindings: [],
+      negativeFindings: [],
+      riskFactors: [],
+      redFlags: [],
+    },
+    examination: {
+      generalAppearance: "",
+      respiratoryDistress: "",
+      cyanosis: "",
+      pallor: "",
+      respiratoryRate: "",
+      oxygenSaturation: "",
+      heartRate: "",
+      bloodPressure: "",
+      temperature: "",
+      respiratoryExam: "",
+      cardiovascularExam: "",
+      otherFindings: "",
+    },
+    investigations: [],
+  };
+}
+
+function normalizeCase(caseRecord: Case): Case {
+  return {
+    ...caseRecord,
+    patient: {
+      ...caseRecord.patient,
+      id: caseRecord.patient.id || undefined,
+    },
+    workflow: caseRecord.workflow ?? createEmptyClinicalWorkflow(),
+  };
+}
+
 function parseCases(value: string | null): Case[] {
   if (!value) return [];
 
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? (parsed as Case[]) : [];
+    return Array.isArray(parsed) ? (parsed as Case[]).map(normalizeCase) : [];
   } catch {
     return [];
   }
@@ -46,7 +90,6 @@ function buildPatient(input: CaseInput): Patient {
   const parsedAge = input.age.trim() === "" ? undefined : Number(input.age);
 
   return {
-    id: input.patientId.trim(),
     age: Number.isFinite(parsedAge) ? parsedAge : undefined,
     sex: input.sex || undefined,
     chiefComplaint: input.chiefComplaint.trim(),
@@ -60,7 +103,6 @@ function buildPatient(input: CaseInput): Patient {
 
 export function caseToInput(caseRecord: Case): CaseInput {
   return {
-    patientId: caseRecord.patient.id,
     age: caseRecord.patient.age?.toString() ?? "",
     sex: caseRecord.patient.sex ?? "",
     chiefComplaint: caseRecord.patient.chiefComplaint,
@@ -75,7 +117,8 @@ export function caseToInput(caseRecord: Case): CaseInput {
 export function saveCaseInput(
   input: CaseInput,
   status: CaseStatus,
-  existingCaseId?: string
+  existingCaseId?: string,
+  workflow?: ClinicalWorkflow
 ): Case {
   const cases = getCases();
   const existing = existingCaseId ? cases.find((item) => item.id === existingCaseId) : undefined;
@@ -87,11 +130,12 @@ export function saveCaseInput(
     status,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
-    currentIteration: 0,
-    differential: [],
-    rationale: "",
-    dialogueHistory: "",
-    ragContent: "",
+    currentIteration: existing?.currentIteration ?? 0,
+    differential: existing?.differential ?? [],
+    rationale: existing?.rationale ?? "",
+    dialogueHistory: existing?.dialogueHistory ?? "",
+    ragContent: existing?.ragContent ?? "",
+    workflow: workflow ?? existing?.workflow ?? createEmptyClinicalWorkflow(),
   };
 
   const nextCases = [nextCase, ...cases.filter((item) => item.id !== nextCase.id)];
