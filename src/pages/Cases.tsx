@@ -35,8 +35,9 @@ export default function Cases() {
       const matchesSearch =
         normalizedSearch === "" ||
         caseRecord.id.toLowerCase().includes(normalizedSearch) ||
-        caseRecord.patient.id.toLowerCase().includes(normalizedSearch) ||
-        caseRecord.patient.chiefComplaint.toLowerCase().includes(normalizedSearch);
+        caseRecord.patient.chiefComplaint.toLowerCase().includes(normalizedSearch) ||
+        caseRecord.patient.knownConditions?.toLowerCase().includes(normalizedSearch) ||
+        caseRecord.patient.medicalHistory?.toLowerCase().includes(normalizedSearch);
       const matchesFilter = filter === "all" || caseRecord.status === filter;
       return matchesSearch && matchesFilter;
     });
@@ -91,7 +92,7 @@ export default function Cases() {
                 type="search"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Search case or patient ID"
+                placeholder="Search case or clinical context"
                 className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-[13px] text-slate-900 placeholder:text-slate-300 focus:border-slate-400 focus:outline-none"
               />
             </div>
@@ -122,7 +123,7 @@ export default function Cases() {
                 <thead>
                   <tr className="border-b border-slate-100 bg-slate-50/70">
                     <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Case</th>
-                    <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Patient</th>
+                    <th className="px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400">Clinical context</th>
                     <th className="hidden px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400 md:table-cell">Status</th>
                     <th className="hidden px-6 py-4 text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-400 lg:table-cell">Updated</th>
                     <th className="px-6 py-4" />
@@ -138,10 +139,12 @@ export default function Cases() {
                         </p>
                       </td>
                       <td className="px-6 py-5">
-                        <p className="text-[13px] text-slate-600">{caseRecord.patient.id || "No patient ID"}</p>
-                        <p className="mt-1 text-[11px] text-slate-400">
+                        <p className="text-[13px] text-slate-600">
                           {caseRecord.patient.age ? `${caseRecord.patient.age}y` : "Age not entered"}
                           {caseRecord.patient.sex ? ` · ${caseRecord.patient.sex}` : ""}
+                        </p>
+                        <p className="mt-1 max-w-[320px] truncate text-[11px] text-slate-400">
+                          {caseRecord.patient.knownConditions || caseRecord.patient.medicalHistory || "No additional background entered"}
                         </p>
                       </td>
                       <td className="hidden px-6 py-5 md:table-cell">
