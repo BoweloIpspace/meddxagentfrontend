@@ -41,6 +41,8 @@ export function createEmptyClinicalWorkflow(): ClinicalWorkflow {
       temperature: "",
       respiratoryExam: "",
       cardiovascularExam: "",
+      abdominalExam: "",
+      neurologicalExam: "",
       otherFindings: "",
     },
     investigations: [],
@@ -48,13 +50,27 @@ export function createEmptyClinicalWorkflow(): ClinicalWorkflow {
 }
 
 function normalizeCase(caseRecord: Case): Case {
+  const emptyWorkflow = createEmptyClinicalWorkflow();
+  const storedWorkflow = caseRecord.workflow;
+
   return {
     ...caseRecord,
     patient: {
       ...caseRecord.patient,
       id: caseRecord.patient.id || undefined,
     },
-    workflow: caseRecord.workflow ?? createEmptyClinicalWorkflow(),
+    workflow: {
+      historyQuestions: storedWorkflow?.historyQuestions ?? emptyWorkflow.historyQuestions,
+      historySummary: {
+        ...emptyWorkflow.historySummary,
+        ...(storedWorkflow?.historySummary ?? {}),
+      },
+      examination: {
+        ...emptyWorkflow.examination,
+        ...(storedWorkflow?.examination ?? {}),
+      },
+      investigations: storedWorkflow?.investigations ?? emptyWorkflow.investigations,
+    },
   };
 }
 
