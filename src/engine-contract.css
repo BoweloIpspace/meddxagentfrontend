@@ -1,0 +1,49 @@
+/* Strict DDxDriver intake contract. Workspace only. */
+
+.meddx-engine-question {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid #e3e7ed;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.meddx-engine-question span {
+  color: #8a93a0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.meddx-engine-question strong {
+  color: #22262d;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+
+.meddx-engine-input-review {
+  overflow: hidden;
+}
+
+.meddx-engine-input-review pre {
+  margin: 0;
+  padding: 16px;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #3d4654;
+  font-family: "Geist Mono", "JetBrains Mono", monospace;
+  font-size: 10px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .meddx-engine-input-review pre {
+    padding: 14px;
+    font-size: 11px;
+  }
+}
