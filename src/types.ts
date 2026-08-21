@@ -101,6 +101,8 @@ export interface Case {
   dialogueHistory: string;
   ragContent: string;
   workflow: ClinicalWorkflow;
+  /** Process session created by the MEDDxAgent clinical application layer. */
+  engineSessionId?: string;
 }
 
 export interface CaseInput {
