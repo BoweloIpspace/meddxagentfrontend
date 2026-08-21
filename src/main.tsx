@@ -9,6 +9,7 @@ import './workspace-pages.css'
 import './workspace-detail.css'
 import './workspace-mobile.css'
 import './meddx-native.css'
+import './workspace-cleanup.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(
