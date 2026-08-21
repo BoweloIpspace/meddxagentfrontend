@@ -1,5 +1,9 @@
 /* MEDDxAgent-native consultation states. Workspace only; landing page untouched. */
 
+.consultation-steps {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
 .meddx-owner-banner,
 .meddx-profile-review,
 .meddx-run-panel,
