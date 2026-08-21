@@ -1,43 +1,39 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
+  buildDDxPatientInitialInfo,
   caseToInput,
   createEmptyClinicalWorkflow,
   getCase,
   saveCaseInput,
 } from "../data/caseStore";
-import type {
-  CaseInput,
-  ClinicalSummary,
-  ClinicalWorkflow,
-  InvestigationCategory,
-} from "../types";
+import type { CaseInput, ClinicalWorkflow } from "../types";
 
 const steps = [
   "Patient",
   "Complaint + history",
-  "Profile",
   "Examination",
   "Investigations",
+  "Engine review",
   "Run",
 ] as const;
 
 const stepTitles = [
   "Patient information",
   "Complaint & targeted history",
-  "Patient profile review",
   "Physical examination",
   "Investigations",
+  "Engine input review",
   "Run MEDDxAgent",
 ] as const;
 
 const stepDescriptions = [
   "",
-  "Record the presenting problem and initial information, then continue the targeted history dialogue on the same page.",
-  "Review the structured clinical profile that will be carried forward into MEDDxAgent reasoning.",
-  "Record observed examination findings that materially change the diagnostic picture.",
-  "Add investigation results already available to the clinician. MEDDxAgent evidence retrieval remains engine-controlled.",
-  "Review the case, then hand the structured consultation to MEDDxAgent for history-aware evidence retrieval and ranked differential diagnosis.",
+  "Record the presenting problem and information already known before MEDDxAgent history taking.",
+  "Record observed examination findings that should be available to DDxDriver.",
+  "Add investigation results already available to the clinician.",
+  "Review the exact clinical information assembled for DDxDriver before the engine handoff.",
+  "Hand the prepared patient context to MEDDxAgent for history taking, retrieval and differential diagnosis.",
 ] as const;
 
 const emptyCaseInput: CaseInput = {
@@ -51,28 +47,11 @@ const emptyCaseInput: CaseInput = {
   riskFactors: "",
 };
 
-const investigationCategoryLabels: Record<InvestigationCategory, string> = {
-  initial: "Initial / essential",
-  targeted: "Targeted",
-  conditional: "Conditional",
-};
-
 function makeId(prefix: string) {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
   }
   return `${prefix}-${Date.now().toString(36)}`;
-}
-
-function linesToList(value: string) {
-  return value
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function listToLines(value: string[]) {
-  return value.join("\n");
 }
 
 function WorkflowProgress({ step }: { step: number }) {
@@ -89,31 +68,6 @@ function WorkflowProgress({ step }: { step: number }) {
         );
       })}
     </ol>
-  );
-}
-
-function FindingTextarea({
-  label,
-  tone,
-  value,
-  onChange,
-}: {
-  label: string;
-  tone: "emerald" | "slate" | "amber" | "rose";
-  value: string[];
-  onChange: (items: string[]) => void;
-}) {
-  return (
-    <div className={`finding-card finding-card-${tone}`}>
-      <label>{label}</label>
-      <textarea
-        rows={5}
-        value={listToLines(value)}
-        onChange={(event) => onChange(linesToList(event.target.value))}
-        placeholder="One finding per line"
-        className="clinical-control clinical-textarea"
-      />
-    </div>
   );
 }
 
@@ -152,7 +106,7 @@ function ConsultationSummary({
   workflow: ClinicalWorkflow;
 }) {
   const answeredHistory = workflow.historyQuestions.filter((item) => item.answer.trim()).length;
-  const investigationCount = workflow.investigations.length;
+  const investigationCount = workflow.investigations.filter((item) => item.name.trim() || item.result.trim()).length;
 
   return (
     <aside className="consultation-summary-card">
@@ -164,26 +118,12 @@ function ConsultationSummary({
       <div className="consultation-summary-divider" />
 
       <div className="consultation-summary-copy">
-        {step === 1 && (
-          <p>Patient identifiers stay outside the diagnostic payload. Only clinically relevant context is collected.</p>
-        )}
-        {step === 2 && (
-          <p>
-            {form.chiefComplaint || "Add the presenting complaint."} {answeredHistory} targeted history response{answeredHistory === 1 ? "" : "s"} captured.
-          </p>
-        )}
-        {step === 3 && (
-          <p>Review the clinical profile before it is carried into evidence retrieval and diagnosis.</p>
-        )}
-        {step === 4 && (
-          <p>Only observed examination findings should be recorded. Empty fields remain explicitly unknown.</p>
-        )}
-        {step === 5 && (
-          <p>{investigationCount} clinician-supplied investigation{investigationCount === 1 ? "" : "s"} recorded. RAG retrieval is separate and engine-controlled.</p>
-        )}
-        {step === 6 && (
-          <p>This case is being prepared for MEDDxAgent's history-aware evidence retrieval and ranked differential workflow.</p>
-        )}
+        {step === 1 && <p>Building the patient context that will be serialized into DDxDriver patient initial information.</p>}
+        {step === 2 && <p>{form.chiefComplaint || "Add the presenting complaint."} MEDDxAgent owns targeted question generation.</p>}
+        {step === 3 && <p>Observed examination findings are appended to the engine patient context.</p>}
+        {step === 4 && <p>{investigationCount} investigation result{investigationCount === 1 ? "" : "s"} available for the engine context.</p>}
+        {step === 5 && <p>This page is read-only. It shows the clinical payload assembled from every retained intake field.</p>}
+        {step === 6 && <p>The prepared case is ready for the DDxDriver orchestration flow.</p>}
       </div>
 
       <div className="consultation-status-card">
@@ -193,10 +133,12 @@ function ConsultationSummary({
             {step === 1
               ? "Building patient context"
               : step === 2
-                ? "History-taking stage"
-                : step === 6
-                  ? "Ready for MEDDxAgent"
-                  : `${stepTitles[step - 1]} in progress`}
+                ? "History-taking entry point"
+                : step === 5
+                  ? "Reviewing engine input"
+                  : step === 6
+                    ? "Ready for MEDDxAgent"
+                    : `${stepTitles[step - 1]} in progress`}
           </strong>
           <span>{step < steps.length ? `Next: ${stepTitles[step]}` : "Engine handoff follows"}</span>
         </div>
@@ -217,7 +159,7 @@ function ConsultationSummary({
         </div>
         <div>
           <dt>History</dt>
-          <dd>{answeredHistory ? `${answeredHistory} responses` : "Not started"}</dd>
+          <dd>{answeredHistory ? `${answeredHistory} responses` : "Engine controlled"}</dd>
         </div>
       </dl>
     </aside>
@@ -257,10 +199,10 @@ export default function NewCase() {
     setError("");
   };
 
-  const updateSummary = (key: keyof ClinicalSummary, value: string[]) => {
+  const updateExamination = (key: keyof ClinicalWorkflow["examination"], value: string) => {
     setWorkflow((current) => ({
       ...current,
-      historySummary: { ...current.historySummary, [key]: value },
+      examination: { ...current.examination, [key]: value },
     }));
   };
 
@@ -310,16 +252,6 @@ export default function NewCase() {
     navigate(`/case/${savedCase.id}`);
   };
 
-  const addHistoryQuestion = () => {
-    setWorkflow((current) => ({
-      ...current,
-      historyQuestions: [
-        ...current.historyQuestions,
-        { id: makeId("history"), question: "", answer: "" },
-      ],
-    }));
-  };
-
   const addInvestigation = () => {
     setWorkflow((current) => ({
       ...current,
@@ -332,12 +264,7 @@ export default function NewCase() {
 
   const diagnosticEntries = existingCase?.differential ?? [];
   const answeredHistory = workflow.historyQuestions.filter((item) => item.answer.trim()).length;
-  const hasInitialContext = Boolean(
-    form.initialInformation.trim() ||
-      form.medicalHistory.trim() ||
-      form.knownConditions.trim() ||
-      form.riskFactors.trim()
-  );
+  const enginePayload = buildDDxPatientInitialInfo(form, workflow);
 
   return (
     <div className="consultation-page">
@@ -355,7 +282,7 @@ export default function NewCase() {
             <div className="consultation-card-heading">
               <div>
                 <p className="consultation-card-eyebrow">
-                  {step === 2 || step === 6 ? "MEDDxAgent stage" : "Clinical context"}
+                  {step === 2 || step === 5 || step === 6 ? "MEDDxAgent stage" : "Clinical context"}
                 </p>
                 <h2>{stepTitles[step - 1]}</h2>
               </div>
@@ -380,7 +307,7 @@ export default function NewCase() {
                   </label>
 
                   <fieldset className="clinical-field">
-                    <legend>Sex / gender</legend>
+                    <legend>Sex</legend>
                     <div className="clinical-segmented">
                       {(["Male", "Female", "Other"] as const).map((value) => (
                         <button
@@ -460,7 +387,7 @@ export default function NewCase() {
                 </label>
 
                 <label className="clinical-field" htmlFor="initial-information">
-                  <span>Initial information for MEDDxAgent</span>
+                  <span>Initial clinical information</span>
                   <textarea
                     id="initial-information"
                     rows={6}
@@ -471,25 +398,18 @@ export default function NewCase() {
                   />
                 </label>
 
-                <div className="meddx-owner-banner meddx-owner-banner-strong">
-                  <span className="meddx-owner-icon">AI</span>
-                  <div>
-                    <strong>MEDDxAgent owns targeted question generation</strong>
-                    <p>When connected, the history-taking agent will use the complaint, initial context and dialogue history to generate the next question. Manual Q&A remains available only as a safe fallback.</p>
-                  </div>
-                </div>
-
                 <div className="clinical-section-heading meddx-history-heading">
                   <div>
-                    <h3>Targeted history dialogue</h3>
-                    <p>{answeredHistory} answered response{answeredHistory === 1 ? "" : "s"} currently available to the future MEDDxAgent dialogue history.</p>
+                    <h3>MEDDxAgent targeted history</h3>
                   </div>
                   <div className="meddx-history-actions">
-                    <button type="button" className="clinical-button clinical-button-primary" disabled title="Available when the MEDDxAgent application layer is connected">
+                    <button
+                      type="button"
+                      className="clinical-button clinical-button-primary"
+                      disabled
+                      title="Available when the MEDDxAgent application layer is connected"
+                    >
                       Generate next question
-                    </button>
-                    <button type="button" onClick={addHistoryQuestion} className="clinical-button clinical-button-secondary">
-                      Record fallback Q&A
                     </button>
                   </div>
                 </div>
@@ -498,10 +418,7 @@ export default function NewCase() {
                   <div className="meddx-history-empty">
                     <div className="meddx-history-empty-icon">?</div>
                     <strong>Awaiting the first MEDDxAgent question</strong>
-                    <p>No question is fabricated by the frontend. You can record a clinician-led fallback question while the engine connection is pending.</p>
-                    <button type="button" onClick={addHistoryQuestion} className="clinical-button clinical-button-secondary">
-                      Record fallback Q&A
-                    </button>
+                    <p>The doctor-question field is intentionally absent. DDxDriver/history taking must supply the question before a patient response can be entered.</p>
                   </div>
                 ) : (
                   <div className="clinical-stack meddx-dialogue-stack">
@@ -509,36 +426,11 @@ export default function NewCase() {
                       <div key={item.id} className="clinical-module meddx-dialogue-turn">
                         <div className="clinical-module-heading">
                           <span>TURN {String(index + 1).padStart(2, "0")}</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setWorkflow((current) => ({
-                                ...current,
-                                historyQuestions: current.historyQuestions.filter((question) => question.id !== item.id),
-                              }))
-                            }
-                          >
-                            Remove
-                          </button>
                         </div>
-
-                        <label className="clinical-field">
-                          <span>Doctor / MEDDxAgent question</span>
-                          <input
-                            value={item.question}
-                            onChange={(event) =>
-                              setWorkflow((current) => ({
-                                ...current,
-                                historyQuestions: current.historyQuestions.map((question) =>
-                                  question.id === item.id ? { ...question, question: event.target.value } : question
-                                ),
-                              }))
-                            }
-                            placeholder="Question supplied by MEDDxAgent, or clinician fallback"
-                            className="clinical-control"
-                          />
-                        </label>
-
+                        <div className="meddx-engine-question">
+                          <span>MEDDxAgent question</span>
+                          <strong>{item.question || "Question unavailable"}</strong>
+                        </div>
                         <label className="clinical-field">
                           <span>Patient response</span>
                           <textarea
@@ -552,7 +444,7 @@ export default function NewCase() {
                                 ),
                               }))
                             }
-                            placeholder="Record the patient's response without adding information that was not provided"
+                            placeholder="Record the patient's response"
                             className="clinical-control clinical-textarea"
                           />
                         </label>
@@ -564,55 +456,6 @@ export default function NewCase() {
             )}
 
             {step === 3 && (
-              <div className="consultation-fields">
-                <div className="meddx-profile-review">
-                  <div>
-                    <p className="meddx-profile-eyebrow">Patient profile handoff</p>
-                    <h3>Review what MEDDxAgent should carry forward</h3>
-                    <p>MEDDxAgent builds its patient profile from initial information plus dialogue history. These structured buckets are the clinician review layer; they should contain only facts supported by the consultation.</p>
-                  </div>
-                  <dl>
-                    <div>
-                      <dt>Initial context</dt>
-                      <dd>{hasInitialContext ? "Captured" : "Limited"}</dd>
-                    </div>
-                    <div>
-                      <dt>Dialogue responses</dt>
-                      <dd>{answeredHistory}</dd>
-                    </div>
-                  </dl>
-                </div>
-
-                <div className="clinical-grid clinical-grid-2">
-                  <FindingTextarea
-                    label="Confirmed positive findings"
-                    tone="emerald"
-                    value={workflow.historySummary.positiveFindings}
-                    onChange={(value) => updateSummary("positiveFindings", value)}
-                  />
-                  <FindingTextarea
-                    label="Confirmed negative findings"
-                    tone="slate"
-                    value={workflow.historySummary.negativeFindings}
-                    onChange={(value) => updateSummary("negativeFindings", value)}
-                  />
-                  <FindingTextarea
-                    label="Relevant risk factors"
-                    tone="amber"
-                    value={workflow.historySummary.riskFactors}
-                    onChange={(value) => updateSummary("riskFactors", value)}
-                  />
-                  <FindingTextarea
-                    label="Red flags / urgent concerns"
-                    tone="rose"
-                    value={workflow.historySummary.redFlags}
-                    onChange={(value) => updateSummary("redFlags", value)}
-                  />
-                </div>
-              </div>
-            )}
-
-            {step === 4 && (
               <div className="consultation-fields">
                 <div className="clinical-grid clinical-grid-4">
                   {[
@@ -626,12 +469,7 @@ export default function NewCase() {
                       <div className="clinical-unit-control">
                         <input
                           value={workflow.examination[key as keyof ClinicalWorkflow["examination"]]}
-                          onChange={(event) =>
-                            setWorkflow((current) => ({
-                              ...current,
-                              examination: { ...current.examination, [key]: event.target.value },
-                            }))
-                          }
+                          onChange={(event) => updateExamination(key as keyof ClinicalWorkflow["examination"], event.target.value)}
                           className="clinical-control"
                         />
                         <em>{unit}</em>
@@ -644,12 +482,7 @@ export default function NewCase() {
                   <span>Blood pressure</span>
                   <input
                     value={workflow.examination.bloodPressure}
-                    onChange={(event) =>
-                      setWorkflow((current) => ({
-                        ...current,
-                        examination: { ...current.examination, bloodPressure: event.target.value },
-                      }))
-                    }
+                    onChange={(event) => updateExamination("bloodPressure", event.target.value)}
                     placeholder="135/85 mmHg"
                     className="clinical-control"
                   />
@@ -666,12 +499,7 @@ export default function NewCase() {
                       <span>{label}</span>
                       <input
                         value={workflow.examination[key as keyof ClinicalWorkflow["examination"]]}
-                        onChange={(event) =>
-                          setWorkflow((current) => ({
-                            ...current,
-                            examination: { ...current.examination, [key]: event.target.value },
-                          }))
-                        }
+                        onChange={(event) => updateExamination(key as keyof ClinicalWorkflow["examination"], event.target.value)}
                         placeholder="Enter observed finding"
                         className="clinical-control"
                       />
@@ -685,12 +513,7 @@ export default function NewCase() {
                     <textarea
                       rows={5}
                       value={workflow.examination.respiratoryExam}
-                      onChange={(event) =>
-                        setWorkflow((current) => ({
-                          ...current,
-                          examination: { ...current.examination, respiratoryExam: event.target.value },
-                        }))
-                      }
+                      onChange={(event) => updateExamination("respiratoryExam", event.target.value)}
                       placeholder="Inspection, palpation, percussion, auscultation"
                       className="clinical-control clinical-textarea"
                     />
@@ -700,12 +523,7 @@ export default function NewCase() {
                     <textarea
                       rows={5}
                       value={workflow.examination.cardiovascularExam}
-                      onChange={(event) =>
-                        setWorkflow((current) => ({
-                          ...current,
-                          examination: { ...current.examination, cardiovascularExam: event.target.value },
-                        }))
-                      }
+                      onChange={(event) => updateExamination("cardiovascularExam", event.target.value)}
                       placeholder="JVP, heart sounds, murmurs, oedema, perfusion"
                       className="clinical-control clinical-textarea"
                     />
@@ -718,12 +536,7 @@ export default function NewCase() {
                     <textarea
                       rows={5}
                       value={workflow.examination.abdominalExam}
-                      onChange={(event) =>
-                        setWorkflow((current) => ({
-                          ...current,
-                          examination: { ...current.examination, abdominalExam: event.target.value },
-                        }))
-                      }
+                      onChange={(event) => updateExamination("abdominalExam", event.target.value)}
                       placeholder="Inspection, tenderness, guarding, masses, organomegaly, bowel sounds"
                       className="clinical-control clinical-textarea"
                     />
@@ -733,12 +546,7 @@ export default function NewCase() {
                     <textarea
                       rows={5}
                       value={workflow.examination.neurologicalExam}
-                      onChange={(event) =>
-                        setWorkflow((current) => ({
-                          ...current,
-                          examination: { ...current.examination, neurologicalExam: event.target.value },
-                        }))
-                      }
+                      onChange={(event) => updateExamination("neurologicalExam", event.target.value)}
                       placeholder="Mental status, cranial nerves, motor, sensory, reflexes, coordination"
                       className="clinical-control clinical-textarea"
                     />
@@ -750,12 +558,7 @@ export default function NewCase() {
                   <textarea
                     rows={4}
                     value={workflow.examination.otherFindings}
-                    onChange={(event) =>
-                      setWorkflow((current) => ({
-                        ...current,
-                        examination: { ...current.examination, otherFindings: event.target.value },
-                      }))
-                    }
+                    onChange={(event) => updateExamination("otherFindings", event.target.value)}
                     placeholder="Other complaint-specific or clinically significant findings"
                     className="clinical-control clinical-textarea"
                   />
@@ -763,20 +566,11 @@ export default function NewCase() {
               </div>
             )}
 
-            {step === 5 && (
+            {step === 4 && (
               <div className="consultation-fields">
-                <div className="meddx-owner-banner">
-                  <span className="meddx-owner-icon">i</span>
-                  <div>
-                    <strong>Clinician results and MEDDxAgent RAG are different inputs</strong>
-                    <p>Use this page for investigations already ordered or available. MEDDxAgent's RAG agent independently retrieves disease evidence during the engine run; the frontend will not fake those searches here.</p>
-                  </div>
-                </div>
-
                 <div className="clinical-section-heading">
                   <div>
-                    <h3>Investigations and available results</h3>
-                    <p>Capture only tests and results that are actually available in the consultation.</p>
+                    <h3>Available investigation results</h3>
                   </div>
                   <button type="button" onClick={addInvestigation} className="clinical-button clinical-button-secondary">
                     + Add investigation
@@ -786,7 +580,7 @@ export default function NewCase() {
                 {workflow.investigations.length === 0 ? (
                   <button type="button" onClick={addInvestigation} className="clinical-empty-control">
                     <strong>Add an available investigation</strong>
-                    <span>Record the clinical reason and result if known.</span>
+                    <span>Only the test name and available result are sent into the clinical engine context.</span>
                   </button>
                 ) : (
                   <div className="clinical-stack">
@@ -807,7 +601,8 @@ export default function NewCase() {
                           </button>
                         </div>
 
-                        <div className="clinical-grid clinical-grid-investigation">
+                        <label className="clinical-field">
+                          <span>Investigation name</span>
                           <input
                             value={item.name}
                             onChange={(event) =>
@@ -818,46 +613,15 @@ export default function NewCase() {
                                 ),
                               }))
                             }
-                            placeholder="Investigation name"
+                            placeholder="Chest X-ray"
                             className="clinical-control"
                           />
-                          <select
-                            value={item.category}
-                            onChange={(event) =>
-                              setWorkflow((current) => ({
-                                ...current,
-                                investigations: current.investigations.map((investigation) =>
-                                  investigation.id === item.id
-                                    ? { ...investigation, category: event.target.value as InvestigationCategory }
-                                    : investigation
-                                ),
-                              }))
-                            }
-                            className="clinical-control"
-                          >
-                            {Object.entries(investigationCategoryLabels).map(([value, label]) => (
-                              <option key={value} value={value}>{label}</option>
-                            ))}
-                          </select>
-                        </div>
+                        </label>
 
-                        <div className="clinical-grid clinical-grid-2">
+                        <label className="clinical-field">
+                          <span>Available result</span>
                           <textarea
-                            rows={3}
-                            value={item.rationale}
-                            onChange={(event) =>
-                              setWorkflow((current) => ({
-                                ...current,
-                                investigations: current.investigations.map((investigation) =>
-                                  investigation.id === item.id ? { ...investigation, rationale: event.target.value } : investigation
-                                ),
-                              }))
-                            }
-                            placeholder="Clinical reason / what the test was intended to assess"
-                            className="clinical-control clinical-textarea"
-                          />
-                          <textarea
-                            rows={3}
+                            rows={4}
                             value={item.result}
                             onChange={(event) =>
                               setWorkflow((current) => ({
@@ -867,14 +631,43 @@ export default function NewCase() {
                                 ),
                               }))
                             }
-                            placeholder="Available result / interpretation"
+                            placeholder="Result / interpretation available to the clinician"
                             className="clinical-control clinical-textarea"
                           />
-                        </div>
+                        </label>
                       </div>
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {step === 5 && (
+              <div className="consultation-fields">
+                <div className="meddx-profile-review">
+                  <div>
+                    <p className="meddx-profile-eyebrow">DDxDriver handoff</p>
+                    <h3>Patient initial information</h3>
+                    <p>This review is read-only. Every editable intake field that remains in the consultation is represented in this payload or in engine-generated dialogue.</p>
+                  </div>
+                  <dl>
+                    <div>
+                      <dt>Clinical payload</dt>
+                      <dd>{enginePayload ? "Ready" : "Empty"}</dd>
+                    </div>
+                    <div>
+                      <dt>Dialogue responses</dt>
+                      <dd>{answeredHistory}</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="clinical-module meddx-engine-input-review">
+                  <div className="clinical-module-heading">
+                    <span>PATIENT_INITIAL_INFO</span>
+                  </div>
+                  <pre>{enginePayload || "No clinical information has been entered yet."}</pre>
+                </div>
               </div>
             )}
 
@@ -890,8 +683,7 @@ export default function NewCase() {
                   <div className="meddx-run-panel-heading">
                     <div>
                       <p className="meddx-profile-eyebrow">MEDDxAgent sequence</p>
-                      <h3>What happens when the engine runs</h3>
-                      <p>The application layer will hand this case to DDxDriver. The driver then orchestrates available agents and returns real engine outputs.</p>
+                      <h3>DDxDriver orchestration</h3>
                     </div>
                     <button
                       type="button"
@@ -907,20 +699,20 @@ export default function NewCase() {
                     <EngineStage
                       number="01"
                       title="History taking"
-                      copy="Uses patient context and dialogue history to decide what still needs clarification."
-                      status={answeredHistory ? `${answeredHistory} responses captured` : "Ready from initial context"}
+                      copy="DDxDriver/history taking generates the doctor questions and records the resulting dialogue."
+                      status={answeredHistory ? `${answeredHistory} responses captured` : "Engine controlled"}
                       tone={answeredHistory ? "complete" : "ready"}
                     />
                     <EngineStage
                       number="02"
                       title="Evidence retrieval"
-                      copy="The RAG agent retrieves disease information relevant to the current diagnostic problem."
+                      copy="The RAG agent creates its own search instruction and retrieves relevant disease evidence."
                       status="Engine controlled"
                     />
                     <EngineStage
                       number="03"
                       title="Differential diagnosis"
-                      copy="The diagnosis agent creates or updates the ranked differential using accumulated clinical evidence."
+                      copy="The diagnosis agent creates or updates the ranked differential from accumulated information."
                       status={diagnosticEntries.length ? "Output available" : "Awaiting engine run"}
                       tone={diagnosticEntries.length ? "complete" : "neutral"}
                     />
@@ -938,8 +730,8 @@ export default function NewCase() {
                   </div>
                 ) : (
                   <div className="clinical-empty-output meddx-empty-output">
-                    <strong>No diagnostic output has been fabricated</strong>
-                    <p>This frontend is shaped for the real MEDDxAgent contract. Ranked diagnoses, rationale, dialogue history and retrieved evidence will appear only after the engine/application layer returns them.</p>
+                    <strong>Awaiting MEDDxAgent output</strong>
+                    <p>Ranked diagnoses, rationale, dialogue history and retrieved evidence appear only after the real engine returns them.</p>
                   </div>
                 )}
 
@@ -964,11 +756,6 @@ export default function NewCase() {
                     <strong>Retrieved evidence</strong>
                     <p>RAG content returned by the engine.</p>
                   </div>
-                </div>
-
-                <div className="meddx-integration-note">
-                  <strong>Current prototype behavior</strong>
-                  <p>“Prepare case for MEDDxAgent” saves the completed intake as ready. The real “Run MEDDxAgent” control is intentionally disabled until the application layer is connected, so the UI cannot pretend an engine run occurred.</p>
                 </div>
               </div>
             )}
