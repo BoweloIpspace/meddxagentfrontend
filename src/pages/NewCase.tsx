@@ -1,6 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
+  createClinicalSession,
+  finishClinicalHistory,
+  generateClinicalQuestion,
+  meddxApiConfigured,
+  runClinicalSession,
+  submitClinicalAnswer,
+  updateClinicalContext,
+} from "../api/meddx";
+import type { ClinicalSessionSnapshot } from "../api/meddx";
+import {
+  applyEngineSnapshot,
   buildDDxPatientInitialInfo,
   caseToInput,
   createEmptyClinicalWorkflow,
@@ -52,6 +63,10 @@ function makeId(prefix: string) {
     return `${prefix}-${crypto.randomUUID().slice(0, 8)}`;
   }
   return `${prefix}-${Date.now().toString(36)}`;
+}
+
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "MEDDxAgent request failed.";
 }
 
 function WorkflowProgress({ step }: { step: number }) {
@@ -174,6 +189,10 @@ export default function NewCase() {
   const [step, setStep] = useState(1);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+  const [engineSessionId, setEngineSessionId] = useState(existingCase?.engineSessionId ?? "");
+  const [engineHistoryComplete, setEngineHistoryComplete] = useState(false);
+  const [engineBusy, setEngineBusy] = useState(false);
+  const [pendingAnswer, setPendingAnswer] = useState("");
   const [form, setForm] = useState<CaseInput>(() =>
     existingCase ? caseToInput(existingCase) : emptyCaseInput
   );
@@ -215,6 +234,20 @@ export default function NewCase() {
     return savedCase;
   };
 
+  const syncEngineSnapshot = (caseId: string, snapshot: ClinicalSessionSnapshot) => {
+    setEngineSessionId(snapshot.session_id);
+    setEngineHistoryComplete(snapshot.history_complete);
+    setWorkflow((current) => ({
+      ...current,
+      historyQuestions: snapshot.history_turns.map((turn, index) => ({
+        id: `engine-history-${index + 1}`,
+        question: turn.question,
+        answer: turn.answer,
+      })),
+    }));
+    applyEngineSnapshot(caseId, snapshot);
+  };
+
   const validateStep = () => {
     if (step === 1 && (!form.age.trim() || !form.sex)) {
       setError("Age and sex are required before continuing.");
@@ -246,12 +279,6 @@ export default function NewCase() {
     window.setTimeout(() => setSaved(false), 1800);
   };
 
-  const handleFinish = (event: React.FormEvent) => {
-    event.preventDefault();
-    const savedCase = persist("ready");
-    navigate(`/case/${savedCase.id}`);
-  };
-
   const addInvestigation = () => {
     setWorkflow((current) => ({
       ...current,
@@ -262,9 +289,106 @@ export default function NewCase() {
     }));
   };
 
-  const diagnosticEntries = existingCase?.differential ?? [];
+  const persistedCase = recordId ? getCase(recordId) : existingCase;
+  const diagnosticEntries = persistedCase?.differential ?? [];
   const answeredHistory = workflow.historyQuestions.filter((item) => item.answer.trim()).length;
   const enginePayload = buildDDxPatientInitialInfo(form, workflow);
+  const lastHistoryTurn = workflow.historyQuestions[workflow.historyQuestions.length - 1];
+  const hasPendingHistoryQuestion = Boolean(lastHistoryTurn && !lastHistoryTurn.answer.trim());
+
+  const handleGenerateQuestion = async () => {
+    setError("");
+    if (!meddxApiConfigured) {
+      setError("MEDDxAgent backend is not configured yet.");
+      return;
+    }
+    if (!form.chiefComplaint.trim()) {
+      setError("Enter the chief complaint before generating targeted history.");
+      return;
+    }
+    if (hasPendingHistoryQuestion) {
+      setError("Submit the current patient response before generating another question.");
+      return;
+    }
+
+    setEngineBusy(true);
+    try {
+      const savedCase = persist("draft");
+      let snapshot = engineSessionId
+        ? await updateClinicalContext(engineSessionId, enginePayload)
+        : await createClinicalSession(enginePayload, savedCase.id);
+      syncEngineSnapshot(savedCase.id, snapshot);
+
+      if (!snapshot.history_complete) {
+        snapshot = await generateClinicalQuestion(snapshot.session_id);
+        syncEngineSnapshot(savedCase.id, snapshot);
+      }
+    } catch (requestError) {
+      setError(errorMessage(requestError));
+    } finally {
+      setEngineBusy(false);
+    }
+  };
+
+  const handleSubmitHistoryAnswer = async () => {
+    setError("");
+    if (!meddxApiConfigured || !engineSessionId) {
+      setError("MEDDxAgent history session is not available.");
+      return;
+    }
+    if (!pendingAnswer.trim()) {
+      setError("Enter the patient response before submitting.");
+      return;
+    }
+
+    setEngineBusy(true);
+    try {
+      const savedCase = persist("draft");
+      const snapshot = await submitClinicalAnswer(engineSessionId, pendingAnswer.trim());
+      syncEngineSnapshot(savedCase.id, snapshot);
+      setPendingAnswer("");
+    } catch (requestError) {
+      setError(errorMessage(requestError));
+    } finally {
+      setEngineBusy(false);
+    }
+  };
+
+  const handleFinish = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError("");
+
+    if (!meddxApiConfigured) {
+      const savedCase = persist("ready");
+      navigate(`/case/${savedCase.id}`);
+      return;
+    }
+
+    if (hasPendingHistoryQuestion) {
+      setError("Submit the pending patient response before running MEDDxAgent.");
+      return;
+    }
+
+    setEngineBusy(true);
+    try {
+      const savedCase = persist("draft");
+      let snapshot = engineSessionId
+        ? await updateClinicalContext(engineSessionId, enginePayload)
+        : await createClinicalSession(enginePayload, savedCase.id);
+      syncEngineSnapshot(savedCase.id, snapshot);
+
+      snapshot = await finishClinicalHistory(snapshot.session_id);
+      syncEngineSnapshot(savedCase.id, snapshot);
+
+      snapshot = await runClinicalSession(snapshot.session_id);
+      syncEngineSnapshot(savedCase.id, snapshot);
+      navigate(`/case/${savedCase.id}`);
+    } catch (requestError) {
+      setError(errorMessage(requestError));
+    } finally {
+      setEngineBusy(false);
+    }
+  };
 
   return (
     <div className="consultation-page">
@@ -405,11 +529,12 @@ export default function NewCase() {
                   <div className="meddx-history-actions">
                     <button
                       type="button"
+                      onClick={() => void handleGenerateQuestion()}
                       className="clinical-button clinical-button-primary"
-                      disabled
-                      title="Available when the MEDDxAgent application layer is connected"
+                      disabled={!meddxApiConfigured || engineBusy || hasPendingHistoryQuestion || engineHistoryComplete}
+                      title={meddxApiConfigured ? "Generate the next MEDDxAgent history question" : "MEDDxAgent backend is not configured"}
                     >
-                      Generate next question
+                      {engineBusy ? "Working…" : engineHistoryComplete ? "History complete" : "Generate next question"}
                     </button>
                   </div>
                 </div>
@@ -422,34 +547,43 @@ export default function NewCase() {
                   </div>
                 ) : (
                   <div className="clinical-stack meddx-dialogue-stack">
-                    {workflow.historyQuestions.map((item, index) => (
-                      <div key={item.id} className="clinical-module meddx-dialogue-turn">
-                        <div className="clinical-module-heading">
-                          <span>TURN {String(index + 1).padStart(2, "0")}</span>
+                    {workflow.historyQuestions.map((item, index) => {
+                      const isPending = index === workflow.historyQuestions.length - 1 && !item.answer.trim();
+                      return (
+                        <div key={item.id} className="clinical-module meddx-dialogue-turn">
+                          <div className="clinical-module-heading">
+                            <span>TURN {String(index + 1).padStart(2, "0")}</span>
+                          </div>
+                          <div className="meddx-engine-question">
+                            <span>MEDDxAgent question</span>
+                            <strong>{item.question || "Question unavailable"}</strong>
+                          </div>
+                          <label className="clinical-field">
+                            <span>Patient response</span>
+                            <textarea
+                              rows={4}
+                              value={isPending ? pendingAnswer : item.answer}
+                              onChange={isPending ? (event) => setPendingAnswer(event.target.value) : undefined}
+                              readOnly={!isPending}
+                              placeholder="Record the patient's response"
+                              className="clinical-control clinical-textarea"
+                            />
+                          </label>
+                          {isPending && (
+                            <div className="meddx-history-actions">
+                              <button
+                                type="button"
+                                onClick={() => void handleSubmitHistoryAnswer()}
+                                className="clinical-button clinical-button-primary"
+                                disabled={engineBusy || !pendingAnswer.trim()}
+                              >
+                                Submit response
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <div className="meddx-engine-question">
-                          <span>MEDDxAgent question</span>
-                          <strong>{item.question || "Question unavailable"}</strong>
-                        </div>
-                        <label className="clinical-field">
-                          <span>Patient response</span>
-                          <textarea
-                            rows={4}
-                            value={item.answer}
-                            onChange={(event) =>
-                              setWorkflow((current) => ({
-                                ...current,
-                                historyQuestions: current.historyQuestions.map((question) =>
-                                  question.id === item.id ? { ...question, answer: event.target.value } : question
-                                ),
-                              }))
-                            }
-                            placeholder="Record the patient's response"
-                            className="clinical-control clinical-textarea"
-                          />
-                        </label>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -686,12 +820,12 @@ export default function NewCase() {
                       <h3>DDxDriver orchestration</h3>
                     </div>
                     <button
-                      type="button"
-                      className="clinical-button clinical-button-primary meddx-run-disabled"
-                      disabled
-                      title="Available when the MEDDxAgent application layer is connected"
+                      type="submit"
+                      className="clinical-button clinical-button-primary"
+                      disabled={!meddxApiConfigured || engineBusy || hasPendingHistoryQuestion}
+                      title={meddxApiConfigured ? "Run MEDDxAgent" : "MEDDxAgent backend is not configured"}
                     >
-                      Run MEDDxAgent
+                      {engineBusy ? "Running…" : "Run MEDDxAgent"}
                     </button>
                   </div>
 
@@ -700,13 +834,13 @@ export default function NewCase() {
                       number="01"
                       title="History taking"
                       copy="DDxDriver/history taking generates the doctor questions and records the resulting dialogue."
-                      status={answeredHistory ? `${answeredHistory} responses captured` : "Engine controlled"}
-                      tone={answeredHistory ? "complete" : "ready"}
+                      status={engineHistoryComplete ? "Complete" : answeredHistory ? `${answeredHistory} responses captured` : "Engine controlled"}
+                      tone={engineHistoryComplete || answeredHistory ? "complete" : "ready"}
                     />
                     <EngineStage
                       number="02"
                       title="Evidence retrieval"
-                      copy="The RAG agent creates its own search instruction and retrieves relevant disease evidence."
+                      copy="The RAG agent creates its own search instruction and retrieves relevant disease evidence from the clinical PubMed configuration."
                       status="Engine controlled"
                     />
                     <EngineStage
@@ -769,22 +903,22 @@ export default function NewCase() {
         <div className="consultation-actions">
           <div>
             {step > 1 && (
-              <button type="button" onClick={handleBack} className="clinical-button clinical-button-secondary">
+              <button type="button" onClick={handleBack} className="clinical-button clinical-button-secondary" disabled={engineBusy}>
                 Back
               </button>
             )}
-            <button type="button" onClick={handleSaveDraft} className="clinical-button clinical-button-ghost">
+            <button type="button" onClick={handleSaveDraft} className="clinical-button clinical-button-ghost" disabled={engineBusy}>
               {saved ? "Draft saved" : "Save draft"}
             </button>
           </div>
 
           {step < steps.length ? (
-            <button type="button" onClick={handleNext} className="clinical-button clinical-button-primary">
+            <button type="button" onClick={handleNext} className="clinical-button clinical-button-primary" disabled={engineBusy}>
               Save & continue <span aria-hidden="true">→</span>
             </button>
           ) : (
-            <button type="submit" className="clinical-button clinical-button-primary">
-              Prepare case for MEDDxAgent <span aria-hidden="true">→</span>
+            <button type="submit" className="clinical-button clinical-button-primary" disabled={engineBusy || hasPendingHistoryQuestion}>
+              {meddxApiConfigured ? (engineBusy ? "Running MEDDxAgent…" : "Run MEDDxAgent") : "Prepare case for MEDDxAgent"} <span aria-hidden="true">→</span>
             </button>
           )}
         </div>
