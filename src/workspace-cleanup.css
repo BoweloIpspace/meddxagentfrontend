@@ -1,0 +1,7 @@
+/* Workspace heading cleanup requested by product review. Landing page intentionally untouched. */
+
+.workspace-page-heading > div > p:not(.workspace-page-eyebrow),
+.settings-heading > p:not(.workspace-page-eyebrow),
+.consultation-page-heading > p:not(.consultation-page-eyebrow) {
+  display: none !important;
+}
