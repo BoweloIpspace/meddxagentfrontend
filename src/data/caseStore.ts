@@ -1,3 +1,4 @@
+import type { ClinicalSessionSnapshot } from "../api/meddx";
 import type {
   Case,
   CaseInput,
@@ -59,6 +60,7 @@ function normalizeCase(caseRecord: Case): Case {
       ...caseRecord.patient,
       id: caseRecord.patient.id || undefined,
     },
+    engineSessionId: caseRecord.engineSessionId || undefined,
     workflow: {
       historyQuestions: storedWorkflow?.historyQuestions ?? emptyWorkflow.historyQuestions,
       historySummary: {
@@ -201,10 +203,45 @@ export function saveCaseInput(
     dialogueHistory: existing?.dialogueHistory ?? "",
     ragContent: existing?.ragContent ?? "",
     workflow: workflow ?? existing?.workflow ?? createEmptyClinicalWorkflow(),
+    engineSessionId: existing?.engineSessionId,
   };
 
   const nextCases = [nextCase, ...cases.filter((item) => item.id !== nextCase.id)];
   writeCases(nextCases);
+  return nextCase;
+}
+
+export function applyEngineSnapshot(caseId: string, snapshot: ClinicalSessionSnapshot): Case | undefined {
+  const cases = getCases();
+  const existing = cases.find((item) => item.id === caseId);
+  if (!existing) return undefined;
+
+  const result = snapshot.result;
+  const nextWorkflow: ClinicalWorkflow = {
+    ...existing.workflow,
+    historyQuestions: snapshot.history_turns.map((turn, index) => ({
+      id: `engine-history-${index + 1}`,
+      question: turn.question,
+      answer: turn.answer,
+    })),
+  };
+
+  const nextCase: Case = {
+    ...existing,
+    updatedAt: new Date().toISOString(),
+    status: result ? "completed" : "active",
+    currentIteration: result?.intermediate_differentials.length ?? existing.currentIteration,
+    differential: result
+      ? result.ranked_differential.map((diagnosis, index) => ({ rank: index + 1, diagnosis }))
+      : existing.differential,
+    rationale: result?.rationale ?? existing.rationale,
+    dialogueHistory: result?.dialogue_history || snapshot.dialogue_history || existing.dialogueHistory,
+    ragContent: result?.rag_content ?? existing.ragContent,
+    workflow: nextWorkflow,
+    engineSessionId: snapshot.session_id,
+  };
+
+  writeCases([nextCase, ...cases.filter((item) => item.id !== caseId)]);
   return nextCase;
 }
 
