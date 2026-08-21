@@ -15,8 +15,7 @@ import type {
 
 const steps = [
   "Patient",
-  "Complaint",
-  "Agent history",
+  "Complaint + history",
   "Profile",
   "Examination",
   "Investigations",
@@ -25,8 +24,7 @@ const steps = [
 
 const stepTitles = [
   "Patient information",
-  "Chief complaint",
-  "MEDDxAgent history",
+  "Complaint & targeted history",
   "Patient profile review",
   "Physical examination",
   "Investigations",
@@ -34,9 +32,8 @@ const stepTitles = [
 ] as const;
 
 const stepDescriptions = [
-  "Capture only clinically relevant context. No patient name or patient ID is required.",
-  "Record the presenting problem and the initial information MEDDxAgent should receive before history taking.",
-  "MEDDxAgent owns targeted question generation. Capture patient responses here; manual Q&A remains available only as a fallback while the engine is disconnected.",
+  "",
+  "Record the presenting problem and initial information, then continue the targeted history dialogue on the same page.",
   "Review the structured clinical profile that will be carried forward into MEDDxAgent reasoning.",
   "Record observed examination findings that materially change the diagnostic picture.",
   "Add investigation results already available to the clinician. MEDDxAgent evidence retrieval remains engine-controlled.",
@@ -171,21 +168,20 @@ function ConsultationSummary({
           <p>Patient identifiers stay outside the diagnostic payload. Only clinically relevant context is collected.</p>
         )}
         {step === 2 && (
-          <p>{form.chiefComplaint || "Add the presenting complaint and initial information before agent-guided history."}</p>
+          <p>
+            {form.chiefComplaint || "Add the presenting complaint."} {answeredHistory} targeted history response{answeredHistory === 1 ? "" : "s"} captured.
+          </p>
         )}
         {step === 3 && (
-          <p>History question generation belongs to MEDDxAgent. {answeredHistory} patient response{answeredHistory === 1 ? "" : "s"} currently captured.</p>
-        )}
-        {step === 4 && (
           <p>Review the clinical profile before it is carried into evidence retrieval and diagnosis.</p>
         )}
-        {step === 5 && (
+        {step === 4 && (
           <p>Only observed examination findings should be recorded. Empty fields remain explicitly unknown.</p>
         )}
-        {step === 6 && (
+        {step === 5 && (
           <p>{investigationCount} clinician-supplied investigation{investigationCount === 1 ? "" : "s"} recorded. RAG retrieval is separate and engine-controlled.</p>
         )}
-        {step === 7 && (
+        {step === 6 && (
           <p>This case is being prepared for MEDDxAgent's history-aware evidence retrieval and ranked differential workflow.</p>
         )}
       </div>
@@ -196,9 +192,9 @@ function ConsultationSummary({
           <strong>
             {step === 1
               ? "Building patient context"
-              : step === 3
+              : step === 2
                 ? "History-taking stage"
-                : step === 7
+                : step === 6
                   ? "Ready for MEDDxAgent"
                   : `${stepTitles[step - 1]} in progress`}
           </strong>
@@ -348,7 +344,7 @@ export default function NewCase() {
       <div className="consultation-page-heading">
         <p className="consultation-page-eyebrow">New consultation</p>
         <h1>{stepTitles[step - 1]}</h1>
-        <p>{stepDescriptions[step - 1]}</p>
+        {step !== 1 && <p>{stepDescriptions[step - 1]}</p>}
       </div>
 
       <WorkflowProgress step={step} />
@@ -359,7 +355,7 @@ export default function NewCase() {
             <div className="consultation-card-heading">
               <div>
                 <p className="consultation-card-eyebrow">
-                  {step === 3 || step === 7 ? "MEDDxAgent stage" : "Clinical context"}
+                  {step === 2 || step === 6 ? "MEDDxAgent stage" : "Clinical context"}
                 </p>
                 <h2>{stepTitles[step - 1]}</h2>
               </div>
@@ -467,7 +463,7 @@ export default function NewCase() {
                   <span>Initial information for MEDDxAgent</span>
                   <textarea
                     id="initial-information"
-                    rows={7}
+                    rows={6}
                     value={form.initialInformation}
                     onChange={(event) => updateField("initialInformation", event.target.value)}
                     placeholder="Symptoms, duration, onset, severity and other information already known before targeted history"
@@ -475,23 +471,11 @@ export default function NewCase() {
                   />
                 </label>
 
-                <div className="meddx-owner-banner">
-                  <span className="meddx-owner-icon">AI</span>
-                  <div>
-                    <strong>Next, MEDDxAgent takes over question selection</strong>
-                    <p>The history-taking agent uses this initial context to decide what it still needs to ask. The clinician records or confirms the patient's responses.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="consultation-fields">
                 <div className="meddx-owner-banner meddx-owner-banner-strong">
                   <span className="meddx-owner-icon">AI</span>
                   <div>
-                    <strong>Question generation is an engine responsibility</strong>
-                    <p>When connected, MEDDxAgent will generate the next targeted question from the current patient profile and dialogue history. Manual Q&A below is retained only as a safe fallback and testing path.</p>
+                    <strong>MEDDxAgent owns targeted question generation</strong>
+                    <p>When connected, the history-taking agent will use the complaint, initial context and dialogue history to generate the next question. Manual Q&A remains available only as a safe fallback.</p>
                   </div>
                 </div>
 
@@ -579,7 +563,7 @@ export default function NewCase() {
               </div>
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <div className="consultation-fields">
                 <div className="meddx-profile-review">
                   <div>
@@ -628,7 +612,7 @@ export default function NewCase() {
               </div>
             )}
 
-            {step === 5 && (
+            {step === 4 && (
               <div className="consultation-fields">
                 <div className="clinical-grid clinical-grid-4">
                   {[
@@ -728,6 +712,39 @@ export default function NewCase() {
                   </label>
                 </div>
 
+                <div className="clinical-grid clinical-grid-2">
+                  <label className="clinical-field">
+                    <span>Abdominal examination</span>
+                    <textarea
+                      rows={5}
+                      value={workflow.examination.abdominalExam}
+                      onChange={(event) =>
+                        setWorkflow((current) => ({
+                          ...current,
+                          examination: { ...current.examination, abdominalExam: event.target.value },
+                        }))
+                      }
+                      placeholder="Inspection, tenderness, guarding, masses, organomegaly, bowel sounds"
+                      className="clinical-control clinical-textarea"
+                    />
+                  </label>
+                  <label className="clinical-field">
+                    <span>Neurological examination</span>
+                    <textarea
+                      rows={5}
+                      value={workflow.examination.neurologicalExam}
+                      onChange={(event) =>
+                        setWorkflow((current) => ({
+                          ...current,
+                          examination: { ...current.examination, neurologicalExam: event.target.value },
+                        }))
+                      }
+                      placeholder="Mental status, cranial nerves, motor, sensory, reflexes, coordination"
+                      className="clinical-control clinical-textarea"
+                    />
+                  </label>
+                </div>
+
                 <label className="clinical-field">
                   <span>Other examination findings</span>
                   <textarea
@@ -746,7 +763,7 @@ export default function NewCase() {
               </div>
             )}
 
-            {step === 6 && (
+            {step === 5 && (
               <div className="consultation-fields">
                 <div className="meddx-owner-banner">
                   <span className="meddx-owner-icon">i</span>
@@ -861,7 +878,7 @@ export default function NewCase() {
               </div>
             )}
 
-            {step === 7 && (
+            {step === 6 && (
               <div className="consultation-fields meddx-run-fields">
                 <div className="clinical-case-ready meddx-case-ready">
                   <p>Engine handoff</p>
@@ -922,7 +939,7 @@ export default function NewCase() {
                 ) : (
                   <div className="clinical-empty-output meddx-empty-output">
                     <strong>No diagnostic output has been fabricated</strong>
-                    <p>This frontend is now shaped for the real MEDDxAgent contract. Ranked diagnoses, rationale, dialogue history and retrieved evidence will appear only after the engine/application layer returns them.</p>
+                    <p>This frontend is shaped for the real MEDDxAgent contract. Ranked diagnoses, rationale, dialogue history and retrieved evidence will appear only after the engine/application layer returns them.</p>
                   </div>
                 )}
 
