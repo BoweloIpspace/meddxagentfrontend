@@ -273,6 +273,8 @@ export default function ActiveCase() {
               ["Temperature", workflow.examination.temperature],
               ["Respiratory examination", workflow.examination.respiratoryExam],
               ["Cardiovascular examination", workflow.examination.cardiovascularExam],
+              ["Abdominal examination", workflow.examination.abdominalExam],
+              ["Neurological examination", workflow.examination.neurologicalExam],
               ["Other findings", workflow.examination.otherFindings],
             ]} />
           ) : <EmptyPanel>No examination findings recorded.</EmptyPanel>}
