@@ -65,6 +65,8 @@ export interface PhysicalExamination {
   temperature: string;
   respiratoryExam: string;
   cardiovascularExam: string;
+  abdominalExam: string;
+  neurologicalExam: string;
   otherFindings: string;
 }
 
