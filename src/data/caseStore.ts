@@ -117,6 +117,55 @@ function buildPatient(input: CaseInput): Patient {
   };
 }
 
+/**
+ * Builds the clinical string that the application adapter can pass directly to
+ * DDxDriver's Patient(patient_initial_info=...). Every editable intake field in
+ * the consultation must have a deterministic destination in this payload or in
+ * the engine-owned doctor/patient dialogue.
+ */
+export function buildDDxPatientInitialInfo(input: CaseInput, workflow: ClinicalWorkflow): string {
+  const lines: string[] = [];
+  const add = (label: string, value?: string) => {
+    const normalized = value?.trim();
+    if (normalized) lines.push(`${label}: ${normalized}`);
+  };
+
+  add("Age", input.age);
+  add("Sex", input.sex);
+  add("Chief complaint", input.chiefComplaint);
+  add("Initial clinical information", input.initialInformation);
+  add("Relevant chronic conditions", input.knownConditions);
+  add("Current medications", input.medications);
+  add("Other relevant background", input.medicalHistory);
+  add("Known risk factors", input.riskFactors);
+
+  const examination = workflow.examination;
+  add("General appearance", examination.generalAppearance);
+  add("Respiratory distress", examination.respiratoryDistress);
+  add("Cyanosis", examination.cyanosis);
+  add("Pallor", examination.pallor);
+  add("Respiratory rate", examination.respiratoryRate);
+  add("Oxygen saturation", examination.oxygenSaturation);
+  add("Heart rate", examination.heartRate);
+  add("Blood pressure", examination.bloodPressure);
+  add("Temperature", examination.temperature);
+  add("Respiratory examination", examination.respiratoryExam);
+  add("Cardiovascular examination", examination.cardiovascularExam);
+  add("Abdominal examination", examination.abdominalExam);
+  add("Neurological examination", examination.neurologicalExam);
+  add("Other examination findings", examination.otherFindings);
+
+  workflow.investigations.forEach((investigation, index) => {
+    const name = investigation.name.trim();
+    const result = investigation.result.trim();
+    if (!name && !result) return;
+    const label = name || `Investigation ${index + 1}`;
+    lines.push(`Investigation - ${label}: ${result || "Result not entered"}`);
+  });
+
+  return lines.join("\n");
+}
+
 export function caseToInput(caseRecord: Case): CaseInput {
   return {
     age: caseRecord.patient.age?.toString() ?? "",
