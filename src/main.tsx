@@ -11,6 +11,7 @@ import './workspace-mobile.css'
 import './meddx-native.css'
 import './workspace-cleanup.css'
 import './engine-contract.css'
+import './mobile-app.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(

@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const navItems = [
   {
     path: "/workspace",
     label: "Overview",
+    mobileLabel: "Overview",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.2" />
@@ -17,6 +17,7 @@ const navItems = [
   {
     path: "/cases",
     label: "Cases",
+    mobileLabel: "Cases",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M4 7h16v12H4z" />
@@ -28,6 +29,7 @@ const navItems = [
   {
     path: "/cases/new",
     label: "New consultation",
+    mobileLabel: "New",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 5v14M5 12h14" />
@@ -37,6 +39,7 @@ const navItems = [
   {
     path: "/settings",
     label: "Settings",
+    mobileLabel: "Settings",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <circle cx="12" cy="12" r="3" />
@@ -79,17 +82,11 @@ function resolveRouteClass(pathname: string) {
 }
 
 export default function AppShell() {
-  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const activePath = resolveActivePath(location.pathname);
   const header = resolveHeader(location.pathname);
   const routeClass = resolveRouteClass(location.pathname);
-
-  const navigateTo = (path: string) => {
-    navigate(path);
-    setMobileOpen(false);
-  };
 
   return (
     <div className={`workspace-shell ${routeClass}`}>
@@ -109,7 +106,7 @@ export default function AppShell() {
               <button
                 key={item.path}
                 type="button"
-                onClick={() => navigateTo(item.path)}
+                onClick={() => navigate(item.path)}
                 className={`workspace-side-nav-item ${
                   activePath === item.path ? "workspace-side-nav-item-active" : ""
                 }`}
@@ -138,36 +135,15 @@ export default function AppShell() {
 
       <div className="workspace-main">
         <header className="workspace-mobile-header lg:hidden">
-          <Link to="/app" className="workspace-mobile-brand">
+          <Link to="/app" className="workspace-mobile-brand" aria-label="MEDDxAgent overview">
             <span className="workspace-brand-mark">M</span>
             <span>MEDDxAgent</span>
           </Link>
-          <button
-            type="button"
-            onClick={() => setMobileOpen((current) => !current)}
-            className="workspace-mobile-menu-button"
-            aria-label="Toggle workspace menu"
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? "×" : "☰"}
-          </button>
-        </header>
-
-        {mobileOpen && (
-          <div className="workspace-mobile-menu lg:hidden">
-            {navItems.map((item) => (
-              <button
-                key={item.path}
-                type="button"
-                onClick={() => navigateTo(item.path)}
-                className={activePath === item.path ? "active" : ""}
-              >
-                <span className="workspace-side-nav-icon">{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            ))}
+          <div className="workspace-mobile-route" aria-live="polite">
+            <small>{header.eyebrow}</small>
+            <strong>{header.title}</strong>
           </div>
-        )}
+        </header>
 
         <header className="workspace-topbar hidden lg:flex">
           <div>
@@ -192,6 +168,24 @@ export default function AppShell() {
             <Outlet />
           </main>
         </div>
+
+        <nav className="workspace-mobile-bottom-nav lg:hidden" aria-label="Mobile workspace navigation">
+          {navItems.map((item) => {
+            const active = activePath === item.path;
+            return (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => navigate(item.path)}
+                className={active ? "active" : ""}
+                aria-current={active ? "page" : undefined}
+              >
+                <span className="workspace-mobile-bottom-icon">{item.icon}</span>
+                <span>{item.mobileLabel}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );
