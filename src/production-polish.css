@@ -1,0 +1,225 @@
+/* Production feedback layer for the clinical workspace. */
+
+.workspace-engine-card-connected .workspace-engine-dot,
+.workspace-system-status-connected .workspace-system-dot,
+.workspace-api-badge-connected > span {
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.workspace-engine-card-warning .workspace-engine-dot,
+.workspace-system-status-warning .workspace-system-dot,
+.workspace-api-badge-warning > span {
+  background: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+.workspace-engine-card-connected {
+  border-color: rgba(34, 197, 94, 0.18);
+}
+
+.workspace-engine-card-warning {
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.workspace-api-badge-connected {
+  border-color: #d7eadc;
+  background: #fbfefc;
+  color: #39714a;
+}
+
+.workspace-api-badge-warning {
+  border-color: #f2dfbd;
+  background: #fffdf8;
+  color: #8a621f;
+}
+
+.workspace-request-status {
+  position: fixed;
+  top: 92px;
+  right: 28px;
+  z-index: 110;
+  display: flex;
+  min-height: 42px;
+  max-width: min(420px, calc(100vw - 32px));
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid #dbe5f5;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  color: #344054;
+  font-size: 11px;
+  font-weight: 620;
+  line-height: 1.35;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.workspace-request-status::after {
+  position: absolute;
+  right: 10px;
+  bottom: -1px;
+  left: 10px;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #2563eb, transparent);
+  content: "";
+  animation: meddx-request-track 1.35s ease-in-out infinite;
+}
+
+.workspace-request-spinner {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  border: 2px solid #d9e4f5;
+  border-top-color: #2563eb;
+  border-radius: 999px;
+  animation: meddx-request-spin 0.8s linear infinite;
+}
+
+.clinical-error {
+  position: relative;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 13px 14px;
+  border: 1px solid #f2cbd1;
+  border-radius: 11px;
+  background: #fff8f9;
+  box-shadow: 0 4px 14px rgba(127, 29, 29, 0.035);
+  color: #8b2635;
+  font-size: 11px;
+  font-weight: 560;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.clinical-error::before {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  background: #fbe9ec;
+  color: #b42338;
+  content: "!";
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.clinical-button,
+.settings-button,
+.workspace-primary-action,
+.workspace-secondary-action,
+.workspace-page-button,
+.workspace-side-nav-item,
+.workspace-mobile-bottom-nav button {
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease,
+    border-color 120ms ease,
+    background-color 120ms ease,
+    color 120ms ease,
+    opacity 120ms ease;
+}
+
+.clinical-button:not(:disabled):active,
+.settings-button:not(:disabled):active,
+.workspace-primary-action:active,
+.workspace-secondary-action:active,
+.workspace-page-button:active {
+  transform: translateY(1px);
+}
+
+.clinical-button:disabled,
+.settings-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+  box-shadow: none;
+}
+
+.clinical-control:focus,
+.workspace-search-control input:focus {
+  border-color: #9bb7ef;
+  outline: 3px solid rgba(37, 99, 235, 0.09);
+  outline-offset: 0;
+}
+
+.clinical-button:focus-visible,
+.settings-button:focus-visible,
+.workspace-primary-action:focus-visible,
+.workspace-secondary-action:focus-visible,
+.workspace-page-button:focus-visible,
+.workspace-side-nav-item:focus-visible,
+.workspace-mobile-bottom-nav button:focus-visible,
+.workspace-mobile-back:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 2px;
+}
+
+.settings-badge-connected {
+  border-color: #cce8d4;
+  background: #f3fbf5;
+  color: #28713d;
+}
+
+@keyframes meddx-request-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes meddx-request-track {
+  0% {
+    transform: translateX(-55%);
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(55%);
+    opacity: 0.25;
+  }
+}
+
+@media (max-width: 1023px) {
+  .workspace-request-status {
+    top: calc(72px + env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    left: max(12px, env(safe-area-inset-left));
+    max-width: none;
+    min-height: 44px;
+    justify-content: flex-start;
+    border-radius: 13px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14);
+  }
+
+  .clinical-error {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-request-spinner,
+  .workspace-request-status::after {
+    animation: none;
+  }
+
+  .clinical-button,
+  .settings-button,
+  .workspace-primary-action,
+  .workspace-secondary-action,
+  .workspace-page-button,
+  .workspace-side-nav-item,
+  .workspace-mobile-bottom-nav button {
+    transition: none;
+  }
+}
