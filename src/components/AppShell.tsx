@@ -1,4 +1,11 @@
+import { useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  meddxApiConfigured,
+  MEDDX_REQUEST_END_EVENT,
+  MEDDX_REQUEST_START_EVENT,
+} from "../api/meddx";
+import type { MEDDxRequestEventDetail } from "../api/meddx";
 
 const navItems = [
   {
@@ -96,6 +103,34 @@ export default function AppShell() {
   const routeClass = resolveRouteClass(location.pathname);
   const mobileBackPath = resolveMobileBackPath(location.pathname);
   const showMobileTabs = !location.pathname.startsWith("/case/");
+  const [clinicalActivity, setClinicalActivity] = useState<string | null>(null);
+
+  useEffect(() => {
+    const activeRequests = new Map<string, string>();
+
+    const handleStart = (event: Event) => {
+      const detail = (event as CustomEvent<MEDDxRequestEventDetail>).detail;
+      if (!detail) return;
+      activeRequests.set(detail.id, detail.label);
+      setClinicalActivity(detail.label);
+    };
+
+    const handleEnd = (event: Event) => {
+      const detail = (event as CustomEvent<MEDDxRequestEventDetail>).detail;
+      if (!detail) return;
+      activeRequests.delete(detail.id);
+      const remaining = Array.from(activeRequests.values());
+      setClinicalActivity(remaining.length ? remaining[remaining.length - 1] : null);
+    };
+
+    window.addEventListener(MEDDX_REQUEST_START_EVENT, handleStart as EventListener);
+    window.addEventListener(MEDDX_REQUEST_END_EVENT, handleEnd as EventListener);
+
+    return () => {
+      window.removeEventListener(MEDDX_REQUEST_START_EVENT, handleStart as EventListener);
+      window.removeEventListener(MEDDX_REQUEST_END_EVENT, handleEnd as EventListener);
+    };
+  }, []);
 
   return (
     <div className={`workspace-shell ${routeClass} ${showMobileTabs ? "" : "workspace-mobile-detail-screen"}`}>
@@ -128,12 +163,12 @@ export default function AppShell() {
         </div>
 
         <div className="workspace-sidebar-footer">
-          <div className="workspace-engine-card">
+          <div className={`workspace-engine-card ${meddxApiConfigured ? "workspace-engine-card-connected" : "workspace-engine-card-warning"}`}>
             <div className="workspace-engine-row">
               <span className="workspace-engine-dot" />
               <span>MEDDxAgent engine</span>
             </div>
-            <p>UI prototype · backend pending</p>
+            <p>{meddxApiConfigured ? "Clinical API configured" : "Clinical API configuration required"}</p>
           </div>
           <Link to="/" className="workspace-research-link">
             <span>Research site</span>
@@ -178,13 +213,20 @@ export default function AppShell() {
             <p className="workspace-topbar-title">{header.title}</p>
           </div>
           <div className="workspace-top-actions">
-            <div className="workspace-prototype-badge">
+            <div className={`workspace-prototype-badge ${meddxApiConfigured ? "workspace-api-badge-connected" : "workspace-api-badge-warning"}`}>
               <span />
-              Clinical workflow prototype
+              {meddxApiConfigured ? "Clinical API configured" : "API configuration required"}
             </div>
             <div className="workspace-avatar" aria-label="Workspace account">M</div>
           </div>
         </header>
+
+        {clinicalActivity && (
+          <div className="workspace-request-status" role="status" aria-live="polite">
+            <span className="workspace-request-spinner" aria-hidden="true" />
+            <span>{clinicalActivity}</span>
+          </div>
+        )}
 
         <div className="workspace-content">
           <div className="workspace-safety">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { meddxApiConfigured } from "../api/meddx";
 import { clearCases, getCases } from "../data/caseStore";
 
 export default function Settings() {
@@ -49,9 +50,15 @@ export default function Settings() {
           <div className="settings-row">
             <div>
               <h3>Diagnostic engine</h3>
-              <p>No frontend API connection is configured yet.</p>
+              <p>
+                {meddxApiConfigured
+                  ? "The frontend is configured to send clinical requests to MEDDxAgent."
+                  : "No frontend clinical API URL is configured."}
+              </p>
             </div>
-            <span className="settings-badge">Not connected</span>
+            <span className={`settings-badge ${meddxApiConfigured ? "settings-badge-connected" : ""}`}>
+              {meddxApiConfigured ? "Configured" : "Not configured"}
+            </span>
           </div>
 
           <div className="settings-row">

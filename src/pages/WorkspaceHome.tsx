@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { meddxApiConfigured } from "../api/meddx";
 import { getCases } from "../data/caseStore";
 
 const statusLabel = {
@@ -104,18 +105,23 @@ export default function WorkspaceHome() {
             </div>
           </div>
 
-          <div className="workspace-system-status">
+          <div className={`workspace-system-status ${meddxApiConfigured ? "workspace-system-status-connected" : "workspace-system-status-warning"}`}>
             <span className="workspace-system-dot" />
             <div>
-              <strong>Frontend workflow ready</strong>
-              <p>Diagnostic engine connection is still pending.</p>
+              <strong>{meddxApiConfigured ? "Clinical API configured" : "Clinical API not configured"}</strong>
+              <p>
+                {meddxApiConfigured
+                  ? "History, evidence retrieval and differential requests are routed to the MEDDxAgent backend."
+                  : "Configure the MEDDxAgent backend URL before running the clinical engine."}
+              </p>
             </div>
           </div>
 
           <div className="workspace-guidance-copy">
             <p>
-              The interface stores structured consultation data locally. Ranked diagnoses and other
-              MEDDxAgent artifacts remain empty until the real engine is connected.
+              {meddxApiConfigured
+                ? "The interface keeps clinician-entered data separate from engine-generated output and stores the current workspace locally in this browser."
+                : "The interface can still prepare structured consultations locally, but engine-generated output remains unavailable until the API is configured."}
             </p>
           </div>
 
