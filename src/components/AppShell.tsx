@@ -4,7 +4,7 @@ const navItems = [
   {
     path: "/workspace",
     label: "Overview",
-    mobileLabel: "Overview",
+    mobileLabel: "Home",
     icon: (
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.2" />
@@ -67,11 +67,11 @@ function resolveHeader(pathname: string) {
     return { eyebrow: "Cases / Edit consultation", title: "Edit consultation" };
   }
   if (pathname.startsWith("/case/")) {
-    return { eyebrow: "Cases / Case", title: "Case workspace" };
+    return { eyebrow: "Cases / Case", title: "Case details" };
   }
   if (pathname === "/cases") return { eyebrow: "Workspace / Cases", title: "Cases" };
   if (pathname === "/settings") return { eyebrow: "Workspace / Settings", title: "Settings" };
-  return { eyebrow: "Workspace", title: "Overview" };
+  return { eyebrow: "Workspace", title: "MEDDxAgent" };
 }
 
 function resolveRouteClass(pathname: string) {
@@ -81,15 +81,24 @@ function resolveRouteClass(pathname: string) {
   return "";
 }
 
+function resolveMobileBackPath(pathname: string) {
+  if (pathname.endsWith("/edit")) return pathname.replace(/\/edit$/, "");
+  if (pathname.startsWith("/case/")) return "/cases";
+  if (pathname === "/cases/new") return "/cases";
+  return null;
+}
+
 export default function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const activePath = resolveActivePath(location.pathname);
   const header = resolveHeader(location.pathname);
   const routeClass = resolveRouteClass(location.pathname);
+  const mobileBackPath = resolveMobileBackPath(location.pathname);
+  const showMobileTabs = !location.pathname.startsWith("/case/");
 
   return (
-    <div className={`workspace-shell ${routeClass}`}>
+    <div className={`workspace-shell ${routeClass} ${showMobileTabs ? "" : "workspace-mobile-detail-screen"}`}>
       <aside className="workspace-sidebar hidden lg:flex">
         <div>
           <Link to="/app" className="workspace-brand">
@@ -135,13 +144,31 @@ export default function AppShell() {
 
       <div className="workspace-main">
         <header className="workspace-mobile-header lg:hidden">
-          <Link to="/app" className="workspace-mobile-brand" aria-label="MEDDxAgent overview">
-            <span className="workspace-brand-mark">M</span>
-            <span>MEDDxAgent</span>
-          </Link>
+          <div className="workspace-mobile-leading">
+            {mobileBackPath ? (
+              <button
+                type="button"
+                className="workspace-mobile-back"
+                onClick={() => navigate(mobileBackPath)}
+                aria-label="Go back"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </button>
+            ) : (
+              <Link to="/app" className="workspace-mobile-mark" aria-label="MEDDxAgent home">
+                <span className="workspace-brand-mark">M</span>
+              </Link>
+            )}
+          </div>
+
           <div className="workspace-mobile-route" aria-live="polite">
-            <small>{header.eyebrow}</small>
             <strong>{header.title}</strong>
+          </div>
+
+          <div className="workspace-mobile-trailing" aria-hidden="true">
+            <span className="workspace-mobile-avatar">M</span>
           </div>
         </header>
 
@@ -169,23 +196,26 @@ export default function AppShell() {
           </main>
         </div>
 
-        <nav className="workspace-mobile-bottom-nav lg:hidden" aria-label="Mobile workspace navigation">
-          {navItems.map((item) => {
-            const active = activePath === item.path;
-            return (
-              <button
-                key={item.path}
-                type="button"
-                onClick={() => navigate(item.path)}
-                className={active ? "active" : ""}
-                aria-current={active ? "page" : undefined}
-              >
-                <span className="workspace-mobile-bottom-icon">{item.icon}</span>
-                <span>{item.mobileLabel}</span>
-              </button>
-            );
-          })}
-        </nav>
+        {showMobileTabs && (
+          <nav className="workspace-mobile-bottom-nav lg:hidden" aria-label="Mobile workspace navigation">
+            {navItems.map((item) => {
+              const active = activePath === item.path;
+              const createTab = item.path === "/cases/new";
+              return (
+                <button
+                  key={item.path}
+                  type="button"
+                  onClick={() => navigate(item.path)}
+                  className={`${active ? "active" : ""} ${createTab ? "workspace-mobile-create-tab" : ""}`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <span className="workspace-mobile-bottom-icon">{item.icon}</span>
+                  <span>{item.mobileLabel}</span>
+                </button>
+              );
+            })}
+          </nav>
+        )}
       </div>
     </div>
   );
