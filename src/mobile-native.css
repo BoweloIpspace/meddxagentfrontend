@@ -1,0 +1,796 @@
+/* Native-feeling phone presentation for workspace routes only. Desktop and landing page are unchanged. */
+
+@media (max-width: 767px) {
+  .workspace-shell,
+  .workspace-main {
+    background: #f3f4f6;
+  }
+
+  .workspace-main {
+    min-height: 100dvh;
+  }
+
+  /* Native app bar */
+  .workspace-mobile-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: grid !important;
+    min-height: 56px;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 8px;
+    padding: calc(4px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 4px max(12px, env(safe-area-inset-left));
+    border-bottom: 1px solid rgba(20, 24, 31, 0.08);
+    background: rgba(249, 250, 251, 0.94);
+    box-shadow: none;
+    backdrop-filter: saturate(1.35) blur(22px);
+    -webkit-backdrop-filter: saturate(1.35) blur(22px);
+  }
+
+  .workspace-mobile-leading,
+  .workspace-mobile-trailing {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+  }
+
+  .workspace-mobile-route {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .workspace-mobile-route strong {
+    display: block;
+    overflow: hidden;
+    margin: 0;
+    color: #17191d;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .workspace-mobile-mark,
+  .workspace-mobile-back {
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: #20242a;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .workspace-mobile-header .workspace-brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    box-shadow: 0 5px 16px rgba(37, 99, 235, 0.2);
+  }
+
+  .workspace-mobile-back {
+    cursor: pointer;
+  }
+
+  .workspace-mobile-back:active {
+    background: #e9ebef;
+    transform: scale(0.96);
+  }
+
+  .workspace-mobile-back svg {
+    width: 25px;
+    height: 25px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .workspace-mobile-avatar {
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border: 1px solid #d8dbe1;
+    border-radius: 50%;
+    background: #fff;
+    color: #4b5563;
+    font-size: 11px;
+    font-weight: 750;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  /* App content frame */
+  .workspace-content {
+    padding: 0 0 calc(96px + env(safe-area-inset-bottom));
+    background: #f3f4f6;
+  }
+
+  .workspace-mobile-detail-screen .workspace-content {
+    padding-bottom: calc(24px + env(safe-area-inset-bottom));
+  }
+
+  .workspace-content-inner {
+    width: 100%;
+    max-width: none;
+    padding: 0 16px;
+  }
+
+  .workspace-safety {
+    min-height: 0;
+    margin: 10px 16px 0;
+    padding: 9px 11px;
+    border: 0;
+    border-radius: 12px;
+    background: #fff;
+    color: #717780;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  .workspace-safety-dot {
+    flex: 0 0 auto;
+  }
+
+  /* The app bar owns screen titles on phones. */
+  .workspace-page-heading,
+  .settings-heading,
+  .consultation-page-heading {
+    display: none !important;
+  }
+
+  .workspace-overview-page,
+  .workspace-cases-page,
+  .settings-page,
+  .case-page,
+  .consultation-page {
+    padding-top: 14px;
+  }
+
+  /* Bottom tab bar */
+  .workspace-mobile-bottom-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 110;
+    display: grid !important;
+    min-height: 70px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 0;
+    padding: 4px max(7px, env(safe-area-inset-right)) calc(5px + env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left));
+    border-top: 1px solid rgba(20, 24, 31, 0.08);
+    background: rgba(250, 250, 251, 0.96);
+    box-shadow: 0 -10px 30px rgba(17, 24, 39, 0.07);
+    backdrop-filter: saturate(1.4) blur(22px);
+    -webkit-backdrop-filter: saturate(1.4) blur(22px);
+  }
+
+  .workspace-mobile-bottom-nav button {
+    position: relative;
+    display: flex;
+    min-width: 0;
+    min-height: 58px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 3px;
+    padding: 4px 2px 5px;
+    border: 0;
+    border-radius: 14px;
+    background: transparent;
+    color: #8a9099;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 650;
+    line-height: 1;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .workspace-mobile-bottom-nav button.active {
+    color: #2563eb;
+  }
+
+  .workspace-mobile-bottom-icon {
+    display: grid;
+    width: 38px;
+    height: 32px;
+    place-items: center;
+    border-radius: 12px;
+    transition: transform 140ms ease, background 140ms ease;
+  }
+
+  .workspace-mobile-bottom-nav button.active .workspace-mobile-bottom-icon {
+    background: #eaf1ff;
+  }
+
+  .workspace-mobile-bottom-icon svg {
+    width: 21px;
+    height: 21px;
+    stroke-width: 1.85;
+  }
+
+  .workspace-mobile-create-tab .workspace-mobile-bottom-icon {
+    width: 46px;
+    height: 46px;
+    margin-top: -15px;
+    border-radius: 16px;
+    background: #2563eb !important;
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.28);
+  }
+
+  .workspace-mobile-create-tab.active .workspace-mobile-bottom-icon {
+    background: #1d4ed8 !important;
+  }
+
+  .workspace-mobile-create-tab .workspace-mobile-bottom-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.2;
+  }
+
+  /* Dashboard cards become app surfaces rather than web panels. */
+  .workspace-metric-grid {
+    display: flex;
+    gap: 10px;
+    margin: 0 -16px 12px;
+    padding: 0 16px 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workspace-metric-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workspace-metric-card {
+    min-width: 148px;
+    flex: 1 0 148px;
+    padding: 16px;
+    border: 0;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.055);
+    scroll-snap-align: start;
+  }
+
+  .workspace-metric-card span {
+    font-size: 10px;
+    font-weight: 650;
+  }
+
+  .workspace-metric-card strong {
+    font-size: 28px;
+    letter-spacing: -0.04em;
+  }
+
+  .workspace-metric-card p {
+    font-size: 10px;
+  }
+
+  .workspace-overview-grid {
+    gap: 12px;
+  }
+
+  .workspace-panel,
+  .case-panel,
+  .settings-card,
+  .settings-action-card,
+  .consultation-card,
+  .meddx-run-panel,
+  .meddx-profile-review,
+  .meddx-history-empty,
+  .meddx-owner-banner,
+  .clinical-module {
+    border-color: transparent;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.055);
+  }
+
+  .workspace-panel,
+  .case-panel {
+    padding: 17px;
+  }
+
+  .workspace-panel-heading h2,
+  .case-panel-heading h2 {
+    font-size: 17px;
+    letter-spacing: -0.02em;
+  }
+
+  .workspace-panel-eyebrow,
+  .case-section-label,
+  .consultation-card-eyebrow,
+  .meddx-profile-eyebrow {
+    color: #7b8492 !important;
+    font-size: 9px !important;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .workspace-primary-action,
+  .workspace-secondary-action,
+  .workspace-page-button,
+  .settings-button,
+  .clinical-button {
+    min-height: 48px;
+    border-radius: 13px;
+    font-weight: 650;
+  }
+
+  .workspace-primary-action,
+  .workspace-page-button-primary,
+  .clinical-button-primary {
+    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.16);
+  }
+
+  /* Cases screen: app search + individual list cards. */
+  .workspace-cases-toolbar {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .workspace-search-control {
+    min-height: 48px;
+    border: 0;
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 1px 8px rgba(15, 23, 42, 0.05);
+  }
+
+  .workspace-search-control input {
+    font-size: 16px;
+  }
+
+  .workspace-filter-row {
+    gap: 7px;
+    margin-right: -16px;
+    padding-right: 16px;
+  }
+
+  .workspace-filter-row button {
+    min-height: 34px;
+    padding: 0 13px;
+    border: 0;
+    border-radius: 999px;
+    background: #e7e9ed;
+    color: #606774;
+    font-size: 10px;
+  }
+
+  .workspace-filter-row button.active {
+    background: #20242a;
+    color: #fff;
+  }
+
+  .workspace-case-list-panel {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .workspace-case-list-heading {
+    padding: 4px 2px 10px;
+  }
+
+  .workspace-case-list-heading > span {
+    font-size: 10px;
+  }
+
+  .workspace-case-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .workspace-case-row {
+    overflow: hidden;
+    border: 0;
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+  }
+
+  .workspace-case-row-main {
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  .workspace-case-row-copy h3 {
+    margin-top: 8px;
+    font-size: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .workspace-case-row-copy > p,
+  .workspace-case-row-meta {
+    font-size: 10px;
+  }
+
+  /* Consultation becomes a focused mobile workflow. */
+  .consultation-page {
+    padding-bottom: 4px;
+  }
+
+  .consultation-steps {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 5px;
+    margin: 2px 0 12px;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .consultation-step,
+  .consultation-step-current {
+    width: auto;
+    min-width: 0;
+    min-height: 5px;
+    height: 5px;
+    flex: none;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: #d9dde4;
+  }
+
+  .consultation-step-complete {
+    background: #7ea6f8;
+  }
+
+  .consultation-step-current {
+    background: #2563eb;
+  }
+
+  .consultation-step-number,
+  .consultation-step-label,
+  .consultation-step-current .consultation-step-label {
+    display: none !important;
+  }
+
+  .consultation-layout {
+    display: block;
+    margin-top: 0;
+  }
+
+  .consultation-summary-card {
+    display: none !important;
+  }
+
+  .consultation-card {
+    padding: 18px;
+  }
+
+  .consultation-card-heading {
+    margin-bottom: 20px;
+  }
+
+  .consultation-card-heading h2 {
+    margin-top: 5px;
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+
+  .consultation-card-count {
+    min-width: 42px;
+    padding: 7px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: #eef2f8;
+    color: #697386;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .consultation-fields,
+  .clinical-stack {
+    gap: 15px;
+  }
+
+  .clinical-field > span,
+  .clinical-field legend {
+    margin-bottom: 7px;
+    color: #555d68;
+    font-size: 11px;
+    font-weight: 650;
+  }
+
+  .clinical-control,
+  .clinical-textarea,
+  .clinical-unit-control {
+    border-color: #e3e6eb;
+    border-radius: 13px;
+    background: #f7f8fa;
+    box-shadow: none;
+  }
+
+  .clinical-control {
+    min-height: 50px;
+    padding-inline: 14px;
+  }
+
+  .clinical-textarea {
+    min-height: 104px;
+    padding: 13px 14px;
+    line-height: 1.5;
+  }
+
+  .clinical-control:focus,
+  .clinical-textarea:focus {
+    border-color: #8fb1f8;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: 0;
+  }
+
+  .clinical-segmented {
+    gap: 4px;
+    padding: 4px;
+    border: 0;
+    border-radius: 14px;
+    background: #eceef2;
+  }
+
+  .clinical-segmented button {
+    min-height: 42px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .clinical-segmented button.active {
+    background: #fff;
+    box-shadow: 0 1px 5px rgba(15, 23, 42, 0.1);
+  }
+
+  .clinical-module {
+    padding: 14px;
+    background: #f9fafb;
+    box-shadow: none;
+  }
+
+  .clinical-empty-control {
+    min-height: 126px;
+    border: 1px dashed #cfd5dd;
+    border-radius: 17px;
+    background: #fafbfc;
+  }
+
+  .consultation-actions {
+    gap: 9px;
+    margin-top: 14px;
+    padding: 14px 0 2px;
+    border-top: 1px solid #eceef1;
+  }
+
+  .consultation-actions > div {
+    gap: 8px;
+  }
+
+  /* Engine screens use compact native status rows. */
+  .meddx-owner-banner,
+  .meddx-profile-review,
+  .meddx-run-panel,
+  .meddx-history-empty {
+    padding: 15px;
+  }
+
+  .meddx-engine-stage {
+    padding: 12px;
+    border: 0;
+    border-radius: 14px;
+    background: #f6f7f9;
+  }
+
+  .meddx-engine-stage-ready {
+    background: #f1f5ff;
+  }
+
+  .meddx-engine-stage-complete {
+    background: #eff8f2;
+  }
+
+  .meddx-engine-stage-status {
+    border: 0;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .meddx-output-contract > div {
+    border: 0;
+    border-radius: 14px;
+    background: #f7f8fa;
+  }
+
+  /* Case detail is a pushed app screen, not another website page. */
+  .case-hero {
+    gap: 14px;
+    margin-bottom: 12px;
+    padding: 17px;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.055);
+  }
+
+  .case-hero h1 {
+    margin-top: 8px;
+    font-size: 22px;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+  }
+
+  .case-meta {
+    gap: 7px;
+  }
+
+  .case-meta > span,
+  .case-status {
+    font-size: 9px;
+  }
+
+  .case-header-actions {
+    gap: 8px;
+  }
+
+  .case-header-actions .workspace-page-button {
+    min-height: 42px;
+    border-radius: 12px;
+    font-size: 11px;
+  }
+
+  .case-top-grid,
+  .case-content-grid {
+    gap: 12px;
+  }
+
+  .case-panel-wide {
+    margin-top: 12px;
+  }
+
+  .case-detail-list,
+  .case-history-list,
+  .case-investigation-list {
+    gap: 8px;
+  }
+
+  .case-detail-row,
+  .case-history-list > div,
+  .case-investigation-list > div {
+    padding: 12px;
+    border: 0;
+    border-radius: 13px;
+    background: #f7f8fa;
+  }
+
+  .case-differential-list {
+    gap: 7px;
+  }
+
+  .case-differential-list button {
+    min-height: 58px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 13px;
+    background: #f7f8fa;
+  }
+
+  .case-differential-list button.active {
+    background: #edf3ff;
+    box-shadow: inset 0 0 0 1px #cfddfb;
+  }
+
+  /* Settings look like grouped native settings lists. */
+  .settings-section {
+    display: block;
+    margin-top: 0;
+    padding-top: 0;
+    border: 0;
+  }
+
+  .settings-section + .settings-section {
+    margin-top: 18px;
+  }
+
+  .settings-section-copy {
+    padding: 0 3px 8px;
+  }
+
+  .settings-section-copy h2 {
+    color: #666f7d;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .settings-section-copy p {
+    display: none;
+  }
+
+  .settings-card,
+  .settings-stack {
+    overflow: hidden;
+    gap: 10px;
+    border-radius: 18px;
+  }
+
+  .settings-card {
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+  }
+
+  .settings-row,
+  .settings-action-card {
+    padding: 15px;
+    border-radius: 0;
+    background: #fff;
+  }
+
+  .settings-row + .settings-row {
+    border-top: 1px solid #eceef1;
+  }
+
+  .settings-row h3,
+  .settings-action-card h3 {
+    font-size: 14px;
+  }
+
+  .settings-row p,
+  .settings-action-card p {
+    margin-top: 4px;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+
+  .settings-action-card {
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+  }
+}
+
+@media (max-width: 389px) {
+  .workspace-content-inner {
+    padding-inline: 12px;
+  }
+
+  .workspace-safety {
+    margin-inline: 12px;
+  }
+
+  .workspace-metric-grid {
+    margin-inline: -12px;
+    padding-inline: 12px;
+  }
+
+  .workspace-filter-row {
+    margin-right: -12px;
+    padding-right: 12px;
+  }
+
+  .consultation-card,
+  .workspace-panel,
+  .case-panel,
+  .case-hero {
+    border-radius: 17px;
+  }
+
+  .workspace-mobile-bottom-nav button {
+    font-size: 8px;
+  }
+}
