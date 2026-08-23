@@ -31,6 +31,12 @@ export interface MEDDxRequestEventDetail {
   label: string;
 }
 
+export type MEDDxAccessTokenProvider = () =>
+  | string
+  | null
+  | undefined
+  | Promise<string | null | undefined>;
+
 const rawBaseUrl = import.meta.env.VITE_MEDDX_API_URL ?? "";
 export const meddxApiBaseUrl = rawBaseUrl.replace(/\/$/, "");
 export const meddxApiConfigured = Boolean(meddxApiBaseUrl);
@@ -39,6 +45,7 @@ export const MEDDX_REQUEST_START_EVENT = "meddx:request-start";
 export const MEDDX_REQUEST_END_EVENT = "meddx:request-end";
 
 let requestSequence = 0;
+let accessTokenProvider: MEDDxAccessTokenProvider | null = null;
 
 export class MEDDxApiError extends Error {
   status: number;
@@ -54,12 +61,32 @@ export class MEDDxApiError extends Error {
   }
 }
 
+/**
+ * Connect an authentication provider without coupling the API client to a
+ * specific vendor. The provider should return the current short-lived access
+ * token; MEDDxAgent never stores the token in localStorage or a Vite variable.
+ */
+export function setMEDDxAccessTokenProvider(provider: MEDDxAccessTokenProvider | null) {
+  accessTokenProvider = provider;
+}
+
+export function meddxAccessTokenProviderConfigured() {
+  return accessTokenProvider !== null;
+}
+
+async function resolveAccessToken() {
+  if (!accessTokenProvider) return null;
+  const token = await accessTokenProvider();
+  const normalized = typeof token === "string" ? token.trim() : "";
+  return normalized || null;
+}
+
 function dispatchRequestEvent(type: string, detail: MEDDxRequestEventDetail) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent<MEDDxRequestEventDetail>(type, { detail }));
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export async function meddxRequest<T>(path: string, init?: RequestInit): Promise<T> {
   if (!meddxApiConfigured) {
     throw new MEDDxApiError(
       "MEDDxAgent backend is not configured. Add the clinical API URL before running the engine.",
@@ -77,14 +104,21 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   try {
     let response: Response;
     try {
+      const token = await resolveAccessToken();
+      const headers = new Headers(init?.headers);
+      if (init?.body !== undefined && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+      }
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+
       response = await fetch(`${meddxApiBaseUrl}${path}`, {
         ...init,
-        headers: {
-          "Content-Type": "application/json",
-          ...(init?.headers ?? {}),
-        },
+        headers,
       });
     } catch (error) {
+      if (error instanceof MEDDxApiError) throw error;
       const detail = error instanceof Error ? error.message : String(error);
       throw new MEDDxApiError(
         "Unable to reach the MEDDxAgent clinical API. Check your connection and backend availability, then retry.",
@@ -94,7 +128,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       );
     }
 
-    const body = await response.json().catch(() => ({}));
+    const body = response.status === 204 ? {} : await response.json().catch(() => ({}));
     if (!response.ok) {
       const rawMessage = typeof body?.error === "string" ? body.error : "MEDDxAgent request failed.";
       const code = typeof body?.code === "string" ? body.code : undefined;
@@ -113,7 +147,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export function createClinicalSession(patientInitialInfo: string, patientId?: string) {
-  return request<ClinicalSessionSnapshot>("/api/v1/clinical/sessions", {
+  return meddxRequest<ClinicalSessionSnapshot>("/api/v1/clinical/sessions", {
     method: "POST",
     body: JSON.stringify({
       patient_initial_info: patientInitialInfo,
@@ -123,37 +157,50 @@ export function createClinicalSession(patientInitialInfo: string, patientId?: st
 }
 
 export function getClinicalSession(sessionId: string) {
-  return request<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}`);
+  return meddxRequest<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}`);
 }
 
 export function updateClinicalContext(sessionId: string, patientInitialInfo: string) {
-  return request<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/context`, {
+  return meddxRequest<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/context`, {
     method: "POST",
     body: JSON.stringify({ patient_initial_info: patientInitialInfo }),
   });
 }
 
 export function generateClinicalQuestion(sessionId: string) {
-  return request<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/question`, {
+  return meddxRequest<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/question`, {
     method: "POST",
   });
 }
 
 export function submitClinicalAnswer(sessionId: string, answer: string) {
-  return request<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/answer`, {
+  return meddxRequest<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/answer`, {
     method: "POST",
     body: JSON.stringify({ answer }),
   });
 }
 
 export function finishClinicalHistory(sessionId: string) {
-  return request<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/history/finish`, {
+  return meddxRequest<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/history/finish`, {
     method: "POST",
   });
 }
 
 export function runClinicalSession(sessionId: string) {
-  return request<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/run`, {
+  return meddxRequest<ClinicalSessionSnapshot>(`/api/v1/clinical/sessions/${sessionId}/run`, {
     method: "POST",
+  });
+}
+
+export function archiveClinicalSession(sessionId: string) {
+  return meddxRequest<{ status: "archived" }>(
+    `/api/v1/clinical/sessions/${sessionId}/archive`,
+    { method: "POST" }
+  );
+}
+
+export function deleteClinicalSession(sessionId: string) {
+  return meddxRequest<void>(`/api/v1/clinical/sessions/${sessionId}`, {
+    method: "DELETE",
   });
 }
