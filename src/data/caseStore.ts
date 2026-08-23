@@ -8,12 +8,36 @@ import type {
 } from "../types";
 
 const STORAGE_KEY = "meddxagent.cases.v1";
+export const CASE_STORE_CHANGED_EVENT = "meddx:case-store-changed";
+
+export interface CaseStoreChangedDetail {
+  cases: Case[];
+  changedCaseIds: string[];
+  deletedCaseIds: string[];
+}
 
 function canUseStorage() {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 }
 
-function createCaseId() {
+function notifyCaseStoreChanged(
+  cases: Case[],
+  changedCaseIds: string[] = [],
+  deletedCaseIds: string[] = []
+) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent<CaseStoreChangedDetail>(CASE_STORE_CHANGED_EVENT, {
+      detail: {
+        cases: sortCases(cases),
+        changedCaseIds,
+        deletedCaseIds,
+      },
+    })
+  );
+}
+
+export function createCaseId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return `CASE-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   }
@@ -50,7 +74,7 @@ export function createEmptyClinicalWorkflow(): ClinicalWorkflow {
   };
 }
 
-function normalizeCase(caseRecord: Case): Case {
+export function normalizeCase(caseRecord: Case): Case {
   const emptyWorkflow = createEmptyClinicalWorkflow();
   const storedWorkflow = caseRecord.workflow;
 
@@ -87,21 +111,36 @@ function parseCases(value: string | null): Case[] {
   }
 }
 
-function writeCases(cases: Case[]) {
-  if (!canUseStorage()) return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
-}
-
-export function getCases(): Case[] {
-  if (!canUseStorage()) return [];
-
-  return parseCases(window.localStorage.getItem(STORAGE_KEY)).sort(
+function sortCases(cases: Case[]) {
+  return [...cases].sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
 }
 
+function writeCases(cases: Case[]) {
+  if (!canUseStorage()) return;
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sortCases(cases)));
+}
+
+export function replaceLocalCases(cases: Case[], notify = true) {
+  const normalized = cases.map(normalizeCase);
+  writeCases(normalized);
+  if (notify) notifyCaseStoreChanged(normalized);
+}
+
+export function getCases(): Case[] {
+  if (!canUseStorage()) return [];
+  return sortCases(parseCases(window.localStorage.getItem(STORAGE_KEY)));
+}
+
 export function getCase(caseId: string): Case | undefined {
   return getCases().find((item) => item.id === caseId);
+}
+
+export function removeLocalCase(caseId: string, notify = true) {
+  const next = getCases().filter((item) => item.id !== caseId);
+  writeCases(next);
+  if (notify) notifyCaseStoreChanged(next, [], [caseId]);
 }
 
 function buildPatient(input: CaseInput): Patient {
@@ -181,17 +220,14 @@ export function caseToInput(caseRecord: Case): CaseInput {
   };
 }
 
-export function saveCaseInput(
+export function buildCaseRecord(
   input: CaseInput,
   status: CaseStatus,
-  existingCaseId?: string,
-  workflow?: ClinicalWorkflow
+  existing?: Case,
+  workflow?: ClinicalWorkflow,
+  now = new Date().toISOString()
 ): Case {
-  const cases = getCases();
-  const existing = existingCaseId ? cases.find((item) => item.id === existingCaseId) : undefined;
-  const now = new Date().toISOString();
-
-  const nextCase: Case = {
+  return normalizeCase({
     id: existing?.id ?? createCaseId(),
     patient: buildPatient(input),
     status,
@@ -204,18 +240,14 @@ export function saveCaseInput(
     ragContent: existing?.ragContent ?? "",
     workflow: workflow ?? existing?.workflow ?? createEmptyClinicalWorkflow(),
     engineSessionId: existing?.engineSessionId,
-  };
-
-  const nextCases = [nextCase, ...cases.filter((item) => item.id !== nextCase.id)];
-  writeCases(nextCases);
-  return nextCase;
+  });
 }
 
-export function applyEngineSnapshot(caseId: string, snapshot: ClinicalSessionSnapshot): Case | undefined {
-  const cases = getCases();
-  const existing = cases.find((item) => item.id === caseId);
-  if (!existing) return undefined;
-
+export function mergeEngineSnapshot(
+  existing: Case,
+  snapshot: ClinicalSessionSnapshot,
+  now = new Date().toISOString()
+): Case {
   const result = snapshot.result;
   const nextWorkflow: ClinicalWorkflow = {
     ...existing.workflow,
@@ -226,9 +258,9 @@ export function applyEngineSnapshot(caseId: string, snapshot: ClinicalSessionSna
     })),
   };
 
-  const nextCase: Case = {
+  return normalizeCase({
     ...existing,
-    updatedAt: new Date().toISOString(),
+    updatedAt: now,
     status: result ? "completed" : "active",
     currentIteration: result?.intermediate_differentials.length ?? existing.currentIteration,
     differential: result
@@ -239,13 +271,40 @@ export function applyEngineSnapshot(caseId: string, snapshot: ClinicalSessionSna
     ragContent: result?.rag_content ?? existing.ragContent,
     workflow: nextWorkflow,
     engineSessionId: snapshot.session_id,
-  };
+  });
+}
 
-  writeCases([nextCase, ...cases.filter((item) => item.id !== caseId)]);
+/** Existing synchronous browser-store helpers retained as the workspace cache. */
+export function saveCaseInput(
+  input: CaseInput,
+  status: CaseStatus,
+  existingCaseId?: string,
+  workflow?: ClinicalWorkflow
+): Case {
+  const cases = getCases();
+  const existing = existingCaseId ? cases.find((item) => item.id === existingCaseId) : undefined;
+  const nextCase = buildCaseRecord(input, status, existing, workflow);
+  const nextCases = [nextCase, ...cases.filter((item) => item.id !== nextCase.id)];
+  writeCases(nextCases);
+  notifyCaseStoreChanged(nextCases, [nextCase.id]);
   return nextCase;
 }
 
-export function clearCases() {
+export function applyEngineSnapshot(caseId: string, snapshot: ClinicalSessionSnapshot): Case | undefined {
+  const cases = getCases();
+  const existing = cases.find((item) => item.id === caseId);
+  if (!existing) return undefined;
+
+  const nextCase = mergeEngineSnapshot(existing, snapshot);
+  const nextCases = [nextCase, ...cases.filter((item) => item.id !== caseId)];
+  writeCases(nextCases);
+  notifyCaseStoreChanged(nextCases, [caseId]);
+  return nextCase;
+}
+
+export function clearCases(notify = true) {
   if (!canUseStorage()) return;
+  const deletedCaseIds = getCases().map((item) => item.id);
   window.localStorage.removeItem(STORAGE_KEY);
+  if (notify) notifyCaseStoreChanged([], [], deletedCaseIds);
 }

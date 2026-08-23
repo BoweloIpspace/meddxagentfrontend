@@ -6,11 +6,15 @@ export interface RequestActivityDetail {
 export type RequestActivityPhase = "start" | "end";
 
 export function requestLabel(path: string): string {
+  if (path === "/api/v1/cases") return "Loading clinical cases";
+  if (path.includes("/api/v1/cases/") && path.endsWith("/archive")) return "Archiving clinical case";
+  if (path.includes("/api/v1/cases/")) return "Syncing clinical case";
   if (path.endsWith("/question")) return "Generating targeted history question";
   if (path.endsWith("/answer")) return "Saving patient response";
   if (path.endsWith("/history/finish")) return "Finalizing clinical history";
   if (path.endsWith("/run")) return "Running MEDDxAgent diagnosis pipeline";
   if (path.endsWith("/context")) return "Syncing clinical context";
+  if (path.endsWith("/archive")) return "Archiving clinical session";
   if (path === "/api/v1/clinical/sessions") return "Preparing clinical session";
   return "Contacting MEDDxAgent";
 }
@@ -32,6 +36,22 @@ export function humanizeApiError(rawMessage: string, status: number): string {
     (normalized.includes("authentication") && normalized.includes("openai"))
   ) {
     return "MEDDxAgent cannot authenticate with the configured OpenAI API account. Check the API key configuration, then retry.";
+  }
+
+  if (status === 401) {
+    return "An authenticated account is required for this MEDDxAgent resource. Sign in through the configured identity provider, then retry.";
+  }
+
+  if (status === 403) {
+    return "Your authenticated account is not authorized to use this MEDDxAgent resource.";
+  }
+
+  if (
+    status === 410 ||
+    (normalized.includes("session") &&
+      (normalized.includes("expired") || normalized.includes("archived")))
+  ) {
+    return "This clinical session is no longer active. Start or resume an available consultation before retrying.";
   }
 
   if (
