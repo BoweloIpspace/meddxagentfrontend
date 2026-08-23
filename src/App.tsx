@@ -8,6 +8,7 @@ import Research from "./components/Research";
 import FinalCTA from "./components/FinalCTA";
 import Footer from "./components/Footer";
 import AppShell from "./components/AppShell";
+import { CaseStoreProvider } from "./data/CaseStoreContext";
 import WorkspaceHome from "./pages/WorkspaceHome";
 import Settings from "./pages/Settings";
 import NewCase from "./pages/NewCase";
@@ -26,6 +27,14 @@ function LandingPage() {
       <FinalCTA />
       <Footer />
     </div>
+  );
+}
+
+function WorkspaceApp() {
+  return (
+    <CaseStoreProvider>
+      <AppShell />
+    </CaseStoreProvider>
   );
 }
 
@@ -56,7 +65,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
 
-      <Route element={<AppShell />}>
+      <Route element={<WorkspaceApp />}>
         <Route path="/app" element={<Navigate to="/cases/new" replace />} />
         <Route path="/workspace" element={<WorkspaceHome />} />
         <Route path="/cases" element={<Cases />} />
