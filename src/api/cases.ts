@@ -1,0 +1,43 @@
+import { meddxRequest } from "./meddx";
+import type { Case } from "../types";
+
+interface CaseEnvelope {
+  case: Case;
+}
+
+interface CaseListEnvelope {
+  cases: Case[];
+}
+
+export function listServerCases(limit = 100) {
+  const normalizedLimit = Math.max(1, Math.min(500, Math.trunc(limit)));
+  return meddxRequest<CaseListEnvelope>(`/api/v1/cases?limit=${normalizedLimit}`).then(
+    (response) => response.cases
+  );
+}
+
+export function getServerCase(caseId: string) {
+  return meddxRequest<CaseEnvelope>(`/api/v1/cases/${encodeURIComponent(caseId)}`).then(
+    (response) => response.case
+  );
+}
+
+export function saveServerCase(caseRecord: Case) {
+  return meddxRequest<CaseEnvelope>(`/api/v1/cases/${encodeURIComponent(caseRecord.id)}`, {
+    method: "PUT",
+    body: JSON.stringify(caseRecord),
+  }).then((response) => response.case);
+}
+
+export function archiveServerCase(caseId: string) {
+  return meddxRequest<{ status: "archived" }>(
+    `/api/v1/cases/${encodeURIComponent(caseId)}/archive`,
+    { method: "POST" }
+  );
+}
+
+export function deleteServerCase(caseId: string) {
+  return meddxRequest<void>(`/api/v1/cases/${encodeURIComponent(caseId)}`, {
+    method: "DELETE",
+  });
+}
