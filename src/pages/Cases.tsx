@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getCases } from "../data/caseStore";
+import { useCaseStore } from "../data/CaseStoreContext";
 import type { CaseStatus } from "../types";
 
 const statusLabels: Record<CaseStatus, string> = {
@@ -13,9 +13,9 @@ const statusLabels: Record<CaseStatus, string> = {
 
 export default function Cases() {
   const navigate = useNavigate();
+  const { cases, loading, error, storageMode, refresh } = useCaseStore();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<CaseStatus | "all">("all");
-  const cases = getCases();
 
   const availableStatuses = Array.from(new Set(cases.map((caseRecord) => caseRecord.status)));
   const filters: Array<CaseStatus | "all"> = ["all", ...availableStatuses];
@@ -42,8 +42,8 @@ export default function Cases() {
           <p className="workspace-page-eyebrow">Cases</p>
           <h1>Case workspace</h1>
           <p>
-            Review locally stored consultations and continue drafts without mixing entered clinical
-            data with MEDDxAgent-generated output.
+            Review saved consultations and continue drafts without mixing entered clinical data with
+            MEDDxAgent-generated output.
           </p>
         </div>
         <Link to="/cases/new" className="workspace-primary-action">
@@ -52,7 +52,20 @@ export default function Cases() {
         </Link>
       </section>
 
-      {cases.length === 0 ? (
+      {error && (
+        <section className="clinical-error" role="alert">
+          <strong>Cases could not synchronize.</strong>
+          <span>{error}</span>
+          <button type="button" onClick={() => void refresh()}>Retry</button>
+        </section>
+      )}
+
+      {loading ? (
+        <section className="workspace-panel workspace-cases-empty" role="status" aria-live="polite">
+          <h2>Loading cases…</h2>
+          <p>{storageMode === "server" ? "Retrieving the authenticated case workspace." : "Reading consultations saved in this browser."}</p>
+        </section>
+      ) : cases.length === 0 ? (
         <section className="workspace-panel workspace-cases-empty">
           <div className="workspace-empty-icon" aria-hidden="true">+</div>
           <h2>No cases yet</h2>
@@ -91,7 +104,7 @@ export default function Cases() {
           <section className="workspace-panel workspace-case-list-panel">
             <div className="workspace-case-list-heading">
               <div>
-                <p className="workspace-panel-eyebrow">Stored cases</p>
+                <p className="workspace-panel-eyebrow">{storageMode === "server" ? "Server cases" : "Saved cases"}</p>
                 <h2>{filtered.length} {filtered.length === 1 ? "case" : "cases"}</h2>
               </div>
               <span>{cases.length} total</span>
@@ -102,32 +115,21 @@ export default function Cases() {
                 <article key={caseRecord.id} className="workspace-case-row">
                   <button
                     type="button"
-                    onClick={() =>
-                      navigate(
-                        caseRecord.status === "draft"
-                          ? `/case/${caseRecord.id}/edit`
-                          : `/case/${caseRecord.id}`
-                      )
-                    }
+                    onClick={() => navigate(caseRecord.status === "draft" ? `/case/${caseRecord.id}/edit` : `/case/${caseRecord.id}`)}
                     className="workspace-case-row-main"
                   >
                     <div className="workspace-case-row-copy">
                       <div className="workspace-case-row-topline">
                         <span className="workspace-case-id">{caseRecord.id}</span>
-                        <span className={`workspace-status-pill workspace-status-${caseRecord.status}`}>
-                          {statusLabels[caseRecord.status]}
-                        </span>
+                        <span className={`workspace-status-pill workspace-status-${caseRecord.status}`}>{statusLabels[caseRecord.status]}</span>
                       </div>
                       <h3>{caseRecord.patient.chiefComplaint || "Untitled case"}</h3>
                       <p>
                         {caseRecord.patient.age ? `${caseRecord.patient.age}y` : "Age not entered"}
                         {caseRecord.patient.sex ? ` · ${caseRecord.patient.sex}` : ""}
-                        {(caseRecord.patient.knownConditions || caseRecord.patient.medicalHistory)
-                          ? ` · ${caseRecord.patient.knownConditions || caseRecord.patient.medicalHistory}`
-                          : ""}
+                        {(caseRecord.patient.knownConditions || caseRecord.patient.medicalHistory) ? ` · ${caseRecord.patient.knownConditions || caseRecord.patient.medicalHistory}` : ""}
                       </p>
                     </div>
-
                     <div className="workspace-case-row-meta">
                       <span>{new Date(caseRecord.updatedAt).toLocaleString()}</span>
                       <strong>{caseRecord.status === "draft" ? "Continue" : "Open"} →</strong>
@@ -137,11 +139,7 @@ export default function Cases() {
               ))}
             </div>
 
-            {filtered.length === 0 && (
-              <div className="workspace-case-search-empty">
-                <p>No cases match this search or filter.</p>
-              </div>
-            )}
+            {filtered.length === 0 && <div className="workspace-case-search-empty"><p>No cases match this search or filter.</p></div>}
           </section>
         </>
       )}
