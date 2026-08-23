@@ -37,7 +37,7 @@ export default function Settings() {
       <header className="settings-heading">
         <p className="workspace-page-eyebrow">Workspace</p>
         <h1>Settings</h1>
-        <p>Only controls that are genuinely active in the current frontend are shown here.</p>
+        <p>Review runtime status and manage the case data stored in this browser.</p>
       </header>
 
       <section className="settings-section">

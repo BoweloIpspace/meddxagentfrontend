@@ -6,6 +6,7 @@ import {
   MEDDX_REQUEST_START_EVENT,
 } from "../api/meddx";
 import type { MEDDxRequestEventDetail } from "../api/meddx";
+import { updateRequestActivity } from "../api/meddxFeedback";
 
 const navItems = [
   {
@@ -111,16 +112,13 @@ export default function AppShell() {
     const handleStart = (event: Event) => {
       const detail = (event as CustomEvent<MEDDxRequestEventDetail>).detail;
       if (!detail) return;
-      activeRequests.set(detail.id, detail.label);
-      setClinicalActivity(detail.label);
+      setClinicalActivity(updateRequestActivity(activeRequests, "start", detail));
     };
 
     const handleEnd = (event: Event) => {
       const detail = (event as CustomEvent<MEDDxRequestEventDetail>).detail;
       if (!detail) return;
-      activeRequests.delete(detail.id);
-      const remaining = Array.from(activeRequests.values());
-      setClinicalActivity(remaining.length ? remaining[remaining.length - 1] : null);
+      setClinicalActivity(updateRequestActivity(activeRequests, "end", detail));
     };
 
     window.addEventListener(MEDDX_REQUEST_START_EVENT, handleStart as EventListener);
@@ -202,9 +200,7 @@ export default function AppShell() {
             <strong>{header.title}</strong>
           </div>
 
-          <div className="workspace-mobile-trailing" aria-hidden="true">
-            <span className="workspace-mobile-avatar">M</span>
-          </div>
+          <div className="workspace-mobile-trailing" aria-hidden="true" />
         </header>
 
         <header className="workspace-topbar hidden lg:flex">
@@ -217,7 +213,6 @@ export default function AppShell() {
               <span />
               {meddxApiConfigured ? "Clinical API configured" : "API configuration required"}
             </div>
-            <div className="workspace-avatar" aria-label="Workspace account">M</div>
           </div>
         </header>
 

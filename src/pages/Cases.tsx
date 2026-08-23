@@ -56,7 +56,7 @@ export default function Cases() {
         <section className="workspace-panel workspace-cases-empty">
           <div className="workspace-empty-icon" aria-hidden="true">+</div>
           <h2>No cases yet</h2>
-          <p>Create the first consultation from real patient context. No sample cases are preloaded.</p>
+          <p>Create your first consultation to begin a case in this workspace.</p>
           <Link to="/cases/new" className="workspace-primary-action workspace-primary-action-compact">
             Start consultation
           </Link>
