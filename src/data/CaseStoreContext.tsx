@@ -10,7 +10,15 @@ import {
 import type { ReactNode } from "react";
 import type { ClinicalSessionSnapshot } from "../api/meddx";
 import type { Case, CaseInput, CaseStatus, ClinicalWorkflow } from "../types";
-import { buildCaseRecord, mergeEngineSnapshot } from "./caseStore";
+import {
+  CASE_STORE_CHANGED_EVENT,
+  buildCaseRecord,
+  clearCases as clearLocalCases,
+  mergeEngineSnapshot,
+  removeLocalCase,
+  replaceLocalCases,
+  type CaseStoreChangedDetail,
+} from "./caseStore";
 import {
   configuredCaseStorageMode,
   createCaseRepository,
@@ -65,22 +73,67 @@ export function CaseStoreProvider({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const commitCases = useCallback(
+    (nextCases: Case[]) => {
+      const sorted = sortCases(nextCases);
+      setCases(sorted);
+      if (activeRepository.mode === "server") {
+        // The existing consultation screen reads the browser cache synchronously.
+        // In server mode this is only a hydrated cache; the backend remains authoritative.
+        replaceLocalCases(sorted, false);
+      }
+      return sorted;
+    },
+    [activeRepository.mode]
+  );
+
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
       const loaded = await activeRepository.list();
-      setCases(sortCases(loaded));
+      commitCases(loaded);
       setError("");
     } catch (loadError) {
       setError(errorMessage(loadError));
     } finally {
       setLoading(false);
     }
-  }, [activeRepository]);
+  }, [activeRepository, commitCases]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    const handleCacheMutation = (event: Event) => {
+      const detail = (event as CustomEvent<CaseStoreChangedDetail>).detail;
+      if (!detail) return;
+      const nextCases = sortCases(detail.cases);
+      setCases(nextCases);
+
+      if (activeRepository.mode !== "server") return;
+
+      void (async () => {
+        try {
+          for (const caseId of detail.changedCaseIds) {
+            const changed = nextCases.find((caseRecord) => caseRecord.id === caseId);
+            if (changed) await activeRepository.save(changed);
+          }
+          for (const caseId of detail.deletedCaseIds) {
+            await activeRepository.delete(caseId);
+          }
+          setError("");
+        } catch (syncError) {
+          setError(errorMessage(syncError));
+        }
+      })();
+    };
+
+    window.addEventListener(CASE_STORE_CHANGED_EVENT, handleCacheMutation as EventListener);
+    return () => {
+      window.removeEventListener(CASE_STORE_CHANGED_EVENT, handleCacheMutation as EventListener);
+    };
+  }, [activeRepository]);
 
   const getCase = useCallback(
     (caseId: string) => cases.find((caseRecord) => caseRecord.id === caseId),
@@ -100,9 +153,11 @@ export function CaseStoreProvider({
       const nextCase = buildCaseRecord(input, status, existing, workflow);
       try {
         const saved = await activeRepository.save(nextCase);
-        setCases((current) =>
-          sortCases([saved, ...current.filter((item) => item.id !== saved.id)])
-        );
+        const nextCases = commitCases([
+          saved,
+          ...cases.filter((item) => item.id !== saved.id),
+        ]);
+        if (activeRepository.mode === "local") replaceLocalCases(nextCases, false);
         setError("");
         return saved;
       } catch (saveError) {
@@ -110,7 +165,7 @@ export function CaseStoreProvider({
         throw saveError;
       }
     },
-    [activeRepository, cases]
+    [activeRepository, cases, commitCases]
   );
 
   const applyEngineSnapshot = useCallback(
@@ -120,9 +175,11 @@ export function CaseStoreProvider({
       const nextCase = mergeEngineSnapshot(existing, snapshot);
       try {
         const saved = await activeRepository.save(nextCase);
-        setCases((current) =>
-          sortCases([saved, ...current.filter((item) => item.id !== saved.id)])
-        );
+        const nextCases = commitCases([
+          saved,
+          ...cases.filter((item) => item.id !== saved.id),
+        ]);
+        if (activeRepository.mode === "local") replaceLocalCases(nextCases, false);
         setError("");
         return saved;
       } catch (saveError) {
@@ -130,47 +187,52 @@ export function CaseStoreProvider({
         throw saveError;
       }
     },
-    [activeRepository, cases]
+    [activeRepository, cases, commitCases]
   );
 
   const archiveCase = useCallback(
     async (caseId: string) => {
       try {
         await activeRepository.archive(caseId);
-        setCases((current) => current.filter((item) => item.id !== caseId));
+        const nextCases = cases.filter((item) => item.id !== caseId);
+        commitCases(nextCases);
+        if (activeRepository.mode === "local") removeLocalCase(caseId, false);
         setError("");
       } catch (archiveError) {
         setError(errorMessage(archiveError));
         throw archiveError;
       }
     },
-    [activeRepository]
+    [activeRepository, cases, commitCases]
   );
 
   const deleteCase = useCallback(
     async (caseId: string) => {
       try {
         await activeRepository.delete(caseId);
-        setCases((current) => current.filter((item) => item.id !== caseId));
+        const nextCases = cases.filter((item) => item.id !== caseId);
+        commitCases(nextCases);
+        if (activeRepository.mode === "local") removeLocalCase(caseId, false);
         setError("");
       } catch (deleteError) {
         setError(errorMessage(deleteError));
         throw deleteError;
       }
     },
-    [activeRepository]
+    [activeRepository, cases, commitCases]
   );
 
   const clearAllCases = useCallback(async () => {
     try {
       await activeRepository.clear();
-      setCases([]);
+      commitCases([]);
+      clearLocalCases(false);
       setError("");
     } catch (clearError) {
       setError(errorMessage(clearError));
       throw clearError;
     }
-  }, [activeRepository]);
+  }, [activeRepository, commitCases]);
 
   const value = useMemo<CaseStoreValue>(
     () => ({
