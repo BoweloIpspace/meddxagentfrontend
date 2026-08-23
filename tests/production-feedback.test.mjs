@@ -26,6 +26,19 @@ test("clinical request labels stay specific for long-running workflow actions", 
   );
 });
 
+test("server case and lifecycle requests have explicit loading labels", () => {
+  assert.equal(requestLabel("/api/v1/cases"), "Loading clinical cases");
+  assert.equal(requestLabel("/api/v1/cases/CASE-1"), "Syncing clinical case");
+  assert.equal(
+    requestLabel("/api/v1/cases/CASE-1/archive"),
+    "Archiving clinical case"
+  );
+  assert.equal(
+    requestLabel("/api/v1/clinical/sessions/session-1/archive"),
+    "Archiving clinical session"
+  );
+});
+
 test("overlapping requests keep the loading status visible until all work completes", () => {
   const active = new Map();
   const first = { id: "request-1", label: "Preparing clinical session" };
@@ -69,6 +82,21 @@ test("common production API failures remain clinician-readable", () => {
   assert.match(
     humanizeApiError("upstream failure", 500),
     /could not complete this request/i
+  );
+});
+
+test("application authentication and expired-session errors stay actionable", () => {
+  assert.match(
+    humanizeApiError("Authentication required", 401),
+    /authenticated account is required/i
+  );
+  assert.match(
+    humanizeApiError("Not authorized", 403),
+    /not authorized/i
+  );
+  assert.match(
+    humanizeApiError("Clinical session expired", 410),
+    /no longer active/i
   );
 });
 
