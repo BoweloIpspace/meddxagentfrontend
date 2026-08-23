@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { meddxApiConfigured } from "../api/meddx";
-import { getCases } from "../data/caseStore";
+import { useCaseStore } from "../data/CaseStoreContext";
 
 const statusLabel = {
   draft: "Draft",
@@ -11,10 +11,12 @@ const statusLabel = {
 } as const;
 
 export default function WorkspaceHome() {
-  const cases = getCases();
+  const { cases, loading, error, storageMode } = useCaseStore();
   const latestCase = cases[0];
   const readyCount = cases.filter((caseRecord) => caseRecord.status === "ready").length;
   const draftCount = cases.filter((caseRecord) => caseRecord.status === "draft").length;
+  const storageDescription =
+    storageMode === "server" ? "Authenticated server workspace" : "Stored on this device";
 
   return (
     <div className="workspace-overview-page">
@@ -23,7 +25,7 @@ export default function WorkspaceHome() {
           <p className="workspace-page-eyebrow">Overview</p>
           <h1>Clinical workspace</h1>
           <p>
-            Create structured consultations, review locally stored cases, and keep MEDDxAgent output
+            Create structured consultations, review saved cases, and keep MEDDxAgent output
             separate from information entered by the clinician.
           </p>
         </div>
@@ -33,20 +35,27 @@ export default function WorkspaceHome() {
         </Link>
       </section>
 
-      <section className="workspace-metric-grid" aria-label="Workspace summary">
+      {error && (
+        <section className="clinical-error" role="alert">
+          <strong>Case workspace could not synchronize.</strong>
+          <span>{error}</span>
+        </section>
+      )}
+
+      <section className="workspace-metric-grid" aria-label="Workspace summary" aria-busy={loading}>
         <article className="workspace-metric-card">
           <span>Total cases</span>
-          <strong>{cases.length}</strong>
-          <p>Stored on this device</p>
+          <strong>{loading ? "—" : cases.length}</strong>
+          <p>{storageDescription}</p>
         </article>
         <article className="workspace-metric-card">
           <span>Ready</span>
-          <strong>{readyCount}</strong>
+          <strong>{loading ? "—" : readyCount}</strong>
           <p>Consultations ready for review</p>
         </article>
         <article className="workspace-metric-card">
           <span>Drafts</span>
-          <strong>{draftCount}</strong>
+          <strong>{loading ? "—" : draftCount}</strong>
           <p>Consultations still in progress</p>
         </article>
       </section>
@@ -56,12 +65,18 @@ export default function WorkspaceHome() {
           <div className="workspace-panel-heading">
             <div>
               <p className="workspace-panel-eyebrow">Recent case</p>
-              <h2>{latestCase ? "Continue where you left off" : "No cases yet"}</h2>
+              <h2>
+                {loading ? "Loading workspace…" : latestCase ? "Continue where you left off" : "No cases yet"}
+              </h2>
             </div>
             {latestCase && <span className="workspace-status-pill">{statusLabel[latestCase.status]}</span>}
           </div>
 
-          {latestCase ? (
+          {loading ? (
+            <div className="workspace-empty-panel" role="status" aria-live="polite">
+              <p>Loading saved consultations…</p>
+            </div>
+          ) : latestCase ? (
             <div className="workspace-latest-case">
               <div className="workspace-case-id">{latestCase.id}</div>
               <h3>{latestCase.patient.chiefComplaint || "Untitled case"}</h3>
@@ -119,9 +134,9 @@ export default function WorkspaceHome() {
 
           <div className="workspace-guidance-copy">
             <p>
-              {meddxApiConfigured
-                ? "The interface keeps clinician-entered data separate from engine-generated output and stores the current workspace locally in this browser."
-                : "The interface can still prepare structured consultations locally, but engine-generated output remains unavailable until the API is configured."}
+              {storageMode === "server"
+                ? "Cases are configured for authenticated server persistence. Clinician-entered data remains separate from engine-generated output."
+                : "Cases remain in browser storage until authenticated server persistence is enabled."}
             </p>
           </div>
 
