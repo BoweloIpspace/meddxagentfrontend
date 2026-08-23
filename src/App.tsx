@@ -8,7 +8,7 @@ import Research from "./components/Research";
 import FinalCTA from "./components/FinalCTA";
 import Footer from "./components/Footer";
 import AppShell from "./components/AppShell";
-import { CaseStoreProvider } from "./data/CaseStoreContext";
+import { CaseStoreProvider, useCaseStore } from "./data/CaseStoreContext";
 import WorkspaceHome from "./pages/WorkspaceHome";
 import Settings from "./pages/Settings";
 import NewCase from "./pages/NewCase";
@@ -30,10 +30,45 @@ function LandingPage() {
   );
 }
 
+function WorkspaceGate() {
+  const { loading, error, refresh } = useCaseStore();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white px-6" role="status" aria-live="polite">
+        <div className="text-center">
+          <p className="mb-2 text-[14px] font-medium text-neutral-800">Loading clinical workspace…</p>
+          <p className="text-[13px] text-neutral-500">Preparing saved consultations before the workflow opens.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white px-6">
+        <div className="max-w-md text-center">
+          <p className="mb-2 text-[15px] font-semibold text-neutral-900">Clinical workspace unavailable</p>
+          <p className="mb-5 text-[13px] text-neutral-500">{error}</p>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            className="button-primary inline-flex rounded-lg bg-neutral-900 px-5 py-2.5 text-[14px] font-medium text-white"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return <AppShell />;
+}
+
 function WorkspaceApp() {
   return (
     <CaseStoreProvider>
-      <AppShell />
+      <WorkspaceGate />
     </CaseStoreProvider>
   );
 }
