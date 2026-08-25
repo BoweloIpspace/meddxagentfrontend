@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getCase } from "../data/caseStore";
+import { useCaseStore } from "../data/CaseStoreContext";
 import type { CaseStatus } from "../types";
 
 const statusLabels: Record<CaseStatus, string> = {
@@ -33,6 +33,7 @@ function DetailList({ rows }: { rows: Array<[string, string | undefined]> }) {
 
 export default function ActiveCase() {
   const { id } = useParams<{ id: string }>();
+  const { getCase, storageMode } = useCaseStore();
   const caseRecord = id ? getCase(id) : undefined;
   const [selectedRank, setSelectedRank] = useState<number | null>(null);
 
@@ -40,8 +41,12 @@ export default function ActiveCase() {
     return (
       <div className="case-page case-page-empty">
         <p className="workspace-page-eyebrow">Case unavailable</p>
-        <h1>This case does not exist in the local workspace.</h1>
-        <p>Cases are stored on this device only until backend persistence is connected.</p>
+        <h1>This case is not available in this workspace.</h1>
+        <p>
+          {storageMode === "server"
+            ? "The authenticated case repository did not return this case."
+            : "This case is not stored in this browser."}
+        </p>
         <div className="case-header-actions">
           <Link to="/cases" className="workspace-page-button workspace-page-button-primary">View cases</Link>
           <Link to="/cases/new" className="workspace-page-button">New case</Link>
