@@ -66,6 +66,7 @@ export function CaseStoreProvider({
     repository ?? createCaseRepository(configuredCaseStorageMode)
   );
   const activeRepository = repositoryRef.current;
+  const casesRef = useRef<Case[]>([]);
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -73,6 +74,7 @@ export function CaseStoreProvider({
   const commitCases = useCallback(
     (nextCases: Case[]) => {
       const sorted = sortCases(nextCases);
+      casesRef.current = sorted;
       setCases(sorted);
       if (activeRepository.mode === "server") {
         // Server storage is authoritative. This browser copy is a hydrated cache
@@ -102,8 +104,8 @@ export function CaseStoreProvider({
   }, [refresh]);
 
   const getCase = useCallback(
-    (caseId: string) => cases.find((caseRecord) => caseRecord.id === caseId),
-    [cases]
+    (caseId: string) => casesRef.current.find((caseRecord) => caseRecord.id === caseId),
+    []
   );
 
   const saveCaseInput = useCallback(
@@ -113,15 +115,16 @@ export function CaseStoreProvider({
       existingCaseId?: string,
       workflow?: ClinicalWorkflow
     ) => {
+      const currentCases = casesRef.current;
       const existing = existingCaseId
-        ? cases.find((caseRecord) => caseRecord.id === existingCaseId)
+        ? currentCases.find((caseRecord) => caseRecord.id === existingCaseId)
         : undefined;
       const nextCase = buildCaseRecord(input, status, existing, workflow);
       try {
         const saved = await activeRepository.save(nextCase);
         commitCases([
           saved,
-          ...cases.filter((item) => item.id !== saved.id),
+          ...casesRef.current.filter((item) => item.id !== saved.id),
         ]);
         setError("");
         return saved;
@@ -130,19 +133,19 @@ export function CaseStoreProvider({
         throw saveError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const applyEngineSnapshot = useCallback(
     async (caseId: string, snapshot: ClinicalSessionSnapshot) => {
-      const existing = cases.find((caseRecord) => caseRecord.id === caseId);
+      const existing = casesRef.current.find((caseRecord) => caseRecord.id === caseId);
       if (!existing) return undefined;
       const nextCase = mergeEngineSnapshot(existing, snapshot);
       try {
         const saved = await activeRepository.save(nextCase);
         commitCases([
           saved,
-          ...cases.filter((item) => item.id !== saved.id),
+          ...casesRef.current.filter((item) => item.id !== saved.id),
         ]);
         setError("");
         return saved;
@@ -151,35 +154,35 @@ export function CaseStoreProvider({
         throw saveError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const archiveCase = useCallback(
     async (caseId: string) => {
       try {
         await activeRepository.archive(caseId);
-        commitCases(cases.filter((item) => item.id !== caseId));
+        commitCases(casesRef.current.filter((item) => item.id !== caseId));
         setError("");
       } catch (archiveError) {
         setError(errorMessage(archiveError));
         throw archiveError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const deleteCase = useCallback(
     async (caseId: string) => {
       try {
         await activeRepository.delete(caseId);
-        commitCases(cases.filter((item) => item.id !== caseId));
+        commitCases(casesRef.current.filter((item) => item.id !== caseId));
         setError("");
       } catch (deleteError) {
         setError(errorMessage(deleteError));
         throw deleteError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const clearAllCases = useCallback(async () => {
