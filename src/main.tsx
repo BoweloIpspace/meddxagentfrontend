@@ -14,6 +14,7 @@ import './engine-contract.css'
 import './mobile-app.css'
 import './mobile-native.css'
 import './production-polish.css'
+import './responsive-platform.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(
