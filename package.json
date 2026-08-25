@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "test:smoke": "rm -rf .test-dist && tsc src/api/meddxFeedback.ts --ignoreConfig --target ES2022 --module NodeNext --moduleResolution NodeNext --outDir .test-dist --skipLibCheck && node --test tests/production-feedback.test.mjs",
+    "test:smoke": "rm -rf .test-dist && tsc src/api/meddxFeedback.ts --ignoreConfig --target ES2022 --module NodeNext --moduleResolution NodeNext --outDir .test-dist --skipLibCheck && node --test tests/*.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,0 +1,364 @@
+/*
+ * Final platform-responsive layer.
+ *
+ * This file is intentionally imported last. Earlier workspace styles contain
+ * historical mobile passes with overlapping breakpoints. These rules define
+ * the final phone/tablet contract for the web app and a future Android WebView
+ * shell without changing desktop or MEDDxAgent behavior.
+ */
+
+@media (max-width: 1023px) {
+  .workspace-shell,
+  .workspace-main {
+    min-width: 0;
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+
+  /* AppShell renders leading / title / trailing cells at every mobile width. */
+  .workspace-mobile-header {
+    display: grid !important;
+    min-height: 60px;
+    height: auto;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: 8px;
+    padding:
+      calc(6px + env(safe-area-inset-top))
+      max(14px, env(safe-area-inset-right))
+      6px
+      max(14px, env(safe-area-inset-left));
+  }
+
+  .workspace-mobile-leading,
+  .workspace-mobile-trailing {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+  }
+
+  .workspace-mobile-route {
+    min-width: 0;
+    text-align: center;
+  }
+
+  .workspace-mobile-route strong {
+    display: block;
+    overflow: hidden;
+    color: #20242a;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .workspace-mobile-mark,
+  .workspace-mobile-back {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    place-items: center;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: inherit;
+    text-decoration: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .workspace-mobile-back svg {
+    width: 25px;
+    height: 25px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .workspace-content,
+  .workspace-content-inner,
+  .consultation-layout,
+  .consultation-card,
+  .case-panel,
+  .settings-card,
+  .settings-action-card,
+  .clinical-module {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .workspace-content-inner img,
+  .workspace-content-inner svg,
+  .workspace-content-inner video,
+  .workspace-content-inner canvas {
+    max-width: 100%;
+  }
+
+  .workspace-content-inner pre,
+  .meddx-engine-input-review pre,
+  .case-panel p,
+  .case-panel dd,
+  .case-history-list,
+  .case-investigation-list,
+  .meddx-engine-stage-copy,
+  .meddx-engine-stage-copy p {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .workspace-content-inner table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .workspace-mobile-bottom-nav {
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+  }
+
+  .workspace-mobile-bottom-nav button,
+  .workspace-mobile-back,
+  .workspace-mobile-mark,
+  .clinical-button,
+  .clinical-segmented button,
+  .workspace-primary-action,
+  .workspace-secondary-action,
+  .workspace-page-button,
+  .settings-button,
+  .workspace-filter-row button,
+  .case-differential-list button {
+    touch-action: manipulation;
+  }
+
+  .clinical-control,
+  .clinical-textarea,
+  .workspace-search-control input {
+    scroll-margin-top: 88px;
+    scroll-margin-bottom: 35dvh;
+  }
+}
+
+/* Tablet portrait, foldables and compact landscape layouts. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .workspace-content-inner {
+    width: min(100%, 920px);
+    margin-inline: auto;
+    padding-inline: 24px;
+  }
+
+  .workspace-safety {
+    width: min(calc(100% - 48px), 872px);
+    margin: 12px auto 0;
+  }
+
+  .workspace-overview-page,
+  .workspace-cases-page,
+  .settings-page,
+  .case-page,
+  .consultation-page {
+    padding-top: 20px;
+  }
+
+  .consultation-layout {
+    gap: 20px;
+  }
+
+  .consultation-card,
+  .consultation-summary-card,
+  .workspace-panel,
+  .case-panel {
+    padding: 22px;
+  }
+
+  .clinical-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .clinical-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-mobile-bottom-nav button {
+    min-height: 58px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 767px) {
+  html,
+  body,
+  #root {
+    min-width: 0;
+    min-height: 100%;
+  }
+
+  body {
+    overscroll-behavior-x: none;
+  }
+
+  .workspace-content-inner {
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+
+  .workspace-safety {
+    margin-right: max(16px, env(safe-area-inset-right));
+    margin-left: max(16px, env(safe-area-inset-left));
+  }
+
+  /* Prevent iOS/Android WebView focus zoom and keep native-sized controls. */
+  .clinical-control,
+  .clinical-textarea,
+  .workspace-search-control input,
+  select {
+    font-size: 16px;
+  }
+
+  .clinical-button,
+  .workspace-primary-action,
+  .workspace-secondary-action,
+  .workspace-page-button,
+  .settings-button,
+  .workspace-mobile-bottom-nav button {
+    min-height: 48px;
+  }
+
+  .clinical-section-heading,
+  .meddx-run-panel-heading,
+  .case-panel-heading,
+  .case-diagnosis-heading {
+    min-width: 0;
+  }
+
+  .clinical-section-heading > *,
+  .meddx-run-panel-heading > *,
+  .case-panel-heading > *,
+  .case-diagnosis-heading > * {
+    min-width: 0;
+  }
+
+  .meddx-output-contract,
+  .case-findings-grid,
+  .case-diagnosis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .meddx-engine-stage {
+    min-width: 0;
+  }
+
+  .meddx-engine-stage-status {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .case-header-actions,
+  .workspace-panel-actions {
+    max-width: 100%;
+  }
+
+  .case-header-actions > *,
+  .workspace-panel-actions > * {
+    min-width: 0;
+  }
+
+  .consultation-actions {
+    padding-bottom: max(2px, env(safe-area-inset-bottom));
+  }
+
+  /* Keep the fixed app navigation out of the way while entering clinical data. */
+  .workspace-shell:has(input:focus, textarea:focus, select:focus) .workspace-mobile-bottom-nav {
+    transform: translateY(calc(100% + env(safe-area-inset-bottom)));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .workspace-mobile-bottom-nav {
+    transition: transform 160ms ease, opacity 120ms ease;
+  }
+}
+
+@media (max-width: 389px) {
+  .workspace-content-inner {
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-left: max(12px, env(safe-area-inset-left));
+  }
+
+  .workspace-safety {
+    margin-right: max(12px, env(safe-area-inset-right));
+    margin-left: max(12px, env(safe-area-inset-left));
+  }
+
+  .consultation-card,
+  .workspace-panel,
+  .case-panel,
+  .case-hero,
+  .settings-card,
+  .settings-action-card {
+    border-radius: 16px;
+  }
+
+  .case-header-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Compact landscape phones: preserve vertical room for clinical content. */
+@media (max-width: 900px) and (max-height: 520px) and (orientation: landscape) {
+  .workspace-mobile-header {
+    min-height: 50px;
+    padding-top: max(3px, env(safe-area-inset-top));
+    padding-bottom: 3px;
+  }
+
+  .workspace-mobile-leading,
+  .workspace-mobile-trailing,
+  .workspace-mobile-mark,
+  .workspace-mobile-back {
+    height: 40px;
+  }
+
+  .workspace-mobile-bottom-nav {
+    padding-top: 2px;
+  }
+
+  .workspace-mobile-bottom-nav button {
+    min-height: 48px;
+  }
+
+  .workspace-mobile-bottom-icon {
+    height: 26px;
+  }
+
+  .workspace-safety {
+    margin-top: 6px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .clinical-button,
+  .clinical-segmented button,
+  .workspace-primary-action,
+  .workspace-secondary-action,
+  .workspace-page-button,
+  .settings-button,
+  .workspace-filter-row button,
+  .case-differential-list button,
+  .workspace-mobile-back,
+  .workspace-mobile-mark {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-mobile-bottom-nav {
+    transition: none;
+  }
+}
