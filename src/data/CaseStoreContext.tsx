@@ -11,13 +11,10 @@ import type { ReactNode } from "react";
 import type { ClinicalSessionSnapshot } from "../api/meddx";
 import type { Case, CaseInput, CaseStatus, ClinicalWorkflow } from "../types";
 import {
-  CASE_STORE_CHANGED_EVENT,
   buildCaseRecord,
   clearCases as clearLocalCases,
   mergeEngineSnapshot,
-  removeLocalCase,
   replaceLocalCases,
-  type CaseStoreChangedDetail,
 } from "./caseStore";
 import {
   configuredCaseStorageMode,
@@ -69,6 +66,7 @@ export function CaseStoreProvider({
     repository ?? createCaseRepository(configuredCaseStorageMode)
   );
   const activeRepository = repositoryRef.current;
+  const casesRef = useRef<Case[]>([]);
   const [cases, setCases] = useState<Case[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -76,10 +74,11 @@ export function CaseStoreProvider({
   const commitCases = useCallback(
     (nextCases: Case[]) => {
       const sorted = sortCases(nextCases);
+      casesRef.current = sorted;
       setCases(sorted);
       if (activeRepository.mode === "server") {
-        // The existing consultation screen reads the browser cache synchronously.
-        // In server mode this is only a hydrated cache; the backend remains authoritative.
+        // Server storage is authoritative. This browser copy is a hydrated cache
+        // used only by legacy synchronous presentation helpers.
         replaceLocalCases(sorted, false);
       }
       return sorted;
@@ -104,40 +103,9 @@ export function CaseStoreProvider({
     void refresh();
   }, [refresh]);
 
-  useEffect(() => {
-    const handleCacheMutation = (event: Event) => {
-      const detail = (event as CustomEvent<CaseStoreChangedDetail>).detail;
-      if (!detail) return;
-      const nextCases = sortCases(detail.cases);
-      setCases(nextCases);
-
-      if (activeRepository.mode !== "server") return;
-
-      void (async () => {
-        try {
-          for (const caseId of detail.changedCaseIds) {
-            const changed = nextCases.find((caseRecord) => caseRecord.id === caseId);
-            if (changed) await activeRepository.save(changed);
-          }
-          for (const caseId of detail.deletedCaseIds) {
-            await activeRepository.delete(caseId);
-          }
-          setError("");
-        } catch (syncError) {
-          setError(errorMessage(syncError));
-        }
-      })();
-    };
-
-    window.addEventListener(CASE_STORE_CHANGED_EVENT, handleCacheMutation as EventListener);
-    return () => {
-      window.removeEventListener(CASE_STORE_CHANGED_EVENT, handleCacheMutation as EventListener);
-    };
-  }, [activeRepository]);
-
   const getCase = useCallback(
-    (caseId: string) => cases.find((caseRecord) => caseRecord.id === caseId),
-    [cases]
+    (caseId: string) => casesRef.current.find((caseRecord) => caseRecord.id === caseId),
+    []
   );
 
   const saveCaseInput = useCallback(
@@ -147,17 +115,17 @@ export function CaseStoreProvider({
       existingCaseId?: string,
       workflow?: ClinicalWorkflow
     ) => {
+      const currentCases = casesRef.current;
       const existing = existingCaseId
-        ? cases.find((caseRecord) => caseRecord.id === existingCaseId)
+        ? currentCases.find((caseRecord) => caseRecord.id === existingCaseId)
         : undefined;
       const nextCase = buildCaseRecord(input, status, existing, workflow);
       try {
         const saved = await activeRepository.save(nextCase);
-        const nextCases = commitCases([
+        commitCases([
           saved,
-          ...cases.filter((item) => item.id !== saved.id),
+          ...casesRef.current.filter((item) => item.id !== saved.id),
         ]);
-        if (activeRepository.mode === "local") replaceLocalCases(nextCases, false);
         setError("");
         return saved;
       } catch (saveError) {
@@ -165,21 +133,20 @@ export function CaseStoreProvider({
         throw saveError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const applyEngineSnapshot = useCallback(
     async (caseId: string, snapshot: ClinicalSessionSnapshot) => {
-      const existing = cases.find((caseRecord) => caseRecord.id === caseId);
+      const existing = casesRef.current.find((caseRecord) => caseRecord.id === caseId);
       if (!existing) return undefined;
       const nextCase = mergeEngineSnapshot(existing, snapshot);
       try {
         const saved = await activeRepository.save(nextCase);
-        const nextCases = commitCases([
+        commitCases([
           saved,
-          ...cases.filter((item) => item.id !== saved.id),
+          ...casesRef.current.filter((item) => item.id !== saved.id),
         ]);
-        if (activeRepository.mode === "local") replaceLocalCases(nextCases, false);
         setError("");
         return saved;
       } catch (saveError) {
@@ -187,39 +154,35 @@ export function CaseStoreProvider({
         throw saveError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const archiveCase = useCallback(
     async (caseId: string) => {
       try {
         await activeRepository.archive(caseId);
-        const nextCases = cases.filter((item) => item.id !== caseId);
-        commitCases(nextCases);
-        if (activeRepository.mode === "local") removeLocalCase(caseId, false);
+        commitCases(casesRef.current.filter((item) => item.id !== caseId));
         setError("");
       } catch (archiveError) {
         setError(errorMessage(archiveError));
         throw archiveError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const deleteCase = useCallback(
     async (caseId: string) => {
       try {
         await activeRepository.delete(caseId);
-        const nextCases = cases.filter((item) => item.id !== caseId);
-        commitCases(nextCases);
-        if (activeRepository.mode === "local") removeLocalCase(caseId, false);
+        commitCases(casesRef.current.filter((item) => item.id !== caseId));
         setError("");
       } catch (deleteError) {
         setError(errorMessage(deleteError));
         throw deleteError;
       }
     },
-    [activeRepository, cases, commitCases]
+    [activeRepository, commitCases]
   );
 
   const clearAllCases = useCallback(async () => {
