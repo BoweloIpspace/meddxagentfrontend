@@ -10,13 +10,11 @@ import {
   updateClinicalContext,
 } from "../api/meddx";
 import type { ClinicalSessionSnapshot } from "../api/meddx";
+import { useCaseStore } from "../data/CaseStoreContext";
 import {
-  applyEngineSnapshot,
   buildDDxPatientInitialInfo,
   caseToInput,
   createEmptyClinicalWorkflow,
-  getCase,
-  saveCaseInput,
 } from "../data/caseStore";
 import type { CaseInput, ClinicalWorkflow } from "../types";
 
@@ -184,6 +182,7 @@ function ConsultationSummary({
 export default function NewCase() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const { getCase, saveCaseInput, applyEngineSnapshot, storageMode } = useCaseStore();
   const existingCase = id ? getCase(id) : undefined;
   const [recordId, setRecordId] = useState(id);
   const [step, setStep] = useState(1);
@@ -204,7 +203,12 @@ export default function NewCase() {
     return (
       <div className="consultation-page consultation-empty-state">
         <p className="consultation-page-eyebrow">Case unavailable</p>
-        <h1>This case is not in the local workspace.</h1>
+        <h1>This case is not available in this workspace.</h1>
+        <p>
+          {storageMode === "server"
+            ? "The authenticated case repository did not return this case."
+            : "This case is not stored in this browser."}
+        </p>
         <div className="consultation-empty-actions">
           <Link to="/cases" className="clinical-button clinical-button-primary">View cases</Link>
           <Link to="/cases/new" className="clinical-button clinical-button-secondary">New consultation</Link>
@@ -225,8 +229,8 @@ export default function NewCase() {
     }));
   };
 
-  const persist = (status: "draft" | "ready") => {
-    const savedCase = saveCaseInput(form, status, recordId, workflow);
+  const persist = async (status: "draft" | "ready") => {
+    const savedCase = await saveCaseInput(form, status, recordId, workflow);
     if (!recordId) {
       setRecordId(savedCase.id);
       navigate(`/case/${savedCase.id}/edit`, { replace: true });
@@ -234,7 +238,7 @@ export default function NewCase() {
     return savedCase;
   };
 
-  const syncEngineSnapshot = (caseId: string, snapshot: ClinicalSessionSnapshot) => {
+  const syncEngineSnapshot = async (caseId: string, snapshot: ClinicalSessionSnapshot) => {
     setEngineSessionId(snapshot.session_id);
     setEngineHistoryComplete(snapshot.history_complete);
     setWorkflow((current) => ({
@@ -245,7 +249,7 @@ export default function NewCase() {
         answer: turn.answer,
       })),
     }));
-    applyEngineSnapshot(caseId, snapshot);
+    await applyEngineSnapshot(caseId, snapshot);
   };
 
   const validateStep = () => {
@@ -260,11 +264,19 @@ export default function NewCase() {
     return true;
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (!validateStep()) return;
-    persist("draft");
-    setStep((current) => Math.min(current + 1, steps.length));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setError("");
+    setEngineBusy(true);
+    try {
+      await persist("draft");
+      setStep((current) => Math.min(current + 1, steps.length));
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (saveError) {
+      setError(errorMessage(saveError));
+    } finally {
+      setEngineBusy(false);
+    }
   };
 
   const handleBack = () => {
@@ -273,10 +285,18 @@ export default function NewCase() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSaveDraft = () => {
-    persist("draft");
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1800);
+  const handleSaveDraft = async () => {
+    setError("");
+    setEngineBusy(true);
+    try {
+      await persist("draft");
+      setSaved(true);
+      window.setTimeout(() => setSaved(false), 1800);
+    } catch (saveError) {
+      setError(errorMessage(saveError));
+    } finally {
+      setEngineBusy(false);
+    }
   };
 
   const addInvestigation = () => {
@@ -313,15 +333,15 @@ export default function NewCase() {
 
     setEngineBusy(true);
     try {
-      const savedCase = persist("draft");
+      const savedCase = await persist("draft");
       let snapshot = engineSessionId
         ? await updateClinicalContext(engineSessionId, enginePayload)
         : await createClinicalSession(enginePayload, savedCase.id);
-      syncEngineSnapshot(savedCase.id, snapshot);
+      await syncEngineSnapshot(savedCase.id, snapshot);
 
       if (!snapshot.history_complete) {
         snapshot = await generateClinicalQuestion(snapshot.session_id);
-        syncEngineSnapshot(savedCase.id, snapshot);
+        await syncEngineSnapshot(savedCase.id, snapshot);
       }
     } catch (requestError) {
       setError(errorMessage(requestError));
@@ -343,9 +363,9 @@ export default function NewCase() {
 
     setEngineBusy(true);
     try {
-      const savedCase = persist("draft");
+      const savedCase = await persist("draft");
       const snapshot = await submitClinicalAnswer(engineSessionId, pendingAnswer.trim());
-      syncEngineSnapshot(savedCase.id, snapshot);
+      await syncEngineSnapshot(savedCase.id, snapshot);
       setPendingAnswer("");
     } catch (requestError) {
       setError(errorMessage(requestError));
@@ -359,8 +379,15 @@ export default function NewCase() {
     setError("");
 
     if (!meddxApiConfigured) {
-      const savedCase = persist("ready");
-      navigate(`/case/${savedCase.id}`);
+      setEngineBusy(true);
+      try {
+        const savedCase = await persist("ready");
+        navigate(`/case/${savedCase.id}`);
+      } catch (saveError) {
+        setError(errorMessage(saveError));
+      } finally {
+        setEngineBusy(false);
+      }
       return;
     }
 
@@ -371,17 +398,17 @@ export default function NewCase() {
 
     setEngineBusy(true);
     try {
-      const savedCase = persist("draft");
+      const savedCase = await persist("draft");
       let snapshot = engineSessionId
         ? await updateClinicalContext(engineSessionId, enginePayload)
         : await createClinicalSession(enginePayload, savedCase.id);
-      syncEngineSnapshot(savedCase.id, snapshot);
+      await syncEngineSnapshot(savedCase.id, snapshot);
 
       snapshot = await finishClinicalHistory(snapshot.session_id);
-      syncEngineSnapshot(savedCase.id, snapshot);
+      await syncEngineSnapshot(savedCase.id, snapshot);
 
       snapshot = await runClinicalSession(snapshot.session_id);
-      syncEngineSnapshot(savedCase.id, snapshot);
+      await syncEngineSnapshot(savedCase.id, snapshot);
       navigate(`/case/${savedCase.id}`);
     } catch (requestError) {
       setError(errorMessage(requestError));
@@ -907,13 +934,13 @@ export default function NewCase() {
                 Back
               </button>
             )}
-            <button type="button" onClick={handleSaveDraft} className="clinical-button clinical-button-ghost" disabled={engineBusy}>
+            <button type="button" onClick={() => void handleSaveDraft()} className="clinical-button clinical-button-ghost" disabled={engineBusy}>
               {saved ? "Draft saved" : "Save draft"}
             </button>
           </div>
 
           {step < steps.length ? (
-            <button type="button" onClick={handleNext} className="clinical-button clinical-button-primary" disabled={engineBusy}>
+            <button type="button" onClick={() => void handleNext()} className="clinical-button clinical-button-primary" disabled={engineBusy}>
               Save & continue <span aria-hidden="true">→</span>
             </button>
           ) : (
