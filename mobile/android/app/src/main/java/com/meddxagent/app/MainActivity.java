@@ -1,5 +1,6 @@
 package com.meddxagent.app;
 
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.webkit.WebView;
 
@@ -9,7 +10,8 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        WebView.setWebContentsDebuggingEnabled(WebViewDebugPolicy.isEnabled(BuildConfig.DEBUG));
+        boolean debugBuild = (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        WebView.setWebContentsDebuggingEnabled(WebViewDebugPolicy.isEnabled(debugBuild));
     }
 
     @Override
