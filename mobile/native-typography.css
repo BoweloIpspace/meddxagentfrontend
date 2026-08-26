@@ -33,7 +33,9 @@
   .workspace-case-row-copy > p,
   .workspace-case-row-meta,
   .workspace-filter-row button,
-  .consultation-card-count {
+  .consultation-card-count,
+  .case-meta > span,
+  .case-status {
     font-size: 13px;
     line-height: 1.35;
   }
@@ -51,6 +53,22 @@
   .clinical-field legend {
     font-size: 14px;
     line-height: 1.35;
+  }
+
+  .settings-row p,
+  .settings-action-card p {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .settings-section-copy h2 {
+    font-size: 13px;
+    line-height: 1.3;
+    letter-spacing: 0.055em;
+  }
+
+  .case-header-actions .workspace-page-button {
+    font-size: 14px;
   }
 
   .workspace-case-row-copy h3 {
