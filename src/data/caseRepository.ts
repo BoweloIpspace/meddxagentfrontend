@@ -14,7 +14,10 @@ import {
   removeLocalCase,
   replaceLocalCases,
 } from "./caseStore";
-import { clearAllServerCases, SERVER_CASE_PAGE_SIZE } from "./serverCasePagination";
+import {
+  clearAllServerCases,
+  loadAllServerCases,
+} from "./serverCasePagination";
 
 export type CaseStorageMode = "local" | "server";
 
@@ -74,7 +77,7 @@ export class ServerCaseRepository implements CaseRepository {
   readonly mode = "server" as const;
 
   async list() {
-    return (await listServerCases(SERVER_CASE_PAGE_SIZE)).map(normalizeCase);
+    return (await loadAllServerCases(listServerCases)).map(normalizeCase);
   }
 
   async get(caseId: string) {
