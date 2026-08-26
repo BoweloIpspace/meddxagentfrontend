@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "native:prepare": "node prepare-native.mjs",
     "android:init": "cap add android",
-    "android:sync": "npm --prefix .. run build && cap sync android",
+    "android:sync": "npm --prefix .. run build && npm run native:prepare && cap sync android",
     "android:open": "cap open android"
   },
   "dependencies": {
