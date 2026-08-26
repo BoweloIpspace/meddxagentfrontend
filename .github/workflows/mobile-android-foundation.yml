@@ -38,7 +38,11 @@ jobs:
         working-directory: mobile
         run: npm ci
 
-      - name: Sync web build into Android
+      - name: Prepare native-only assets
+        working-directory: mobile
+        run: npm run native:prepare
+
+      - name: Sync native assets into Android
         working-directory: mobile
         run: npx cap sync android
 
