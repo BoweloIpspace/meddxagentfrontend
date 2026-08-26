@@ -14,6 +14,7 @@ import {
   removeLocalCase,
   replaceLocalCases,
 } from "./caseStore";
+import { clearAllServerCases, SERVER_CASE_PAGE_SIZE } from "./serverCasePagination";
 
 export type CaseStorageMode = "local" | "server";
 
@@ -69,8 +70,6 @@ export class LocalCaseRepository implements CaseRepository {
   }
 }
 
-const SERVER_CASE_PAGE_SIZE = 500;
-
 export class ServerCaseRepository implements CaseRepository {
   readonly mode = "server" as const;
 
@@ -102,17 +101,7 @@ export class ServerCaseRepository implements CaseRepository {
   }
 
   async clear() {
-    while (true) {
-      const cases = await listServerCases(SERVER_CASE_PAGE_SIZE);
-      if (cases.length === 0) return;
-
-      // Keep deletion deliberately sequential to avoid triggering API abuse/rate limits.
-      for (const caseRecord of cases) {
-        await this.delete(caseRecord.id);
-      }
-
-      if (cases.length < SERVER_CASE_PAGE_SIZE) return;
-    }
+    await clearAllServerCases(listServerCases, (caseId) => this.delete(caseId));
   }
 }
 
