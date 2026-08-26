@@ -9,11 +9,12 @@ interface CaseListEnvelope {
   cases: Case[];
 }
 
-export function listServerCases(limit = 100) {
+export function listServerCases(limit = 100, offset = 0) {
   const normalizedLimit = Math.max(1, Math.min(500, Math.trunc(limit)));
-  return meddxRequest<CaseListEnvelope>(`/api/v1/cases?limit=${normalizedLimit}`).then(
-    (response) => response.cases
-  );
+  const normalizedOffset = Math.max(0, Math.trunc(offset));
+  return meddxRequest<CaseListEnvelope>(
+    `/api/v1/cases?limit=${normalizedLimit}&offset=${normalizedOffset}`
+  ).then((response) => response.cases);
 }
 
 export function getServerCase(caseId: string) {

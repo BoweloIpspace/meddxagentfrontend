@@ -14,6 +14,10 @@ import {
   removeLocalCase,
   replaceLocalCases,
 } from "./caseStore";
+import {
+  clearAllServerCases,
+  loadAllServerCases,
+} from "./serverCasePagination";
 
 export type CaseStorageMode = "local" | "server";
 
@@ -73,7 +77,7 @@ export class ServerCaseRepository implements CaseRepository {
   readonly mode = "server" as const;
 
   async list() {
-    return (await listServerCases()).map(normalizeCase);
+    return (await loadAllServerCases(listServerCases)).map(normalizeCase);
   }
 
   async get(caseId: string) {
@@ -100,11 +104,7 @@ export class ServerCaseRepository implements CaseRepository {
   }
 
   async clear() {
-    const cases = await this.list();
-    // Keep deletion deliberately sequential to avoid triggering API abuse/rate limits.
-    for (const caseRecord of cases) {
-      await this.delete(caseRecord.id);
-    }
+    await clearAllServerCases(listServerCases, (caseId) => this.delete(caseId));
   }
 }
 

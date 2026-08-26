@@ -15,6 +15,7 @@ on:
   push:
     branches:
       - main
+      - 'agent/**'
     paths:
       - 'mobile/**'
       - 'src/**'
@@ -98,9 +99,39 @@ jobs:
         working-directory: mobile/android
         run: ./gradlew assembleDebug
 
-      - name: Build release AAB
+      - name: Verify incomplete release signing config is rejected
         working-directory: mobile/android
+        run: |
+          if MEDDX_ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/incomplete.keystore" ./gradlew :app:tasks >/dev/null 2>&1; then
+            echo "Incomplete Android signing configuration was unexpectedly accepted"
+            exit 1
+          fi
+
+      - name: Create ephemeral CI release keystore
+        run: |
+          keytool -genkeypair \
+            -keystore "$RUNNER_TEMP/meddxagent-ci.keystore" \
+            -storepass ci-release-password \
+            -keypass ci-release-password \
+            -alias meddxagent-ci \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 2 \
+            -dname "CN=MEDDxAgent CI, OU=CI, O=MEDDxAgent, L=CI, ST=CI, C=US"
+
+      - name: Build signed release AAB with CI version overrides
+        working-directory: mobile/android
+        env:
+          MEDDX_ANDROID_VERSION_CODE: '1000001'
+          MEDDX_ANDROID_VERSION_NAME: '1.0.0-ci'
+          MEDDX_ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/meddxagent-ci.keystore
+          MEDDX_ANDROID_KEYSTORE_PASSWORD: ci-release-password
+          MEDDX_ANDROID_KEY_ALIAS: meddxagent-ci
+          MEDDX_ANDROID_KEY_PASSWORD: ci-release-password
         run: ./gradlew bundleRelease
+
+      - name: Verify release AAB signature
+        run: jarsigner -verify mobile/android/app/build/outputs/bundle/release/app-release.aab
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -110,10 +141,10 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-      - name: Upload release AAB
+      - name: Upload CI-signed release AAB
         uses: actions/upload-artifact@v4
         with:
-          name: meddxagent-release-aab-unsigned
+          name: meddxagent-release-aab-ci-signed
           path: mobile/android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 3

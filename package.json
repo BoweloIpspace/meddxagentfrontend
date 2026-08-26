@@ -1,14 +1,14 @@
 {
   "name": "meddxagent-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "audit:security": "npm audit --audit-level=high",
-    "test:smoke": "rm -rf .test-dist && tsc src/api/meddxFeedback.ts src/api/requestTimeout.ts --ignoreConfig --target ES2022 --module NodeNext --moduleResolution NodeNext --outDir .test-dist --skipLibCheck && node --test tests/*.test.mjs",
+    "test:smoke": "rm -rf .test-dist && tsc src/api/meddxFeedback.ts src/api/requestTimeout.ts --ignoreConfig --target ES2022 --module NodeNext --moduleResolution NodeNext --outDir .test-dist --skipLibCheck && tsc src/data/serverCasePagination.ts --ignoreConfig --target ES2022 --module NodeNext --moduleResolution NodeNext --outDir .test-dist/data --skipLibCheck && node --test tests/*.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
