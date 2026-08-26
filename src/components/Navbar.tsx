@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 const navLinks = [
   { label: "Product", href: "#product" },
@@ -33,7 +34,8 @@ export default function Navbar() {
             ))}
           </div>
 
-          <div className="hidden items-center justify-end lg:flex">
+          <div className="hidden items-center justify-end gap-3 lg:flex">
+            <ThemeToggle />
             <Link
               to="/app"
               className="marketing-cta px-5 py-2.5 text-[13px]"
@@ -46,31 +48,34 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <button
-            type="button"
-            className="col-start-3 grid h-9 w-9 place-items-center justify-self-end rounded-lg border border-neutral-200 bg-white text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-950 lg:hidden"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-            aria-expanded={mobileOpen}
-          >
-            {mobileOpen ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
-                <line x1="4" y1="7" x2="20" y2="7" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="17" x2="20" y2="17" />
-              </svg>
-            )}
-          </button>
+          <div className="col-start-3 flex items-center gap-2 justify-self-end lg:hidden">
+            <ThemeToggle compact />
+            <button
+              type="button"
+              className="marketing-menu-toggle grid h-9 w-9 place-items-center rounded-lg border border-neutral-200 bg-white text-neutral-500 transition-colors hover:bg-neutral-50 hover:text-neutral-950"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+              aria-expanded={mobileOpen}
+            >
+              {mobileOpen ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+                  <line x1="4" y1="7" x2="20" y2="7" />
+                  <line x1="4" y1="12" x2="20" y2="12" />
+                  <line x1="4" y1="17" x2="20" y2="17" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-neutral-100 bg-white lg:hidden">
+        <div className="marketing-mobile-menu border-t border-neutral-100 bg-white lg:hidden">
           <div className="site-container py-4">
             <div className="space-y-1">
               {navLinks.map((link) => (

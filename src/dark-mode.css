@@ -1,0 +1,801 @@
+/* Theme controls and the final color layer for both marketing and workspace UI. */
+
+.theme-toggle {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 12px;
+  border: 1px solid #dededb;
+  border-radius: 10px;
+  background: #fff;
+  color: #555b65;
+  font-size: 12px;
+  font-weight: 620;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.theme-toggle:hover {
+  border-color: #c8cdd5;
+  background: #f7f7f5;
+  color: #202123;
+}
+
+.theme-toggle:focus-visible,
+.settings-theme-option:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.22);
+  outline-offset: 2px;
+}
+
+.theme-toggle-compact {
+  width: 38px;
+  min-width: 38px;
+  padding: 0;
+}
+
+.theme-toggle-icon,
+.theme-toggle-icon svg {
+  display: block;
+  width: 17px;
+  height: 17px;
+}
+
+.theme-toggle-icon svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.workspace-top-actions {
+  gap: 10px;
+}
+
+.workspace-mobile-trailing {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.workspace-mobile-trailing .theme-toggle {
+  width: 36px;
+  min-width: 36px;
+  min-height: 36px;
+  border: 0;
+  background: transparent;
+}
+
+.settings-theme-card {
+  padding: 16px;
+}
+
+.settings-theme-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.settings-theme-option {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px solid #e2e6ec;
+  border-radius: 11px;
+  background: #fff;
+  color: #2f3540;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+}
+
+.settings-theme-option:hover {
+  border-color: #cfd6e0;
+  background: #fafbfc;
+}
+
+.settings-theme-option.active {
+  border-color: #7ea3ef;
+  background: #f5f8ff;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.settings-theme-option strong {
+  margin-top: 11px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.settings-theme-option small {
+  margin-top: 3px;
+  color: #8a93a1;
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.settings-theme-preview {
+  display: grid;
+  width: 100%;
+  height: 48px;
+  grid-template-columns: 28% 1fr;
+  gap: 5px;
+  padding: 5px;
+  overflow: hidden;
+  border: 1px solid #dfe4eb;
+  border-radius: 8px;
+  background: #f3f4f6;
+}
+
+.settings-theme-preview span {
+  border-radius: 4px;
+  background: #fff;
+}
+
+.settings-theme-preview span:first-child {
+  background: #e4e7ec;
+}
+
+.settings-theme-preview-dark,
+.settings-theme-preview-system {
+  border-color: #374151;
+  background: #0f141d;
+}
+
+.settings-theme-preview-dark span,
+.settings-theme-preview-system span:last-child {
+  background: #1d2633;
+}
+
+.settings-theme-preview-dark span:first-child,
+.settings-theme-preview-system span:first-child {
+  background: #111827;
+}
+
+.settings-theme-preview-system {
+  position: relative;
+  background: linear-gradient(90deg, #f3f4f6 0 50%, #0f141d 50%);
+}
+
+@media (max-width: 639px) {
+  .settings-theme-options {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-theme-option {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr);
+    column-gap: 12px;
+  }
+
+  .settings-theme-option strong,
+  .settings-theme-option small {
+    grid-column: 2;
+  }
+
+  .settings-theme-option strong {
+    align-self: end;
+    margin-top: 0;
+  }
+
+  .settings-theme-preview {
+    grid-row: 1 / span 2;
+    height: 52px;
+  }
+}
+
+/* Dark palette */
+
+html[data-theme="dark"] {
+  --color-bg: #0b0f16;
+  --color-bg-subtle: #111722;
+  --color-bg-muted: #171e2a;
+  --color-text: #f2f5f9;
+  --color-text-secondary: #c0c8d4;
+  --color-text-muted: #8994a4;
+  --color-border: #2a3443;
+  --color-border-light: #222b38;
+  --clinical-bg: #0b0f16;
+  --clinical-surface: #121821;
+  --clinical-surface-soft: #171e29;
+  --clinical-ink: #f2f5f9;
+  --clinical-muted: #adb7c6;
+  --clinical-faint: #7f8b9c;
+  --clinical-line: #293342;
+  --clinical-line-strong: #364254;
+  --clinical-blue: #6ea2ff;
+  --clinical-blue-hover: #8bb5ff;
+  --clinical-blue-soft: #17243b;
+  --clinical-sidebar: #0f141c;
+  --clinical-sidebar-raised: #202a38;
+  --refine-ink: #f2f5f9;
+  --refine-muted: #a9b3c1;
+  --refine-line: #293342;
+  --refine-soft: #141b25;
+  --refine-accent: #5f91f5;
+  --refine-accent-hover: #78a4fa;
+  color-scheme: dark;
+}
+
+[data-theme="dark"] body,
+[data-theme="dark"] .landing-page,
+[data-theme="dark"] .app-state-page {
+  background: #0b0f16;
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] ::selection {
+  background: rgba(110, 162, 255, 0.3);
+  color: #fff;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #455268;
+  background-clip: padding-box;
+}
+
+[data-theme="dark"] .theme-toggle {
+  border-color: #303b4b;
+  background: #151c27;
+  color: #c3ccd8;
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  border-color: #46556b;
+  background: #1c2532;
+  color: #fff;
+}
+
+/* Marketing site */
+
+[data-theme="dark"] .marketing-nav-shell,
+[data-theme="dark"] .marketing-mobile-menu {
+  border-color: #252e3b;
+  background: rgba(11, 15, 22, 0.94);
+}
+
+[data-theme="dark"] .marketing-mobile-menu a:not(.marketing-cta):hover,
+[data-theme="dark"] .marketing-menu-toggle:hover {
+  background: #171e29;
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .marketing-menu-toggle {
+  border-color: #303b4b;
+  background: #151c27;
+  color: #aeb8c7;
+}
+
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(180deg, #0b0f16 0%, #0e141d 100%);
+}
+
+[data-theme="dark"] .hero-section::before {
+  background: radial-gradient(circle, rgba(73, 126, 230, 0.17), rgba(37, 99, 235, 0) 68%);
+  opacity: 1;
+  filter: none;
+}
+
+[data-theme="dark"] .reveal-section,
+[data-theme="dark"] .landing-research-section,
+[data-theme="dark"] .landing-final-cta,
+[data-theme="dark"] .landing-footer {
+  border-color: #252e3b;
+  background: #0b0f16;
+}
+
+[data-theme="dark"] .landing-final-cta-panel {
+  border-color: #2b3646;
+  background: #141b25;
+}
+
+[data-theme="dark"] .landing-research-list,
+[data-theme="dark"] .landing-research-row,
+[data-theme="dark"] .landing-footer-bottom {
+  border-color: #293342;
+}
+
+[data-theme="dark"] .hero-kicker,
+[data-theme="dark"] .hero-preview,
+[data-theme="dark"] .hero-preview-inner,
+[data-theme="dark"] .preview-rank,
+[data-theme="dark"] .surface-card,
+[data-theme="dark"] .saas-chip {
+  border-color: #2c3747;
+  background: #121821;
+}
+
+[data-theme="dark"] .hero-preview {
+  background: #111722;
+}
+
+[data-theme="dark"] .hero-preview-topbar,
+[data-theme="dark"] .hero-preview [class*="bg-slate-50"] {
+  border-color: #283241;
+  background: #171e29;
+}
+
+[data-theme="dark"] .preview-diagnosis-row {
+  border-color: #252f3e;
+}
+
+[data-theme="dark"] .hero-preview-dots span,
+[data-theme="dark"] .preview-line {
+  background: #3b4658;
+}
+
+[data-theme="dark"] .preview-status,
+[data-theme="dark"] .hero-preview [class*="bg-blue-50"] {
+  border-color: #294a7a;
+  background: #172844;
+}
+
+[data-theme="dark"] .pipeline-step:hover {
+  background: #111722 !important;
+}
+
+[data-theme="dark"] .text-slate-950,
+[data-theme="dark"] .text-slate-900,
+[data-theme="dark"] .text-neutral-800,
+[data-theme="dark"] .text-neutral-950,
+[data-theme="dark"] .text-neutral-900,
+[data-theme="dark"] .landing-final-cta-title,
+[data-theme="dark"] .landing-footer-title {
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .text-slate-700,
+[data-theme="dark"] .text-slate-600,
+[data-theme="dark"] .text-neutral-600,
+[data-theme="dark"] .text-neutral-500,
+[data-theme="dark"] .body-copy,
+[data-theme="dark"] .eyebrow,
+[data-theme="dark"] .marketing-nav-link,
+[data-theme="dark"] .marketing-secondary-action,
+[data-theme="dark"] .landing-final-cta-copy,
+[data-theme="dark"] .landing-footer-copy,
+[data-theme="dark"] .landing-footer-link,
+[data-theme="dark"] .landing-footer-bottom {
+  color: #aab4c2;
+}
+
+[data-theme="dark"] .text-slate-500,
+[data-theme="dark"] .text-slate-400,
+[data-theme="dark"] .text-neutral-400,
+[data-theme="dark"] .text-neutral-300,
+[data-theme="dark"] .text-slate-300,
+[data-theme="dark"] .preview-label {
+  color: #7f8b9c;
+}
+
+[data-theme="dark"] .text-blue-700,
+[data-theme="dark"] .text-blue-500 {
+  color: #82adff;
+}
+
+[data-theme="dark"] [class*="border-slate-100"],
+[data-theme="dark"] [class*="border-slate-200"],
+[data-theme="dark"] [class*="border-neutral-100"],
+[data-theme="dark"] [class*="border-neutral-200"] {
+  border-color: #293342;
+}
+
+/* Workspace shell and mobile navigation */
+
+[data-theme="dark"] .workspace-shell,
+[data-theme="dark"] .workspace-main,
+[data-theme="dark"] .workspace-content {
+  background: #0b0f16;
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .workspace-sidebar {
+  background: #0f141c;
+  color: #f2f5f9;
+  box-shadow: inset -1px 0 0 #252e3b;
+}
+
+[data-theme="dark"] .workspace-brand,
+[data-theme="dark"] .workspace-brand-copy strong,
+[data-theme="dark"] .workspace-side-nav-item-active,
+[data-theme="dark"] .workspace-research-link:hover {
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .workspace-brand-copy small,
+[data-theme="dark"] .workspace-nav-label,
+[data-theme="dark"] .workspace-side-nav-item,
+[data-theme="dark"] .workspace-research-link {
+  color: #8d99a9;
+}
+
+[data-theme="dark"] .workspace-side-nav-item:hover,
+[data-theme="dark"] .workspace-side-nav-item-active {
+  background: #202936;
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .workspace-engine-card {
+  border-color: #2a3544;
+  background: #151c26;
+}
+
+[data-theme="dark"] .workspace-engine-row {
+  color: #e7ebf1;
+}
+
+[data-theme="dark"] .workspace-engine-card p {
+  color: #8793a3;
+}
+
+[data-theme="dark"] .workspace-topbar,
+[data-theme="dark"] .workspace-mobile-header,
+[data-theme="dark"] .workspace-mobile-bottom-nav {
+  border-color: #283241;
+  background: rgba(15, 20, 28, 0.96);
+}
+
+[data-theme="dark"] .workspace-mobile-bottom-nav {
+  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.22);
+}
+
+[data-theme="dark"] .workspace-topbar-title,
+[data-theme="dark"] .workspace-mobile-route,
+[data-theme="dark"] .workspace-mobile-route strong,
+[data-theme="dark"] .workspace-mobile-back,
+[data-theme="dark"] .workspace-mobile-bottom-nav button.active {
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .workspace-topbar-kicker,
+[data-theme="dark"] .workspace-mobile-bottom-nav button {
+  color: #8994a4;
+}
+
+[data-theme="dark"] .workspace-mobile-bottom-nav button:hover,
+[data-theme="dark"] .workspace-mobile-bottom-nav button.active {
+  background: #1b2430;
+}
+
+[data-theme="dark"] .workspace-mobile-create-tab .workspace-mobile-bottom-icon {
+  background: #28364a;
+}
+
+[data-theme="dark"] .workspace-safety,
+[data-theme="dark"] .workspace-prototype-badge,
+[data-theme="dark"] .workspace-request-status {
+  border-color: #2a3544;
+  background: #151c26;
+  color: #95a1b1;
+}
+
+/* Workspace pages, panels, and content */
+
+[data-theme="dark"] .workspace-metric-card,
+[data-theme="dark"] .workspace-panel,
+[data-theme="dark"] .workspace-secondary-action,
+[data-theme="dark"] .workspace-case-row,
+[data-theme="dark"] .workspace-case-row-main,
+[data-theme="dark"] .workspace-search-control,
+[data-theme="dark"] .workspace-system-status,
+[data-theme="dark"] .settings-card,
+[data-theme="dark"] .settings-row,
+[data-theme="dark"] .settings-action-card,
+[data-theme="dark"] .case-panel,
+[data-theme="dark"] .case-hero,
+[data-theme="dark"] .case-detail-row,
+[data-theme="dark"] .case-history-list > div,
+[data-theme="dark"] .case-investigation-list > div,
+[data-theme="dark"] .case-differential-list button,
+[data-theme="dark"] .case-finding-card,
+[data-theme="dark"] .consultation-card,
+[data-theme="dark"] .consultation-summary-card,
+[data-theme="dark"] .consultation-status-card,
+[data-theme="dark"] .clinical-module,
+[data-theme="dark"] .clinical-case-ready,
+[data-theme="dark"] .meddx-run-panel,
+[data-theme="dark"] .meddx-profile-review,
+[data-theme="dark"] .meddx-history-empty,
+[data-theme="dark"] .clinical-empty-control,
+[data-theme="dark"] .clinical-empty-output,
+[data-theme="dark"] .case-empty-panel {
+  border-color: #2a3443 !important;
+  background: #121821 !important;
+  box-shadow: none;
+}
+
+[data-theme="dark"] .clinical-differential-list > div,
+[data-theme="dark"] .meddx-profile-review dl > div,
+[data-theme="dark"] .meddx-output-contract > div,
+[data-theme="dark"] .meddx-engine-stage-status,
+[data-theme="dark"] .form-section-index {
+  border-color: #303b4b;
+  background: #171e29;
+  color: #b4becc;
+}
+
+[data-theme="dark"] .finding-card-emerald,
+[data-theme="dark"] .case-finding-emerald,
+[data-theme="dark"] .meddx-engine-stage-complete {
+  border-color: #315c43;
+  background: #13261c;
+}
+
+[data-theme="dark"] .finding-card-amber,
+[data-theme="dark"] .case-finding-amber,
+[data-theme="dark"] .meddx-integration-note {
+  border-color: #635431;
+  background: #261f12;
+}
+
+[data-theme="dark"] .finding-card-rose,
+[data-theme="dark"] .case-finding-rose {
+  border-color: #653542;
+  background: #27171d;
+}
+
+[data-theme="dark"] .finding-card-slate,
+[data-theme="dark"] .meddx-engine-stage,
+[data-theme="dark"] .case-detail-row,
+[data-theme="dark"] .case-history-list > div,
+[data-theme="dark"] .case-investigation-list > div,
+[data-theme="dark"] .case-differential-list button {
+  background: #171e29;
+}
+
+[data-theme="dark"] .meddx-engine-stage-ready,
+[data-theme="dark"] .case-differential-list button.active {
+  border-color: #36598d;
+  background: #172844;
+  box-shadow: inset 0 0 0 1px #36598d;
+}
+
+[data-theme="dark"] .meddx-profile-review dd,
+[data-theme="dark"] .meddx-output-contract strong,
+[data-theme="dark"] .clinical-differential-list strong,
+[data-theme="dark"] .case-finding-card h3,
+[data-theme="dark"] .case-differential-copy strong {
+  color: #dce2ea;
+}
+
+[data-theme="dark"] .meddx-profile-review dt,
+[data-theme="dark"] .meddx-output-contract p,
+[data-theme="dark"] .case-finding-card li,
+[data-theme="dark"] .case-finding-card p,
+[data-theme="dark"] .case-differential-copy small {
+  color: #8f9bac;
+}
+
+[data-theme="dark"] .meddx-integration-note strong {
+  color: #e2c36d;
+}
+
+[data-theme="dark"] .meddx-integration-note p {
+  color: #bfa862;
+}
+
+[data-theme="dark"] .workspace-filter-row button {
+  background: #1a2230;
+  color: #9da8b8;
+}
+
+[data-theme="dark"] .workspace-filter-row button:hover,
+[data-theme="dark"] .workspace-filter-row button.active {
+  border-color: #3a475a;
+  background: #273244;
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .workspace-case-row:hover,
+[data-theme="dark"] .workspace-secondary-action:hover,
+[data-theme="dark"] .settings-button:hover:not(:disabled) {
+  background: #19212d;
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .workspace-page-heading h1,
+[data-theme="dark"] .workspace-panel-heading h2,
+[data-theme="dark"] .workspace-case-list-heading h2,
+[data-theme="dark"] .workspace-metric-card strong,
+[data-theme="dark"] .workspace-latest-case h3,
+[data-theme="dark"] .workspace-case-row h3,
+[data-theme="dark"] .settings-heading h1,
+[data-theme="dark"] .settings-section-copy h2,
+[data-theme="dark"] .settings-row h3,
+[data-theme="dark"] .settings-action-card h3,
+[data-theme="dark"] .case-hero h1,
+[data-theme="dark"] .case-page-empty h1,
+[data-theme="dark"] .case-panel h2,
+[data-theme="dark"] .case-panel h3,
+[data-theme="dark"] .consultation-page-heading h1,
+[data-theme="dark"] .consultation-card-heading h2,
+[data-theme="dark"] .clinical-module-heading h3,
+[data-theme="dark"] .meddx-engine-question,
+[data-theme="dark"] .meddx-run-panel-heading h3 {
+  color: #f2f5f9;
+}
+
+[data-theme="dark"] .workspace-page-heading p:last-child,
+[data-theme="dark"] .workspace-metric-card > span,
+[data-theme="dark"] .workspace-metric-card p,
+[data-theme="dark"] .workspace-case-meta,
+[data-theme="dark"] .workspace-case-updated,
+[data-theme="dark"] .workspace-guidance-copy,
+[data-theme="dark"] .settings-heading > p:last-child,
+[data-theme="dark"] .settings-section-copy p,
+[data-theme="dark"] .settings-row p,
+[data-theme="dark"] .settings-action-card p,
+[data-theme="dark"] .case-page p,
+[data-theme="dark"] .consultation-page-heading > p:last-child,
+[data-theme="dark"] .consultation-summary-copy,
+[data-theme="dark"] .case-long-copy {
+  color: #9ca8b8;
+}
+
+[data-theme="dark"] .workspace-page-eyebrow,
+[data-theme="dark"] .workspace-panel-eyebrow,
+[data-theme="dark"] .workspace-case-id,
+[data-theme="dark"] .consultation-page-eyebrow,
+[data-theme="dark"] .consultation-card-eyebrow,
+[data-theme="dark"] .consultation-summary-eyebrow,
+[data-theme="dark"] .case-section-label,
+[data-theme="dark"] .meddx-profile-eyebrow {
+  color: #7f8b9c;
+}
+
+[data-theme="dark"] .settings-section,
+[data-theme="dark"] .settings-row,
+[data-theme="dark"] .workspace-case-row,
+[data-theme="dark"] .case-panel-heading,
+[data-theme="dark"] .case-diagnosis-subsection,
+[data-theme="dark"] .consultation-card-heading,
+[data-theme="dark"] .consultation-summary-divider,
+[data-theme="dark"] .clinical-module-heading {
+  border-color: #283241;
+}
+
+[data-theme="dark"] .workspace-status-pill,
+[data-theme="dark"] .settings-badge,
+[data-theme="dark"] .case-status,
+[data-theme="dark"] .consultation-step,
+[data-theme="dark"] .meddx-engine-stage {
+  border-color: #344155;
+  background: #19212d;
+  color: #b4becc;
+}
+
+[data-theme="dark"] .workspace-status-ready,
+[data-theme="dark"] .settings-badge-blue,
+[data-theme="dark"] .consultation-step-active,
+[data-theme="dark"] .meddx-engine-stage-active {
+  border-color: #36598d;
+  background: #172844;
+  color: #82adff;
+}
+
+[data-theme="dark"] .workspace-status-error,
+[data-theme="dark"] .settings-action-danger {
+  border-color: #653542;
+  background: #27171d;
+  color: #ff9baa;
+}
+
+[data-theme="dark"] .workspace-system-status-connected,
+[data-theme="dark"] .settings-badge-connected {
+  border-color: #315c43;
+  background: #13261c;
+  color: #77d69a;
+}
+
+/* Form controls and actions */
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select,
+[data-theme="dark"] .clinical-control,
+[data-theme="dark"] .workspace-search-control,
+[data-theme="dark"] .settings-button,
+[data-theme="dark"] .workspace-page-button,
+[data-theme="dark"] .clinical-button-secondary,
+[data-theme="dark"] .clinical-button-ghost {
+  border-color: #354153 !important;
+  background: #0f151e !important;
+  color: #e7ebf1 !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: #667286;
+  opacity: 1;
+}
+
+[data-theme="dark"] input:hover,
+[data-theme="dark"] textarea:hover,
+[data-theme="dark"] select:hover,
+[data-theme="dark"] .clinical-control:hover {
+  border-color: #4a5a70 !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] .clinical-control:focus {
+  border-color: #6e9bf3 !important;
+  background: #111924 !important;
+  box-shadow: 0 0 0 3px rgba(110, 155, 243, 0.16) !important;
+}
+
+[data-theme="dark"] .clinical-field > label,
+[data-theme="dark"] .field-label,
+[data-theme="dark"] .clinical-section-heading h3 {
+  color: #c6ced9;
+}
+
+[data-theme="dark"] .clinical-segmented {
+  background: #0e141d;
+}
+
+[data-theme="dark"] .clinical-segmented button {
+  color: #9ba7b7;
+}
+
+[data-theme="dark"] .clinical-segmented button.active,
+[data-theme="dark"] .clinical-segmented button[aria-pressed="true"] {
+  background: #202a38;
+  color: #fff;
+}
+
+[data-theme="dark"] .clinical-button-primary,
+[data-theme="dark"] .workspace-page-button-primary,
+[data-theme="dark"] .workspace-primary-action,
+[data-theme="dark"] .marketing-cta {
+  border-color: #5f91f5 !important;
+  background: #5f91f5 !important;
+  color: #08101d !important;
+}
+
+[data-theme="dark"] .clinical-button-primary:hover,
+[data-theme="dark"] .workspace-page-button-primary:hover,
+[data-theme="dark"] .workspace-primary-action:hover,
+[data-theme="dark"] .marketing-cta:hover {
+  border-color: #78a4fa !important;
+  background: #78a4fa !important;
+}
+
+[data-theme="dark"] .clinical-error {
+  border-color: #663945;
+  background: #28181e;
+  color: #ff9baa;
+}
+
+[data-theme="dark"] .settings-theme-option {
+  border-color: #2e3949;
+  background: #0f151e;
+  color: #e7ebf1;
+}
+
+[data-theme="dark"] .settings-theme-option:hover {
+  border-color: #46556b;
+  background: #171f2b;
+}
+
+[data-theme="dark"] .settings-theme-option.active {
+  border-color: #648fe4;
+  background: #17243b;
+  box-shadow: 0 0 0 2px rgba(110, 162, 255, 0.1);
+}
+
+[data-theme="dark"] .settings-theme-option small {
+  color: #8994a4;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .theme-toggle,
+  .marketing-menu-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

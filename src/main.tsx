@@ -15,12 +15,16 @@ import './mobile-app.css'
 import './mobile-native.css'
 import './production-polish.css'
 import './responsive-platform.css'
+import './dark-mode.css'
 import App from './App'
+import { ThemeProvider } from './theme/ThemeProvider'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>,
 )

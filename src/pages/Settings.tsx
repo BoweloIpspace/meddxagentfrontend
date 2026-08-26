@@ -1,9 +1,17 @@
 import { useState } from "react";
 import { meddxApiConfigured } from "../api/meddx";
 import { useCaseStore } from "../data/CaseStoreContext";
+import { useTheme, type ThemePreference } from "../theme/useTheme";
+
+const themeOptions: Array<{ value: ThemePreference; label: string; description: string }> = [
+  { value: "light", label: "Light", description: "Always use the light appearance" },
+  { value: "dark", label: "Dark", description: "Always use the dark appearance" },
+  { value: "system", label: "System", description: "Match this device's appearance" },
+];
 
 export default function Settings() {
   const { cases, loading, error, storageMode, clearCases, refresh } = useCaseStore();
+  const { preference, setPreference } = useTheme();
   const [clearing, setClearing] = useState(false);
   const caseCount = cases.length;
 
@@ -59,6 +67,35 @@ export default function Settings() {
           <button type="button" onClick={() => void refresh()}>Retry</button>
         </div>
       )}
+
+      <section className="settings-section">
+        <div className="settings-section-copy">
+          <h2>Appearance</h2>
+          <p>Choose how MEDDxAgent looks on this device.</p>
+        </div>
+
+        <div className="settings-card settings-theme-card">
+          <div className="settings-theme-options" role="radiogroup" aria-label="Color theme">
+            {themeOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={preference === option.value}
+                className={`settings-theme-option ${preference === option.value ? "active" : ""}`}
+                onClick={() => setPreference(option.value)}
+              >
+                <span className={`settings-theme-preview settings-theme-preview-${option.value}`} aria-hidden="true">
+                  <span />
+                  <span />
+                </span>
+                <strong>{option.label}</strong>
+                <small>{option.description}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="settings-section">
         <div className="settings-section-copy">

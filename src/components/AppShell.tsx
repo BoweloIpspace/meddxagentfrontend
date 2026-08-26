@@ -7,6 +7,7 @@ import {
 } from "../api/meddx";
 import type { MEDDxRequestEventDetail } from "../api/meddx";
 import { updateRequestActivity } from "../api/meddxFeedback";
+import ThemeToggle from "./ThemeToggle";
 
 const navItems = [
   {
@@ -200,7 +201,9 @@ export default function AppShell() {
             <strong>{header.title}</strong>
           </div>
 
-          <div className="workspace-mobile-trailing" aria-hidden="true" />
+          <div className="workspace-mobile-trailing">
+            <ThemeToggle compact />
+          </div>
         </header>
 
         <header className="workspace-topbar hidden lg:flex">
@@ -209,6 +212,7 @@ export default function AppShell() {
             <p className="workspace-topbar-title">{header.title}</p>
           </div>
           <div className="workspace-top-actions">
+            <ThemeToggle />
             <div className={`workspace-prototype-badge ${meddxApiConfigured ? "workspace-api-badge-connected" : "workspace-api-badge-warning"}`}>
               <span />
               {meddxApiConfigured ? "Clinical API configured" : "API configuration required"}
