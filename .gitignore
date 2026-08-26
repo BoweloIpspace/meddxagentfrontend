@@ -25,6 +25,7 @@ dist-ssr
 .vercel
 
 # Capacitor / Android generated local state and build outputs
+mobile/www/
 mobile/android/.gradle/
 mobile/android/.idea/
 mobile/android/build/
