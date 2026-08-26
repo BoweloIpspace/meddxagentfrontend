@@ -69,11 +69,13 @@ export class LocalCaseRepository implements CaseRepository {
   }
 }
 
+const SERVER_CASE_PAGE_SIZE = 500;
+
 export class ServerCaseRepository implements CaseRepository {
   readonly mode = "server" as const;
 
   async list() {
-    return (await listServerCases()).map(normalizeCase);
+    return (await listServerCases(SERVER_CASE_PAGE_SIZE)).map(normalizeCase);
   }
 
   async get(caseId: string) {
@@ -100,10 +102,16 @@ export class ServerCaseRepository implements CaseRepository {
   }
 
   async clear() {
-    const cases = await this.list();
-    // Keep deletion deliberately sequential to avoid triggering API abuse/rate limits.
-    for (const caseRecord of cases) {
-      await this.delete(caseRecord.id);
+    while (true) {
+      const cases = await listServerCases(SERVER_CASE_PAGE_SIZE);
+      if (cases.length === 0) return;
+
+      // Keep deletion deliberately sequential to avoid triggering API abuse/rate limits.
+      for (const caseRecord of cases) {
+        await this.delete(caseRecord.id);
+      }
+
+      if (cases.length < SERVER_CASE_PAGE_SIZE) return;
     }
   }
 }
