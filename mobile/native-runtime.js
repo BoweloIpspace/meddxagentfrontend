@@ -26,20 +26,21 @@
       if (!parent || !parent.closest('.workspace-shell')) continue
       const current = node.nodeValue || ''
       const next = current
-        .replace(/this browser/gi, 'this device')
+        .replace(/not stored in this browser/gi, 'not stored on this device')
+        .replace(/stored in this browser/gi, 'stored on this device')
+        .replace(/saved in this browser/gi, 'saved on this device')
+        .replace(/from this browser/gi, 'from this device')
         .replace(/browser workspace/gi, 'device workspace')
-        .replace(/stored in the browser/gi, 'stored on the device')
-        .replace(/stored in browser/gi, 'stored on device')
+        .replace(/this browser/gi, 'this device')
       if (next !== current) node.nodeValue = next
     }
   }
 
-  const nativeHistoryEvent = new Event('meddx-native-location-change')
   for (const method of ['pushState', 'replaceState']) {
     const original = window.history[method]
     window.history[method] = function (...args) {
       const result = original.apply(this, args)
-      window.dispatchEvent(nativeHistoryEvent)
+      window.dispatchEvent(new Event('meddx-native-location-change'))
       return result
     }
   }
