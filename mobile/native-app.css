@@ -1,0 +1,70 @@
+/* Capacitor-only interaction polish.
+ * This file is copied into mobile/www and is never loaded by the web build.
+ */
+
+@media (max-width: 767px) {
+  /* Consultation is a focused pushed flow on Android, not a global tab screen. */
+  body[data-native-path="/cases/new"] .workspace-mobile-bottom-nav,
+  body[data-native-path$="/edit"] .workspace-mobile-bottom-nav {
+    display: none !important;
+  }
+
+  body[data-native-path="/cases/new"] .workspace-content,
+  body[data-native-path$="/edit"] .workspace-content {
+    padding-bottom: calc(132px + env(safe-area-inset-bottom));
+  }
+
+  /* Keep workflow actions reachable on long examination/investigation screens. */
+  body[data-native-path="/cases/new"] .consultation-actions,
+  body[data-native-path$="/edit"] .consultation-actions {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 125;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px;
+    margin: 0;
+    padding:
+      10px
+      max(14px, env(safe-area-inset-right))
+      calc(10px + env(safe-area-inset-bottom))
+      max(14px, env(safe-area-inset-left));
+    border-top: 1px solid rgba(20, 24, 31, 0.1);
+    background: rgba(250, 250, 251, 0.97);
+    box-shadow: 0 -8px 28px rgba(17, 24, 39, 0.08);
+    backdrop-filter: saturate(1.3) blur(18px);
+    -webkit-backdrop-filter: saturate(1.3) blur(18px);
+  }
+
+  body[data-native-path="/cases/new"] .consultation-actions > div,
+  body[data-native-path$="/edit"] .consultation-actions > div {
+    display: flex;
+    width: 100%;
+    gap: 8px;
+  }
+
+  body[data-native-path="/cases/new"] .consultation-actions > .clinical-button,
+  body[data-native-path$="/edit"] .consultation-actions > .clinical-button {
+    width: 100%;
+  }
+
+  body[data-native-path="/cases/new"] .consultation-actions > div .clinical-button,
+  body[data-native-path$="/edit"] .consultation-actions > div .clinical-button {
+    min-width: 0;
+    flex: 1 1 0;
+  }
+
+  /* The keyboard owns the bottom of the screen while clinical data is entered. */
+  body:has(input:focus, textarea:focus, select:focus)[data-native-path="/cases/new"] .consultation-actions,
+  body:has(input:focus, textarea:focus, select:focus)[data-native-path$="/edit"] .consultation-actions {
+    display: none !important;
+  }
+
+  body:has(input:focus, textarea:focus, select:focus)[data-native-path="/cases/new"] .workspace-content,
+  body:has(input:focus, textarea:focus, select:focus)[data-native-path$="/edit"] .workspace-content {
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  }
+}
