@@ -10,6 +10,8 @@
       if (!document.body) return
       document.documentElement.dataset.nativeApp = 'true'
       document.body.dataset.nativePath = window.location.pathname
+      installHomeButton()
+      hideAppearanceSection()
     }
     apply()
     if (!document.body) document.addEventListener('DOMContentLoaded', apply, { once: true })
@@ -36,47 +38,60 @@
     }
   }
 
-  const originalAnchorClick = HTMLAnchorElement.prototype.click
-  const originalRevokeObjectURL = URL.revokeObjectURL.bind(URL)
-  const pendingNativeShares = new Set()
+  const installHomeButton = () => {
+    const trailing = document.querySelector('.workspace-mobile-trailing')
+    if (!trailing) return
 
-  URL.revokeObjectURL = (url) => {
-    if (pendingNativeShares.has(url)) return
-    originalRevokeObjectURL(url)
-  }
-
-  HTMLAnchorElement.prototype.click = function () {
-    const anchor = this
-    const href = anchor.href
-    const filename = anchor.download
-    const shareAvailable =
-      filename &&
-      href.startsWith('blob:') &&
-      typeof navigator.share === 'function' &&
-      typeof File === 'function'
-
-    if (!shareAvailable) {
-      return originalAnchorClick.call(anchor)
+    if (window.location.pathname === '/workspace') {
+      trailing.replaceChildren()
+      return
     }
 
-    pendingNativeShares.add(href)
-    fetch(href)
-      .then((response) => response.blob())
-      .then(async (blob) => {
-        const file = new File([blob], filename, { type: blob.type || 'application/json' })
-        const payload = { title: 'MEDDxAgent cases', files: [file] }
-        if (typeof navigator.canShare === 'function' && !navigator.canShare(payload)) {
-          originalAnchorClick.call(anchor)
-          return
-        }
-        await navigator.share(payload)
-      })
-      .catch(() => originalAnchorClick.call(anchor))
-      .finally(() => {
-        pendingNativeShares.delete(href)
-        originalRevokeObjectURL(href)
-      })
+    if (trailing.querySelector('.native-home-button')) return
+
+    const button = document.createElement('button')
+    button.type = 'button'
+    button.className = 'native-home-button'
+    button.setAttribute('aria-label', 'Go to Home')
+    button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 10.5 12 3.5l8.5 7v9a1 1 0 0 1-1 1h-5v-6h-5v6h-5a1 1 0 0 1-1-1z" /></svg>'
+    button.addEventListener('click', () => {
+      window.history.pushState({}, '', nativeHome)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+    trailing.replaceChildren(button)
   }
+
+  const hideAppearanceSection = () => {
+    const sections = document.querySelectorAll('.settings-section')
+    for (const section of sections) {
+      const heading = section.querySelector('h2')?.textContent?.trim().toLowerCase()
+      section.classList.toggle('native-hide-appearance', heading === 'appearance')
+    }
+  }
+
+  const tryNativeShare = async (anchor) => {
+    if (!navigator.share || !navigator.canShare) return false
+    const href = anchor.href
+    if (!href.startsWith('blob:')) return false
+
+    try {
+      const response = await fetch(href)
+      const blob = await response.blob()
+      const file = new File([blob], anchor.download || 'meddxagent-cases.json', { type: blob.type || 'application/json' })
+      if (!navigator.canShare({ files: [file] })) return false
+      await navigator.share({ files: [file], title: 'MEDDxAgent cases' })
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  document.addEventListener('click', async (event) => {
+    const anchor = event.target instanceof Element ? event.target.closest('a[download]') : null
+    if (!anchor) return
+    const shared = await tryNativeShare(anchor)
+    if (shared) event.preventDefault()
+  }, true)
 
   for (const method of ['pushState', 'replaceState']) {
     const original = window.history[method]
@@ -98,6 +113,8 @@
       for (const mutation of mutations) {
         for (const node of mutation.addedNodes) rewriteDeviceWording(node)
       }
+      installHomeButton()
+      hideAppearanceSection()
     })
     observer.observe(document.body, { childList: true, subtree: true })
   })
