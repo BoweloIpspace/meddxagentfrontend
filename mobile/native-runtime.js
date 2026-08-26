@@ -36,6 +36,48 @@
     }
   }
 
+  const originalAnchorClick = HTMLAnchorElement.prototype.click
+  const originalRevokeObjectURL = URL.revokeObjectURL.bind(URL)
+  const pendingNativeShares = new Set()
+
+  URL.revokeObjectURL = (url) => {
+    if (pendingNativeShares.has(url)) return
+    originalRevokeObjectURL(url)
+  }
+
+  HTMLAnchorElement.prototype.click = function () {
+    const anchor = this
+    const href = anchor.href
+    const filename = anchor.download
+    const shareAvailable =
+      filename &&
+      href.startsWith('blob:') &&
+      typeof navigator.share === 'function' &&
+      typeof File === 'function'
+
+    if (!shareAvailable) {
+      return originalAnchorClick.call(anchor)
+    }
+
+    pendingNativeShares.add(href)
+    fetch(href)
+      .then((response) => response.blob())
+      .then(async (blob) => {
+        const file = new File([blob], filename, { type: blob.type || 'application/json' })
+        const payload = { title: 'MEDDxAgent cases', files: [file] }
+        if (typeof navigator.canShare === 'function' && !navigator.canShare(payload)) {
+          originalAnchorClick.call(anchor)
+          return
+        }
+        await navigator.share(payload)
+      })
+      .catch(() => originalAnchorClick.call(anchor))
+      .finally(() => {
+        pendingNativeShares.delete(href)
+        originalRevokeObjectURL(href)
+      })
+  }
+
   for (const method of ['pushState', 'replaceState']) {
     const original = window.history[method]
     window.history[method] = function (...args) {
