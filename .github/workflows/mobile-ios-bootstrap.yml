@@ -1,0 +1,74 @@
+name: Mobile iOS bootstrap
+
+on:
+  push:
+    branches:
+      - 'agent/gmc-ios-foundation'
+  workflow_dispatch:
+
+jobs:
+  ios-bootstrap:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install web dependencies
+        run: npm ci
+
+      - name: Build web application
+        run: npm run build
+
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Add Capacitor iOS dependency
+        working-directory: mobile
+        run: npm install @capacitor/ios@8.4.0 --save-exact
+
+      - name: Prepare native assets
+        working-directory: mobile
+        run: npm run native:prepare
+
+      - name: Generate iOS project
+        working-directory: mobile
+        run: npx cap add ios
+
+      - name: Sync iOS project
+        working-directory: mobile
+        run: npx cap sync ios
+
+      - name: Build iOS simulator app without signing
+        working-directory: mobile/ios/App
+        run: |
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+
+      - name: Archive generated iOS source
+        run: |
+          tar -czf "$RUNNER_TEMP/meddxagent-ios-source.tgz" \
+            mobile/ios \
+            mobile/package.json \
+            mobile/package-lock.json
+
+      - name: Upload generated iOS source
+        uses: actions/upload-artifact@v4
+        with:
+          name: meddxagent-ios-generated-source
+          path: ${{ runner.temp }}/meddxagent-ios-source.tgz
+          if-no-files-found: error
+          retention-days: 1
