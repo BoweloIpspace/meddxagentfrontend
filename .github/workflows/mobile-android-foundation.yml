@@ -52,6 +52,26 @@ jobs:
         working-directory: mobile
         run: npm ci
 
+      - name: Audit mobile dependencies for high-severity vulnerabilities
+        working-directory: mobile
+        run: npm audit --audit-level=high
+
+      - name: Verify Android permission allowlist
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          manifest = ET.parse(Path('mobile/android/app/src/main/AndroidManifest.xml')).getroot()
+          android = '{http://schemas.android.com/apk/res/android}'
+          permissions = {
+              node.attrib[f'{android}name']
+              for node in manifest.findall('uses-permission')
+          }
+          expected = {'android.permission.INTERNET'}
+          assert permissions == expected, f'Unexpected Android permissions: {sorted(permissions)}'
+          PY
+
       - name: Prepare native-only assets
         working-directory: mobile
         run: npm run native:prepare
@@ -65,6 +85,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Run Android unit tests
+        working-directory: mobile/android
+        run: ./gradlew testDebugUnitTest
+
+      - name: Compile Android instrumentation tests
+        working-directory: mobile/android
+        run: ./gradlew assembleDebugAndroidTest
 
       - name: Build debug APK
         working-directory: mobile/android
