@@ -19,7 +19,10 @@ export function resolveRequestTimeoutMs(rawValue: unknown) {
   return Math.trunc(parsed);
 }
 
-export function createRequestControl(externalSignal: AbortSignal | undefined, timeoutMs: number) {
+export function createRequestControl(
+  externalSignal: AbortSignal | null | undefined,
+  timeoutMs: number
+) {
   const controller = new AbortController();
   let timedOut = false;
 
