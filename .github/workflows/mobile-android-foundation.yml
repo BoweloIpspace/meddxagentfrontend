@@ -9,6 +9,9 @@ on:
       - '.github/workflows/mobile-android-foundation.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   android-foundation:
     runs-on: ubuntu-latest
@@ -34,9 +37,12 @@ jobs:
         working-directory: mobile
         run: npm install
 
-      - name: Generate Android platform
+      - name: Generate Android platform when absent
         working-directory: mobile
-        run: npx cap add android
+        run: |
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
 
       - name: Sync web build into Android
         working-directory: mobile
@@ -52,15 +58,15 @@ jobs:
         working-directory: mobile/android
         run: ./gradlew assembleDebug
 
-      - name: Upload generated Android source
-        uses: actions/upload-artifact@v4
-        with:
-          name: meddxagent-android-foundation
-          path: |
-            mobile/android
-            mobile/package-lock.json
-          if-no-files-found: error
-          retention-days: 3
+      - name: Commit generated native source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mobile/package-lock.json mobile/android
+          if ! git diff --cached --quiet; then
+            git commit -m "Commit generated Capacitor Android project"
+            git push
+          fi
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
