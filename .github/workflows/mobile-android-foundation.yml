@@ -4,19 +4,33 @@ on:
   pull_request:
     paths:
       - 'mobile/**'
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
       - '.github/workflows/mobile-android-foundation.yml'
   push:
     branches:
       - main
     paths:
       - 'mobile/**'
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
       - '.github/workflows/mobile-android-foundation.yml'
   workflow_dispatch:
 
 jobs:
   android-foundation:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Check out repository
@@ -56,10 +70,22 @@ jobs:
         working-directory: mobile/android
         run: ./gradlew assembleDebug
 
+      - name: Build release AAB
+        working-directory: mobile/android
+        run: ./gradlew bundleRelease
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: meddxagent-debug-apk
           path: mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 3
+
+      - name: Upload release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: meddxagent-release-aab-unsigned
+          path: mobile/android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
           retention-days: 3

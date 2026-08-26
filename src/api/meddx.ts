@@ -1,4 +1,5 @@
 import { humanizeApiError, requestLabel } from "./meddxFeedback";
+import { createRequestControl, resolveRequestTimeoutMs } from "./requestTimeout";
 
 export interface ClinicalHistoryTurn {
   question: string;
@@ -40,6 +41,9 @@ export type MEDDxAccessTokenProvider = () =>
 const rawBaseUrl = import.meta.env.VITE_MEDDX_API_URL ?? "";
 export const meddxApiBaseUrl = rawBaseUrl.replace(/\/$/, "");
 export const meddxApiConfigured = Boolean(meddxApiBaseUrl);
+export const meddxRequestTimeoutMs = resolveRequestTimeoutMs(
+  import.meta.env.VITE_MEDDX_REQUEST_TIMEOUT_MS
+);
 
 export const MEDDX_REQUEST_START_EVENT = "meddx:request-start";
 export const MEDDX_REQUEST_END_EVENT = "meddx:request-end";
@@ -101,6 +105,8 @@ export async function meddxRequest<T>(path: string, init?: RequestInit): Promise
   };
   dispatchRequestEvent(MEDDX_REQUEST_START_EVENT, requestDetail);
 
+  const requestControl = createRequestControl(init?.signal, meddxRequestTimeoutMs);
+
   try {
     let response: Response;
     try {
@@ -116,10 +122,19 @@ export async function meddxRequest<T>(path: string, init?: RequestInit): Promise
       response = await fetch(`${meddxApiBaseUrl}${path}`, {
         ...init,
         headers,
+        signal: requestControl.signal,
       });
     } catch (error) {
       if (error instanceof MEDDxApiError) throw error;
       const detail = error instanceof Error ? error.message : String(error);
+      if (requestControl.didTimeout()) {
+        throw new MEDDxApiError(
+          "The MEDDxAgent clinical API took too long to respond. Please retry.",
+          0,
+          "request_timeout",
+          detail
+        );
+      }
       throw new MEDDxApiError(
         "Unable to reach the MEDDxAgent clinical API. Check your connection and backend availability, then retry.",
         0,
@@ -142,6 +157,7 @@ export async function meddxRequest<T>(path: string, init?: RequestInit): Promise
 
     return body as T;
   } finally {
+    requestControl.cleanup();
     dispatchRequestEvent(MEDDX_REQUEST_END_EVENT, requestDetail);
   }
 }
