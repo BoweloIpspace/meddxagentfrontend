@@ -1,0 +1,84 @@
+/* Native-only typography normalization for the Capacitor build.
+ * The live Vercel website does not load this file.
+ * Dashboard-sized body copy is the baseline; hierarchy is preserved with
+ * smaller-but-readable metadata and larger section headings.
+ */
+
+@media (max-width: 767px) {
+  body {
+    font-size: 16px;
+  }
+
+  .workspace-mobile-route strong {
+    font-size: 17px;
+  }
+
+  .workspace-mobile-avatar {
+    font-size: 12px;
+  }
+
+  .workspace-safety {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .workspace-mobile-bottom-nav button {
+    font-size: 12px;
+    line-height: 1.15;
+  }
+
+  .workspace-metric-card span,
+  .workspace-metric-card p,
+  .workspace-case-list-heading > span,
+  .workspace-case-row-copy > p,
+  .workspace-case-row-meta,
+  .workspace-filter-row button,
+  .consultation-card-count {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .workspace-panel-eyebrow,
+  .case-section-label,
+  .consultation-card-eyebrow,
+  .meddx-profile-eyebrow {
+    font-size: 12px !important;
+    line-height: 1.3;
+    letter-spacing: 0.06em;
+  }
+
+  .clinical-field > span,
+  .clinical-field legend {
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .workspace-case-row-copy h3 {
+    font-size: 17px;
+  }
+
+  .workspace-panel-heading h2,
+  .case-panel-heading h2 {
+    font-size: 18px;
+  }
+
+  .consultation-card-heading h2 {
+    font-size: 21px;
+  }
+
+  .clinical-control,
+  .clinical-textarea,
+  .clinical-unit-control,
+  .workspace-search-control input,
+  select,
+  button {
+    font-size: max(14px, 1em);
+  }
+
+  .clinical-control,
+  .clinical-textarea,
+  .workspace-search-control input,
+  select {
+    font-size: 16px;
+  }
+}
