@@ -17,7 +17,7 @@ import ActiveCase from "./pages/ActiveCase";
 
 function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="landing-page min-h-screen">
       <Navbar />
       <Hero />
       <ProductPreview />
@@ -35,7 +35,7 @@ function WorkspaceGate() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-6" role="status" aria-live="polite">
+      <div className="app-state-page flex min-h-screen items-center justify-center px-6" role="status" aria-live="polite">
         <div className="text-center">
           <p className="mb-2 text-[14px] font-medium text-neutral-800">Loading clinical workspace…</p>
           <p className="text-[13px] text-neutral-500">Preparing saved consultations before the workflow opens.</p>
@@ -46,7 +46,7 @@ function WorkspaceGate() {
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white px-6">
+      <div className="app-state-page flex min-h-screen items-center justify-center px-6">
         <div className="max-w-md text-center">
           <p className="mb-2 text-[15px] font-semibold text-neutral-900">Clinical workspace unavailable</p>
           <p className="mb-5 text-[13px] text-neutral-500">{error}</p>
@@ -75,7 +75,7 @@ function WorkspaceApp() {
 
 function NotFound() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-white px-6">
+    <div className="app-state-page flex min-h-screen items-center justify-center px-6">
       <div className="text-center">
         <p className="mb-4 font-mono text-[13px] text-neutral-300">404</p>
         <h1 className="mb-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.03em] text-neutral-900 sm:text-[32px]">
