@@ -90,9 +90,9 @@ jobs:
         working-directory: mobile/android
         run: ./gradlew testDebugUnitTest
 
-      - name: Compile Android instrumentation tests
+      - name: Compile MEDDxAgent instrumentation tests
         working-directory: mobile/android
-        run: ./gradlew assembleDebugAndroidTest
+        run: ./gradlew :app:assembleDebugAndroidTest
 
       - name: Build debug APK
         working-directory: mobile/android
