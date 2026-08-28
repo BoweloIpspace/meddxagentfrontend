@@ -71,4 +71,4 @@ jobs:
           name: meddxagent-ios-generated-source
           path: ${{ runner.temp }}/meddxagent-ios-source.tgz
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 3
