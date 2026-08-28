@@ -1,0 +1,83 @@
+name: Mobile iOS foundation
+
+on:
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      - '.github/workflows/mobile-ios-foundation.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'mobile/**'
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      - '.github/workflows/mobile-ios-foundation.yml'
+  workflow_dispatch:
+
+jobs:
+  ios-foundation:
+    runs-on: macos-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install web dependencies
+        run: npm ci
+
+      - name: Build web application
+        run: npm run build
+
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Audit mobile dependencies for high-severity vulnerabilities
+        working-directory: mobile
+        run: npm audit --audit-level=high
+
+      - name: Verify committed iOS foundation
+        run: |
+          test -f mobile/ios/App/App.xcodeproj/project.pbxproj
+          test -f mobile/ios/App/App/Info.plist
+          node -e "const p=require('./mobile/package.json'); if (p.dependencies?.['@capacitor/ios'] !== '8.4.0') process.exit(1)"
+
+      - name: Prepare native-only assets
+        working-directory: mobile
+        run: npm run native:prepare
+
+      - name: Sync native assets into iOS
+        working-directory: mobile
+        run: npx cap sync ios
+
+      - name: Build iOS simulator app without signing
+        working-directory: mobile/ios/App
+        run: |
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            build
