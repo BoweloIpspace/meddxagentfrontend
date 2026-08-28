@@ -6,6 +6,9 @@ on:
       - 'agent/gmc-ios-foundation'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   ios-bootstrap:
     runs-on: macos-latest
@@ -57,6 +60,16 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO \
             build
+
+      - name: Commit verified generated iOS project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mobile/package.json mobile/package-lock.json mobile/ios
+          git diff --cached --check
+          git diff --cached --quiet && exit 0
+          git commit -m "Commit generated iOS foundation [skip ci]"
+          git push origin HEAD:agent/gmc-ios-foundation
 
       - name: Archive generated iOS source
         run: |
